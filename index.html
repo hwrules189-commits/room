@@ -3,12 +3,12 @@
 <head>
 <style>
   * { margin: 0; padding: 0; }
-  body { background: #111; overflow: hidden; }
-  #info { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 14px; }
+  body { background: transparent; overflow: hidden; }
+  #info { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 14px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 </style>
 </head>
 <body>
-<div id="info">Loading...</div>
+<div id="info">Click & drag to look · Scroll to zoom · WASD to move</div>
 
 <script type="importmap">
 {"imports":{
@@ -20,65 +20,26 @@
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const info = document.getElementById('info');
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x000000, 0); // transparent background
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+// no scene.background so it stays transparent
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1.6, 3);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 scene.add(new THREE.AmbientLight(0xffffff, 2));
 const d = new THREE.DirectionalLight(0xffffff, 2);
 d.position.set(5, 10, 5);
 scene.add(d);
 
-new GLTFLoader().load(
-  'https://hwrules189-commits.github.io/room/room%20test%20on%20site.glb',
-  gltf => {
-    scene.add(gltf.scene);
-    const box = new THREE.Box3().setFromObject(gltf.scene);
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    gltf.scene.position.sub(center);
-    camera.position.set(0, size.y * 0.5, size.z * 1.5);
-    info.textContent = 'Click to explore · WASD to move · Esc to exit';
-  },
-  xhr => info.textContent = 'Loading... ' + Math.round(xhr.loaded / xhr.total * 100) + '%',
-  err => info.textContent = 'Error: ' + err.message
-);
-
-const controls = new PointerLockControls(camera, renderer.domElement);
-renderer.domElement.addEventListener('click', () => controls.lock());
-controls.addEventListener('lock', () => info.style.display = 'none');
-controls.addEventListener('unlock', () => { info.style.display = 'block'; info.textContent = 'Click to explore · WASD to move · Esc to exit'; });
-
-const keys = {};
-document.addEventListener('keydown', e => keys[e.code] = true);
-document.addEventListener('keyup', e => keys[e.code] = false);
-
-const clock = new THREE.Clock();
-(function animate() {
-  requestAnimationFrame(animate);
-  const speed = 3 * clock.getDelta();
-  if (keys['KeyW'] || keys['ArrowUp'])    controls.moveForward(speed);
-  if (keys['KeyS'] || keys['ArrowDown'])  controls.moveForward(-speed);
-  if (keys['KeyA'] || keys['ArrowLeft'])  controls.moveRight(-speed);
-  if (keys['KeyD'] || keys['ArrowRight']) controls.moveRight(speed);
-  renderer.render(scene, camera);
-})();
-
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-</script>
-</body>
-</html>
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.screenSpacePanning = false;
+controls.minDistance = 0.5;
+controls.maxDistance

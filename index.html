@@ -1,65 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
 * { margin: 0; padding: 0; }
-body { background: #000; overflow: hidden; }
-#info { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 14px; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 </style>
 </head>
 <body>
-<div id="info">Loading...</div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitControls.js"></script>
 <script>
-var renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-var scene = new THREE.Scene();
-scene.background = new THREE.Color(0x222222);
-var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-scene.add(new THREE.AmbientLight(0xffffff, 4));
-var dl = new THREE.DirectionalLight(0xffffff, 2);
-dl.position.set(5, 10, 5);
-scene.add(dl);
-var controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-document.getElementById('info').textContent = 'Fetching GLB...';
-new THREE.GLTFLoader().load(
-  'https://hwrules189-commits.github.io/room/room2.glb',
-  function(gltf) {
-    scene.add(gltf.scene);
-    var box = new THREE.Box3().setFromObject(gltf.scene);
-    var center = box.getCenter(new THREE.Vector3());
-    var size = box.getSize(new THREE.Vector3());
-    var scale = 20 / Math.max(size.x, size.y, size.z);
-    gltf.scene.scale.setScalar(scale);
-    var box2 = new THREE.Box3().setFromObject(gltf.scene);
-    var c2 = box2.getCenter(new THREE.Vector3());
-    var s2 = box2.getSize(new THREE.Vector3());
-    camera.position.set(c2.x, c2.y, c2.z);
-    controls.target.set(c2.x, c2.y, c2.z + s2.z * 0.4);
-    controls.update();
-    document.getElementById('info').textContent = 'Drag to look around';
-  },
-  function(xhr) {
-    document.getElementById('info').textContent = 'Loading ' + xhr.loaded + ' bytes';
-  },
-  function(err) {
-    document.getElementById('info').textContent = 'ERROR: ' + err.message;
-  }
-);
-(function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-})();
-window.addEventListener('resize', function() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+function loadScript(src, cb) {
+  var s = document.createElement('script');
+  s.src = src;
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+loadScript('https://cdn.jsdelivr.net/npm/three@0.150/build/three.min.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/loaders/GLTFLoader.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitControls.js', function() {
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  document.body.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x111111);
+
+  var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 4));
+  var dl = new THREE.DirectionalLight(0xffffff, 2);
+  dl.position.set(5, 10, 5);
+  scene.add(dl);
+
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.rotateSpeed = 0.5;
+  controls.enableZoom = false;
+  controls.enablePan = false;
+
+  // block double click
+  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
+  // block right click context menu
+  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+  var keys = {};
+  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
+  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
+  var SPEED = 0.05;
+
+  new THREE.GLTFLoader().load(
+    'https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room2.glb',
+    function(gltf) {
+      var model = gltf.scene;
+      model.scale.setScalar(10);
+      scene.add(model);
+
+      var box = new THREE.Box3().setFromObject(model);
+      var center = box.getCenter(new THREE.Vector3());
+      var size = box.getSize(new THREE.Vector3());
+
+      camera.position.set(center.x, center.y, center.z);
+      controls.target.set(center.x, center.y, center.z + size.z * 0.3);
+      controls.update();
+
+      SPEED = size.x * 0.01;
+    },
+    null,
+    function(err) { console.error(err); }
+  );
+
+  var forward = new THREE.Vector3();
+  var right = new THREE.Vector3();
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (keys['ArrowUp'] || keys['KeyW']) {
+      camera.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize().multiplyScalar(SPEED);
+      camera.position.add(forward);
+      controls.target.add(forward);
+    }
+    if (keys['ArrowDown'] || keys['KeyS']) {
+      camera.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize().multiplyScalar(-SPEED);
+      camera.position.add(forward);
+      controls.target.add(forward);
+    }
+    if (keys['ArrowLeft'] || keys['KeyA']) {
+      camera.getWorldDirection(forward);
+      right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED);
+      camera.position.add(right);
+      controls.target.add(right);
+    }
+    if (keys['ArrowRight'] || keys['KeyD']) {
+      camera.getWorldDirection(forward);
+      right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED);
+      camera.position.add(right);
+      controls.target.add(right);
+    }
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})})});
 </script>
 </body>
 </html>

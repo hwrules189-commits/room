@@ -105,6 +105,11 @@ function animate() {
   controls.update();
   renderer.render(scene, camera);
 }
+ function(err) {
+  console.error(err);
+  document.getElementById('info').textContent =
+    'Error loading model — check console (right click → Inspect)';
+}
 animate();
 
 window.addEventListener('resize', function() {

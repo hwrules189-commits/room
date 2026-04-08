@@ -21,80 +21,69 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 <canvas id="c"></canvas>
 <div id="ui"></div>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js';
+<script src="https://cdn.jsdelivr.net/npm/three@0.150/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitControls.js"></script>
+<script>
+var canvas  = document.getElementById('c');
+var ltxt    = document.getElementById('ltxt');
+var bar     = document.getElementById('bar');
+var loader  = document.getElementById('loader');
+var ui      = document.getElementById('ui');
 
-const canvas   = document.getElementById('c');
-const loader   = document.getElementById('loader');
-const ltxt     = document.getElementById('ltxt');
-const bar      = document.getElementById('bar');
-const ui       = document.getElementById('ui');
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const scene = new THREE.Scene();
+var scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
 
-const camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-camera.position.set(0, 0, 0);
+var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
 
 scene.add(new THREE.AmbientLight(0xffffff, 4));
-const sun = new THREE.DirectionalLight(0xffffff, 2);
+var sun = new THREE.DirectionalLight(0xffffff, 2);
 sun.position.set(5, 10, 5);
 scene.add(sun);
 
-const controls = new OrbitControls(camera, canvas);
+var controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.rotateSpeed = 0.5;
 controls.zoomSpeed = 0.8;
 controls.enablePan = false;
 
-new GLTFLoader().load(
-  'room2.glb',
-  function(gltf) {
-    const model = gltf.scene;
+ltxt.textContent = 'Fetching room2.glb...';
 
-    // no scaling first — let's see the natural size
+new THREE.GLTFLoader().load(
+  'https://hwrules189-commits.github.io/room/room2.glb',
+  function(gltf) {
+    var model = gltf.scene;
     scene.add(model);
 
-    const box    = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    const size   = box.getSize(new THREE.Vector3());
+    var box = new THREE.Box3().setFromObject(model);
+    var center = box.getCenter(new THREE.Vector3());
+    var size = box.getSize(new THREE.Vector3());
 
-    // log size so we know what we're dealing with
-    console.log('Model size:', size);
-    console.log('Model center:', center);
-
-    // scale so the room is at least 20 units across
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale  = 20 / maxDim;
+    var maxDim = Math.max(size.x, size.y, size.z);
+    var scale = 20 / maxDim;
     model.scale.setScalar(scale);
 
-    // recalculate after scaling
-    const box2    = new THREE.Box3().setFromObject(model);
-    const center2 = box2.getCenter(new THREE.Vector3());
-    const size2   = box2.getSize(new THREE.Vector3());
+    var box2 = new THREE.Box3().setFromObject(model);
+    var center2 = box2.getCenter(new THREE.Vector3());
+    var size2 = box2.getSize(new THREE.Vector3());
 
-    // put camera dead center inside the room
     camera.position.set(center2.x, center2.y, center2.z);
-
-    // look toward the far wall
     controls.target.set(center2.x, center2.y, center2.z + size2.z * 0.4);
     controls.update();
 
     loader.style.opacity = '0';
     loader.style.transition = 'opacity 0.8s';
-    setTimeout(() => loader.style.display = 'none', 850);
+    setTimeout(function() { loader.style.display = 'none'; }, 850);
     ui.textContent = 'Drag to look around  ·  Scroll to zoom';
   },
   function(xhr) {
     if (xhr.total > 0) {
-      const pct = Math.round(xhr.loaded / xhr.total * 100);
+      var pct = Math.round(xhr.loaded / xhr.total * 100);
       ltxt.textContent = 'Loading ' + pct + '%';
       bar.style.width = pct + '%';
     } else {
@@ -103,7 +92,7 @@ new GLTFLoader().load(
     }
   },
   function(err) {
-    ltxt.textContent = 'Error: ' + (err.message || err);
+    ltxt.textContent = 'ERROR: ' + (err.message || err);
     bar.style.background = '#f44';
     console.error(err);
   }
@@ -115,7 +104,7 @@ new GLTFLoader().load(
   renderer.render(scene, camera);
 })();
 
-window.addEventListener('resize', () => {
+window.addEventListener('resize', function() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);

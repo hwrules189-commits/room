@@ -1,109 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-#c { display: block; width: 100%; height: 100%; }
-#ui { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font: 13px/1 sans-serif; pointer-events: none; white-space: nowrap; }
-#loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; color: #fff; font: 14px sans-serif; gap: 16px; }
-#bar-wrap { width: 200px; height: 2px; background: rgba(255,255,255,0.15); border-radius: 2px; }
-#bar { height: 100%; width: 0%; background: #fff; border-radius: 2px; transition: width 0.3s; }
+* { margin: 0; padding: 0; }
+body { background: #000; overflow: hidden; }
+#info { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 14px; }
 </style>
 </head>
 <body>
-<div id="loader">
-  <span id="ltxt">Loading...</span>
-  <div id="bar-wrap"><div id="bar"></div></div>
-</div>
-<canvas id="c"></canvas>
-<div id="ui"></div>
-
+<div id="info">Loading...</div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.150/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.150/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitControls.js"></script>
 <script>
-var canvas  = document.getElementById('c');
-var ltxt    = document.getElementById('ltxt');
-var bar     = document.getElementById('bar');
-var loader  = document.getElementById('loader');
-var ui      = document.getElementById('ui');
-
-var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-
+document.body.appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
-
 var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-
 scene.add(new THREE.AmbientLight(0xffffff, 4));
-var sun = new THREE.DirectionalLight(0xffffff, 2);
-sun.position.set(5, 10, 5);
-scene.add(sun);
-
-var controls = new THREE.OrbitControls(camera, canvas);
+var dl = new THREE.DirectionalLight(0xffffff, 2);
+dl.position.set(5, 10, 5);
+scene.add(dl);
+var controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.rotateSpeed = 0.5;
-controls.zoomSpeed = 0.8;
-controls.enablePan = false;
-
-ltxt.textContent = 'Fetching room2.glb...';
-
+document.getElementById('info').textContent = 'Fetching GLB...';
 new THREE.GLTFLoader().load(
   'https://hwrules189-commits.github.io/room/room2.glb',
   function(gltf) {
-    var model = gltf.scene;
-    scene.add(model);
-
-    var box = new THREE.Box3().setFromObject(model);
+    scene.add(gltf.scene);
+    var box = new THREE.Box3().setFromObject(gltf.scene);
     var center = box.getCenter(new THREE.Vector3());
     var size = box.getSize(new THREE.Vector3());
-
-    var maxDim = Math.max(size.x, size.y, size.z);
-    var scale = 20 / maxDim;
-    model.scale.setScalar(scale);
-
-    var box2 = new THREE.Box3().setFromObject(model);
-    var center2 = box2.getCenter(new THREE.Vector3());
-    var size2 = box2.getSize(new THREE.Vector3());
-
-    camera.position.set(center2.x, center2.y, center2.z);
-    controls.target.set(center2.x, center2.y, center2.z + size2.z * 0.4);
+    var scale = 20 / Math.max(size.x, size.y, size.z);
+    gltf.scene.scale.setScalar(scale);
+    var box2 = new THREE.Box3().setFromObject(gltf.scene);
+    var c2 = box2.getCenter(new THREE.Vector3());
+    var s2 = box2.getSize(new THREE.Vector3());
+    camera.position.set(c2.x, c2.y, c2.z);
+    controls.target.set(c2.x, c2.y, c2.z + s2.z * 0.4);
     controls.update();
-
-    loader.style.opacity = '0';
-    loader.style.transition = 'opacity 0.8s';
-    setTimeout(function() { loader.style.display = 'none'; }, 850);
-    ui.textContent = 'Drag to look around  ·  Scroll to zoom';
+    document.getElementById('info').textContent = 'Drag to look around';
   },
   function(xhr) {
-    if (xhr.total > 0) {
-      var pct = Math.round(xhr.loaded / xhr.total * 100);
-      ltxt.textContent = 'Loading ' + pct + '%';
-      bar.style.width = pct + '%';
-    } else {
-      ltxt.textContent = 'Loading ' + Math.round(xhr.loaded / 1024) + ' KB';
-      bar.style.width = Math.min(85, xhr.loaded / 50000) + '%';
-    }
+    document.getElementById('info').textContent = 'Loading ' + xhr.loaded + ' bytes';
   },
   function(err) {
-    ltxt.textContent = 'ERROR: ' + (err.message || err);
-    bar.style.background = '#f44';
-    console.error(err);
+    document.getElementById('info').textContent = 'ERROR: ' + err.message;
   }
 );
-
 (function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 })();
-
 window.addEventListener('resize', function() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();

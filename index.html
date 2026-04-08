@@ -35,10 +35,7 @@ controls.rotateSpeed = 0.6;
 controls.zoomSpeed = 0.8;
 
 new THREE.GLTFLoader().load(
-  'https://hwrules189-commits.github.io/room/room%20test%20on%20site.glb',
-  function(gltf) {
-    gltf.scene.scale.set(8, 8, 8);
-    scene.add(gltf.scene);
+  'room%20test%20on%20site.glb',   // ← relative, not full URL
 
     var box = new THREE.Box3().setFromObject(gltf.scene);
     var center = box.getCenter(new THREE.Vector3());

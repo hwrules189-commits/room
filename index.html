@@ -3,12 +3,12 @@
 <head>
 <style>
   * { margin: 0; padding: 0; }
-  body { background: transparent; overflow: hidden; }
-  #info { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 14px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+  body { background: #ffffff; overflow: hidden; }
+  #info { position: absolute; top: 10px; left: 10px; color: #333; font-family: sans-serif; font-size: 14px; }
 </style>
 </head>
 <body>
-<div id="info">Click & drag to look · Scroll to zoom · WASD to move</div>
+<div id="info">Loading...</div>
 
 <script type="importmap">
 {"imports":{
@@ -24,13 +24,13 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff, 1); // white background
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-// no scene.background so it stays transparent
+scene.background = new THREE.Color(0xffffff);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 2, 5);
 
 scene.add(new THREE.AmbientLight(0xffffff, 2));
 const d = new THREE.DirectionalLight(0xffffff, 2);
@@ -39,7 +39,41 @@ scene.add(d);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.screenSpacePanning = false;
-controls.minDistance = 0.5;
-controls.maxDistance
+
+new GLTFLoader().load(
+  'https://hwrules189-commits.github.io/room/room%20test%20on%20site.glb',
+  gltf => {
+    scene.add(gltf.scene);
+    const box = new THREE.Box3().setFromObject(gltf.scene);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    gltf.scene.position.sub(center);
+    camera.position.set(0, size.y * 0.3, maxDim * 1.2);
+    controls.target.set(0, 0, 0);
+    controls.update();
+    document.getElementById('info').textContent = 'Drag to look · Scroll to zoom';
+  },
+  xhr => {
+    document.getElementById('info').textContent = 'Loading... ' + Math.round(xhr.loaded / xhr.total * 100) + '%';
+  },
+  err => {
+    document.getElementById('info').textContent = 'Error loading room';
+    console.error(err);
+  }
+);
+
+(function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+})();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>

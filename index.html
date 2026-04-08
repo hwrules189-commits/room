@@ -4,7 +4,14 @@
 <style>
   * { margin: 0; padding: 0; }
   body { background: #ffffff; overflow: hidden; }
-  #info { position: absolute; top: 10px; left: 10px; color: #333; font-family: sans-serif; font-size: 14px; }
+  #info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #333;
+    font-family: sans-serif;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
@@ -23,52 +30,82 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.001, // smaller near clipping so inside works better
+  1000
+);
 
 scene.add(new THREE.AmbientLight(0xffffff, 3));
-const d = new THREE.DirectionalLight(0xffffff, 2);
-d.position.set(5, 10, 5);
-scene.add(d);
+
+const light = new THREE.DirectionalLight(0xffffff, 2);
+light.position.set(5, 10, 5);
+scene.add(light);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.rotateSpeed = 0.6;
+controls.rotateSpeed = 0.5;
 controls.zoomSpeed = 0.8;
+controls.enablePan = false;
 
 new THREE.GLTFLoader().load(
   'https://hwrules189-commits.github.io/room/room%20test%20on%20site.glb',
+
   function(gltf) {
-    scene.add(gltf.scene);
+    const model = gltf.scene;
 
-    // Find the center and size of the room
-    var box = new THREE.Box3().setFromObject(gltf.scene);
-    var center = box.getCenter(new THREE.Vector3());
-    var size = box.getSize(new THREE.Vector3());
+    // 🔥 MAKE MODEL MUCH BIGGER
+    model.scale.set(50, 50, 50);
 
-    // Place camera at center of room at eye height
-    camera.position.set(center.x, center.y, center.z);
-    
-    // Look slightly forward from center
-    controls.target.set(center.x, center.y, center.z - 0.01);
+    // Optional: fix inside visibility if faces disappear
+    model.traverse((child) => {
+      if (child.isMesh) {
+        child.material.side = THREE.DoubleSide;
+      }
+    });
+
+    scene.add(model);
+
+    // Get bounds AFTER scaling
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // 👁️ Put camera INSIDE model
+    camera.position.copy(center);
+
+    // Look slightly forward so controls work naturally
+    controls.target.set(center.x, center.y, center.z - 1);
+
+    // Limit zoom so user stays inside
+    controls.minDistance = 0.01;
+    controls.maxDistance = size.length();
+
     controls.update();
 
-    document.getElementById('info').textContent = 'Drag to look around · Scroll to zoom';
+    document.getElementById('info').textContent =
+      'Drag to look around · Scroll to zoom';
   },
+
   function(xhr) {
-    document.getElementById('info').textContent = 'Loading... ' + Math.round(xhr.loaded / xhr.total * 100) + '%';
+    document.getElementById('info').textContent =
+      'Loading... ' + Math.round((xhr.loaded / xhr.total) * 100) + '%';
   },
+
   function(err) {
     document.getElementById('info').textContent = 'Error: ' + err.message;
     console.error(err);
   }
 );
 
-(function animate() {
+function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
-})();
+}
+animate();
 
 window.addEventListener('resize', function() {
   camera.aspect = window.innerWidth / window.innerHeight;

@@ -1,72 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  * { margin: 0; padding: 0; }
-  body { background: #111; overflow: hidden; }
-  #info { position: absolute; top: 10px; left: 10px; color: #fff; font-family: sans-serif; font-size: 14px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+#c { display: block; width: 100%; height: 100%; }
+#ui {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.6);
+  font: 13px/1 sans-serif;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  text-align: center;
+}
+#loader {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
+  color: #fff;
+  font: 14px sans-serif;
+  transition: opacity 0.8s;
+}
 </style>
 </head>
 <body>
-<div id="info">Loading...</div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160/examples/js/controls/OrbitControls.js"></script>
+<div id="loader">Loading room...</div>
+<canvas id="c"></canvas>
+<div id="ui"></div>
+
 <script>
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(renderer.domElement);
+const GLTF_URL = 'room%20test%20on%20site.glb';
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+function loadScript(src, cb) {
+  const s = document.createElement('script');
+  s.src = src;
+  s.onload = cb;
+  document.head.appendChild(s);
+}
 
-const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.001, 5000);
+loadScript('https://cdn.jsdelivr.net/npm/three@0.160/build/three.min.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.160/examples/js/loaders/GLTFLoader.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.160/examples/js/controls/PointerLockControls.js', function() {
 
-scene.add(new THREE.AmbientLight(0xffffff, 3));
-const d = new THREE.DirectionalLight(0xffffff, 2);
-d.position.set(5, 10, 5);
-scene.add(d);
+  const canvas = document.getElementById('c');
+  const loader = document.getElementById('loader');
+  const ui = document.getElementById('ui');
 
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.rotateSpeed = 0.6;
-controls.zoomSpeed = 0.8;
-
-new THREE.GLTFLoader().load(
-  'room%20test%20on%20site.glb',   // ← relative, not full URL
-
-    var box = new THREE.Box3().setFromObject(gltf.scene);
-    var center = box.getCenter(new THREE.Vector3());
-    var size = box.getSize(new THREE.Vector3());
-
-    camera.position.set(center.x, center.y - size.y * 0.05, center.z);
-    controls.target.set(center.x, center.y - size.y * 0.05, center.z + size.z * 0.3);
-    controls.update();
-
-    document.getElementById('info').textContent = 'Drag to look around · Scroll to zoom';
-  },
-  function(xhr) {
-    document.getElementById('info').textContent = 'Loading... ' + xhr.loaded + ' bytes';
-  },
-  function(err) {
-    document.getElementById('info').textContent = 'ERROR: ' + (err.message || err);
-    console.error(err);
-  }
-);
-
-(function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-})();
-
-window.addEventListener('resize', function() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  const camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.01, 2000);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 2.5));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+  sun.position.set(3, 8, 3);
+  scene.add(sun);
+
+  const controls = new THREE.PointerLockControls(camera, canvas);
+  scene.add(controls.getObject());
+
+  let modelLoaded = false;
+
+  new THREE.GLTFLoader().load(
+    GLTF_URL,
+    function(gltf) {
+      gltf.scene.scale.set(10, 10, 10);
+      scene.add(gltf.scene);
+
+      const box = new THREE.Box3().setFromObject(gltf.scene);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      camera.position.set(center.x, center.y, center.z);
+
+      loader.style.opacity = '0';
+      setTimeout(() => loader.style.display = 'none', 800);
+      ui.textContent = 'Click to look around  ·  WASD to move';
+      modelLoaded = true;
+    },
+    function(xhr) {
+      if (xhr.total) {
+        loader.textContent = 'Loading... ' + Math.round(xhr.loaded / xhr.total * 100) + '%';
+      } else {
+        loader.textContent = 'Loading... ' + Math.round(xhr.loaded / 1024) + ' KB';
+      }
+    },
+    function(err) {
+      loader.textContent = 'Error loading room: ' + (err.message || err);
+      console.error(err);
+    }
+  );
+
+  const keys = {};
+  document.addEventListener('keydown', e => keys[e.code] = true);
+  document.addEventListener('keyup', e => keys[e.code] = false);
+
+  canvas.addEventListener('click', () => {
+    if (modelLoaded) controls.lock();
+  });
+
+  controls.addEventListener('lock', () => { ui.textContent = 'WASD to move  ·  ESC to release mouse'; });
+  controls.addEventListener('unlock', () => { ui.textContent = 'Click to look around  ·  WASD to move'; });
+
+  const SPEED = 0.05;
+  const dir = new THREE.Vector3();
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (controls.isLocked) {
+      dir.set(0, 0, 0);
+      if (keys['KeyW'] || keys['ArrowUp'])    dir.z -= 1;
+      if (keys['KeyS'] || keys['ArrowDown'])  dir.z += 1;
+      if (keys['KeyA'] || keys['ArrowLeft'])  dir.x -= 1;
+      if (keys['KeyD'] || keys['ArrowRight']) dir.x += 1;
+      if (dir.lengthSq() > 0) {
+        dir.normalize().multiplyScalar(SPEED);
+        controls.moveRight(dir.x);
+        controls.moveForward(-dir.z);
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})})});
 </script>
 </body>
 </html>

@@ -52,18 +52,25 @@ controls.enablePan = false;
 
 new THREE.GLTFLoader().load(
   'https://hwrules189-commits.github.io/room/room%20test%20on%20site.glb',
-
   function(gltf) {
-    const model = gltf.scene;
+    // Scale the model up so you feel inside it
+    gltf.scene.scale.set(5, 5, 5);
+    scene.add(gltf.scene);
 
-    // 🔥 MAKE MODEL MUCH BIGGER
-    model.scale.set(10, 10, 10);
+    var box = new THREE.Box3().setFromObject(gltf.scene);
+    var center = box.getCenter(new THREE.Vector3());
+    var size = box.getSize(new THREE.Vector3());
 
-    // Optional: fix inside visibility if faces disappear
-    model.traverse((child) => {
-      if (child.isMesh) {
-        child.material.side = THREE.DoubleSide;
-      }
+    // Place camera inside the room at eye level
+    camera.position.set(center.x, center.y, center.z);
+
+    // Look toward one wall (along the Z axis)
+    controls.target.set(center.x, center.y, center.z + size.z * 0.3);
+    controls.update();
+
+    document.getElementById('info').textContent = 'Drag to look around · Scroll to zoom';
+  },
+  ...
     });
 
     scene.add(model);

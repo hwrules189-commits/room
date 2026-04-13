@@ -50,7 +50,10 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitC
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
-
+console.log('total animations:', gltf.animations.length);
+gltf.animations.forEach(function(clip, i) {
+  console.log(i, clip.name);
+});
       // set up animation mixer and play all animations
       if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);

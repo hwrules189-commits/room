@@ -22,13 +22,13 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.5;
+  renderer.toneMappingExposure = 1.2;
   document.body.appendChild(renderer.domElement);
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x111111);
   var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-  scene.add(new THREE.AmbientLight(0xffffff, 1));
-  var dl = new THREE.DirectionalLight(0xffffff, 0.8);
+  scene.add(new THREE.AmbientLight(0xffffff, 2));
+  var dl = new THREE.DirectionalLight(0xffffff, 1.5);
   dl.position.set(5, 10, 5);
   scene.add(dl);
   var controls = new THREE.OrbitControls(camera, renderer.domElement);

@@ -68,20 +68,17 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
           action.reset();
           action.setLoop(THREE.LoopRepeat, Infinity);
           action.play();
-          camera.position.set(center.x, center.y, center.z);
-if (currentRoom === 'room9') {
-  controls.target.set(4.64, 1.13, -3.35);
-} else {
-  controls.target.set(center.x, center.y + 0.001, center.z);
-}
-controls.update();
         });
       }
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       camera.position.set(center.x, center.y, center.z);
-      controls.target.set(center.x, center.y + 0.001, center.z);
+      if (currentRoom === 'room9') {
+        controls.target.set(4.64, 1.13, -3.35);
+      } else {
+        controls.target.set(center.x, center.y + 0.001, center.z);
+      }
       controls.update();
       SPEED = size.x * 0.01;
       if (onLoaded) onLoaded(model);

@@ -18,12 +18,14 @@ function loadScript(src, cb) {
 loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js', function() {
+
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
   document.body.appendChild(renderer.domElement);
+
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x111111);
   var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
@@ -31,31 +33,37 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var dl = new THREE.DirectionalLight(0xffffff, 1.5);
   dl.position.set(5, 10, 5);
   scene.add(dl);
+
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.rotateSpeed = 0.5;
   controls.enableZoom = false;
   controls.enablePan = false;
+
   renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
   renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-  renderer.domElement.addEventListener('click', function(e) {
-  var raycaster = new THREE.Raycaster();
-  var mouse = new THREE.Vector2();
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  var intersects = raycaster.intersectObjects(scene.children, true);
-  if (intersects.length > 0) {
-    var p = intersects[0].point;
-    console.log('position: ' + p.x + ' ' + p.y + ' ' + p.z);
-  }
-});
+
   var mixer = null;
   var clock = new THREE.Clock();
-  new THREE.GLTFLoader().load(
-    'https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb',
-    function(gltf) {
+  var currentRoom = 'room9';
+  var lampObjects = [];
+  var LAMP_POSITION = new THREE.Vector3(4.717, 1.489, -3.244);
+  var LAMP_RADIUS = 1.5;
+
+  function loadRoom(glbUrl, onLoaded) {
+    while(scene.children.length > 0) {
+      var obj = scene.children[0];
+      if (obj.isLight) { scene.remove(obj); continue; }
+      scene.remove(obj);
+    }
+    scene.add(new THREE.AmbientLight(0xffffff, 2));
+    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl2.position.set(5, 10, 5);
+    scene.add(dl2);
+    if (mixer) { mixer.stopAllAction(); mixer = null; }
+    lampObjects = [];
+    new THREE.GLTFLoader().load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
@@ -75,16 +83,51 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       controls.target.set(center.x, center.y, center.z + size.z * 0.01);
       controls.update();
       SPEED = size.x * 0.01;
-    },
-    null,
-    function(err) { console.error(err); }
+      if (onLoaded) onLoaded(model, center, size);
+    }, null, function(err) { console.error(err); });
+  }
+
+  // find lamp objects after room9 loads
+  function findLampObjects(model) {
+    model.traverse(function(obj) {
+      if (obj.isMesh) {
+        var worldPos = new THREE.Vector3();
+        obj.getWorldPosition(worldPos);
+        if (worldPos.distanceTo(LAMP_POSITION) < LAMP_RADIUS) {
+          lampObjects.push(obj);
+        }
+      }
+    });
+    console.log('lamp objects found:', lampObjects.length);
+  }
+
+  loadRoom(
+    'https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb',
+    function(model) { findLampObjects(model); }
   );
+
+  // click to transport
+  renderer.domElement.addEventListener('click', function(e) {
+    if (currentRoom !== 'room9') return;
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects(lampObjects, true);
+    if (intersects.length > 0) {
+      currentRoom = 'room2';
+      loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/roomcolorfulglb.glb', null);
+    }
+  });
+
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
   var keys = {};
   var SPEED = 0.05;
   document.addEventListener('keydown', function(e) { keys[e.code] = true; });
   document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
   function animate() {
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
@@ -97,11 +140,13 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     renderer.render(scene, camera);
   }
   animate();
+
   window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+
 })})});
 </script>
 </body>

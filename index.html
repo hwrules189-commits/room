@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,26 +5,19 @@
 <style>
 * { margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-#log { position: fixed; top: 10px; left: 10px; color: lime; font: 12px monospace; z-index: 999; }
 </style>
 </head>
 <body>
-<div id="log">starting...</div>
 <script>
-function log(msg) {
-  document.getElementById('log').innerHTML += '<br>' + msg;
-}
 function loadScript(src, cb) {
   var s = document.createElement('script');
   s.src = src;
-  s.onload = function() { log('loaded: ' + src.split('/').pop()); cb(); };
-  s.onerror = function() { log('FAILED: ' + src.split('/').pop()); };
+  s.onload = cb;
   document.head.appendChild(s);
 }
 loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js', function() {
-  log('all scripts loaded!');
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -43,20 +35,19 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   controls.rotateSpeed = 0.5;
   controls.enableZoom = false;
   controls.enablePan = false;
+  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
+  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   var mixer = null;
   var clock = new THREE.Clock();
-  log('loading GLB...');
   new THREE.GLTFLoader().load(
     'https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb',
     function(gltf) {
-      log('GLB loaded! anims: ' + gltf.animations.length);
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
-        gltf.animations.forEach(function(clip, i) {
-          log('anim: ' + clip.name);
+        gltf.animations.forEach(function(clip) {
           mixer.clipAction(clip).play();
         });
       }
@@ -67,8 +58,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       controls.target.set(center.x, center.y, center.z + size.z * 0.3);
       controls.update();
     },
-    function(xhr) { log('loading: ' + Math.round(xhr.loaded/1024) + 'kb'); },
-    function(err) { log('ERROR: ' + err.message); }
+    null,
+    function(err) { console.error(err); }
   );
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
@@ -97,4 +88,3 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 </script>
 </body>
 </html>
-```

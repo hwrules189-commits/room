@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,12 +22,14 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.5;
   document.body.appendChild(renderer.domElement);
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x111111);
   var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-  scene.add(new THREE.AmbientLight(0xffffff, 4));
-  var dl = new THREE.DirectionalLight(0xffffff, 2);
+  scene.add(new THREE.AmbientLight(0xffffff, 1));
+  var dl = new THREE.DirectionalLight(0xffffff, 0.8);
   dl.position.set(5, 10, 5);
   scene.add(dl);
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -48,15 +51,19 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
         gltf.animations.forEach(function(clip) {
-          mixer.clipAction(clip).play();
+          var action = mixer.clipAction(clip);
+          action.reset();
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.play();
         });
       }
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       camera.position.set(center.x, center.y, center.z);
-      controls.target.set(center.x, center.y, center.z + size.z * 0.3);
+      controls.target.set(center.x, center.y, center.z);
       controls.update();
+      SPEED = size.x * 0.01;
     },
     null,
     function(err) { console.error(err); }
@@ -64,9 +71,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
   var keys = {};
+  var SPEED = 0.05;
   document.addEventListener('keydown', function(e) { keys[e.code] = true; });
   document.addEventListener('keyup', function(e) { keys[e.code] = false; });
-  var SPEED = 0.05;
   function animate() {
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
@@ -88,3 +95,4 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 </script>
 </body>
 </html>
+```

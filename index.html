@@ -17,12 +17,13 @@ function loadScript(src, cb) {
 }
 loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js', function() {
-  loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
-    var dracoLoader = new THREE.DRACOLoader();
-dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
-var gltfLoader = new THREE.GLTFLoader();
-gltfLoader.setDRACOLoader(dracoLoader);
+
+  var dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
+  var gltfLoader = new THREE.GLTFLoader();
+  gltfLoader.setDRACOLoader(dracoLoader);
 
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -62,7 +63,7 @@ gltfLoader.setDRACOLoader(dracoLoader);
     dl2.position.set(5, 10, 5);
     scene.add(dl2);
     if (mixer) { mixer.stopAllAction(); mixer = null; }
-    new THREE.GLTFLoader().load(glbUrl, function(gltf) {
+    gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
@@ -137,7 +138,7 @@ gltfLoader.setDRACOLoader(dracoLoader);
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-})})});
+})})})});
 </script>
 </body>
 </html>

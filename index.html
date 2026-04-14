@@ -52,11 +52,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var LAMP_RADIUS = 1.5;
 
   function loadRoom(glbUrl, onLoaded) {
-    while(scene.children.length > 0) {
-      var obj = scene.children[0];
-      if (obj.isLight) { scene.remove(obj); continue; }
-      scene.remove(obj);
-    }
+    var toRemove = [];
+    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
+    toRemove.forEach(function(obj) { scene.remove(obj); });
     scene.add(new THREE.AmbientLight(0xffffff, 2));
     var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
     dl2.position.set(5, 10, 5);
@@ -87,7 +85,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     }, null, function(err) { console.error(err); });
   }
 
-  // find lamp objects after room9 loads
   function findLampObjects(model) {
     model.traverse(function(obj) {
       if (obj.isMesh) {
@@ -106,18 +103,27 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     function(model) { findLampObjects(model); }
   );
 
-  // click to transport
   renderer.domElement.addEventListener('click', function(e) {
-    if (currentRoom !== 'room9') return;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects(lampObjects, true);
+    var all = [];
+    scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
+    var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length > 0) {
-      currentRoom = 'room2';
-      loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/roomcolorfulglb.glb', null);
+      var p = intersects[0].point;
+      console.log('hit:', intersects[0].object.name, 'pos:', p.x.toFixed(2), p.y.toFixed(2), p.z.toFixed(2));
+      console.log('lamp objects:', lampObjects.length);
+      console.log('distance to lamp:', p.distanceTo(LAMP_POSITION).toFixed(2));
+      if (currentRoom === 'room9') {
+        var intersectsLamp = raycaster.intersectObjects(lampObjects, true);
+        if (intersectsLamp.length > 0) {
+          currentRoom = 'room2';
+          loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/roomcolorfulglb.glb', null);
+        }
+      }
     }
   });
 

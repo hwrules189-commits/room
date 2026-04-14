@@ -23,8 +23,8 @@ function loadScript(src, cb) {
 }
 loadScript('https://cdn.jsdelivr.net/npm/three@0.150/build/three.min.js', function() {
 log('three loaded');
-loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/loaders/GLTFLoader.js', function() {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitControls.js', function() {
+loadScript('https://unpkg.com/three@0.150/examples/js/loaders/GLTFLoader.js', function() {
+loadScript('https://unpkg.com/three@0.150/examples/js/controls/OrbitControls.js', function() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

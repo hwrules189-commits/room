@@ -5,10 +5,16 @@
 <style>
 * { margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+#log { position: fixed; top: 10px; left: 10px; color: lime; font: 12px monospace; z-index: 999; }
 </style>
 </head>
 <body>
+<div id="log">starting...</div>
 <script>
+function log(msg) {
+  document.getElementById('log').innerHTML += '<br>' + msg;
+  console.log(msg);
+}
 function loadScript(src, cb) {
   var s = document.createElement('script');
   s.src = src;
@@ -16,6 +22,7 @@ function loadScript(src, cb) {
   document.head.appendChild(s);
 }
 loadScript('https://cdn.jsdelivr.net/npm/three@0.150/build/three.min.js', function() {
+log('three loaded');
 loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/loaders/GLTFLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitControls.js', function() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -35,77 +42,47 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.150/examples/js/controls/OrbitC
   controls.rotateSpeed = 0.5;
   controls.enableZoom = false;
   controls.enablePan = false;
-  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
-  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-  var keys = {};
-  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
-  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
-  var SPEED = 0.05;
   var mixer = null;
   var clock = new THREE.Clock();
-
+  log('loading GLB...');
   new THREE.GLTFLoader().load(
     'https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room3.glb',
     function(gltf) {
+      log('GLB loaded! animations: ' + gltf.animations.length);
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
-console.log('total animations:', gltf.animations.length);
-gltf.animations.forEach(function(clip, i) {
-  console.log(i, clip.name);
-});
-      // set up animation mixer and play all animations
-      if (gltf.animations && gltf.animations.length > 0) {
+      if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
-        gltf.animations.forEach(function(clip) {
-          console.log('Playing animation:', clip.name);
+        gltf.animations.forEach(function(clip, i) {
+          log('anim ' + i + ': ' + clip.name);
           mixer.clipAction(clip).play();
         });
       }
-
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       camera.position.set(center.x, center.y, center.z);
       controls.target.set(center.x, center.y, center.z + size.z * 0.3);
       controls.update();
-      SPEED = size.x * 0.01;
     },
-    null,
-    function(err) { console.error(err); }
+    function(xhr) { log('loading: ' + xhr.loaded + ' bytes'); },
+    function(err) { log('ERROR: ' + err.message); }
   );
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
+  var keys = {};
+  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
+  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+  var SPEED = 0.05;
   function animate() {
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
-    if (keys['ArrowUp'] || keys['KeyW']) {
-      camera.getWorldDirection(forward);
-      forward.y = 0;
-      forward.normalize().multiplyScalar(SPEED);
-      camera.position.add(forward);
-      controls.target.add(forward);
-    }
-    if (keys['ArrowDown'] || keys['KeyS']) {
-      camera.getWorldDirection(forward);
-      forward.y = 0;
-      forward.normalize().multiplyScalar(-SPEED);
-      camera.position.add(forward);
-      controls.target.add(forward);
-    }
-    if (keys['ArrowLeft'] || keys['KeyA']) {
-      camera.getWorldDirection(forward);
-      right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED);
-      camera.position.add(right);
-      controls.target.add(right);
-    }
-    if (keys['ArrowRight'] || keys['KeyD']) {
-      camera.getWorldDirection(forward);
-      right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED);
-      camera.position.add(right);
-      controls.target.add(right);
-    }
+    if (keys['ArrowUp'] || keys['KeyW']) { camera.getWorldDirection(forward); forward.y = 0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); controls.target.add(forward); }
+    if (keys['ArrowDown'] || keys['KeyS']) { camera.getWorldDirection(forward); forward.y = 0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); controls.target.add(forward); }
+    if (keys['ArrowLeft'] || keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); controls.target.add(right); }
+    if (keys['ArrowRight'] || keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); controls.target.add(right); }
     controls.update();
     renderer.render(scene, camera);
   }

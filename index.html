@@ -76,6 +76,10 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 
       scene.add(model);
 
+      console.log('Animation count:', gltf.animations.length);
+gltf.animations.forEach(function(clip) { console.log('Clip:', clip.name, 'Duration:', clip.duration); });
+scene.traverse(function(obj) { console.log('Object:', obj.name, obj.type); });
+
       if (gltf.animations.length > 0) {
         var armatureObj = null;
         gltf.scene.traverse(function(obj) {

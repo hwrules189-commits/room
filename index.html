@@ -69,6 +69,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       model.scale.setScalar(10);
       scene.add(model);
 
+      gltf.scene.traverse(function(obj) {
+  if (obj.name === 'Empty') {
+    obj.scale.setScalar(0.18);
+  }
+});
+
       if (gltf.animations.length > 0) {
         var armatureObj = null;
         gltf.scene.traverse(function(obj) {

@@ -81,7 +81,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
         gltf.scene.traverse(function(obj) {
           if (obj.name === 'Armature') armatureObj = obj;
         });
-        mixer = new THREE.AnimationMixer(armatureObj || gltf.scene);
+       mixer = new THREE.AnimationMixer(gltf.scene);
         gltf.animations.forEach(function(clip) {
           var action = mixer.clipAction(clip);
           action.reset();

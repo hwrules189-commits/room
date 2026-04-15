@@ -68,6 +68,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
+      console.log('animations:', gltf.animations.map(function(c) { return c.name; }));
 
       if (gltf.animations.length > 0) {
         var meshObj = null;

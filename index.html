@@ -47,6 +47,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var mixer = null;
   var clock = new THREE.Clock();
   var currentRoom = 'room9';
+  var SPEED = 0.05;
 
   function addLights() {
     scene.add(new THREE.AmbientLight(0xffffff, 2));
@@ -60,7 +61,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     scene.traverse(function(obj) {
       if (!obj.isScene) toRemove.push(obj);
     });
-    toRemove.forEach(obj => scene.remove(obj));
+    toRemove.forEach(function(obj) { scene.remove(obj); });
   }
 
   function loadRoom(glbUrl) {
@@ -75,55 +76,37 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
-
       scene.add(model);
 
-      // 🔍 DEBUG
-      console.log("Animations:", gltf.animations);
-      model.traverse(obj => console.log("Object:", obj.name));
-
-      // ✅ FIXED ANIMATION SETUP
+      // ✅ Create mixer ONCE on the model
       if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
-
         gltf.animations.forEach(function(clip) {
-          console.log("Playing clip:", clip.name);
-
+          console.log('Playing clip:', clip.name);
           var action = mixer.clipAction(clip);
           action.reset();
           action.setLoop(THREE.LoopRepeat, Infinity);
           action.clampWhenFinished = false;
           action.enabled = true;
           action.play();
-
-          mixer = new THREE.AnimationMixer( model );
-				mixer.clipAction( gltf.animations[ 0 ] ).play();
-
-				renderer.setAnimationLoop( animate );
-          
         });
+      } else {
+        console.log('No animations found in GLB');
+      }
 
-        
-
-
-      // Camera framing
+      // ✅ Camera framing — always runs
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
 
       camera.position.set(center.x, center.y, center.z);
-
-      if (currentRoom === 'room9') {
-        controls.target.set(center.x + 0.01, center.y, center.z - 0.01);
-      } else {
-        controls.target.set(center.x + 0.01, center.y, center.z);
-      }
-
+      controls.target.set(center.x + 0.01, center.y, center.z - 0.01);
       controls.update();
+
       SPEED = size.x * 0.01;
 
     }, null, function(err) {
-      console.error("GLB load error:", err);
+      console.error('GLB load error:', err);
     });
   }
 
@@ -135,20 +118,16 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
-
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
     raycaster.setFromCamera(mouse, camera);
 
     var all = [];
-    scene.traverse(obj => { if (obj.isMesh) all.push(obj); });
-
+    scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
     var intersects = raycaster.intersectObjects(all, true);
 
     if (intersects.length > 0) {
       var name = intersects[0].object.name.toLowerCase();
-
       if (name.indexOf('lamp') !== -1) {
         currentRoom = 'room2';
         loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/roomcolorful.glb');
@@ -160,41 +139,35 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
   var keys = {};
-  var SPEED = 0.05;
 
-  document.addEventListener('keydown', e => keys[e.code] = true);
-  document.addEventListener('keyup', e => keys[e.code] = false);
+  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
+  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
 
+  // ✅ Single animation loop — no setAnimationLoop conflict
   function animate() {
     requestAnimationFrame(animate);
 
     var delta = clock.getDelta();
-
     if (mixer) mixer.update(delta);
 
     if (keys['KeyW']) {
       camera.getWorldDirection(forward);
-      forward.y = 0;
-      forward.normalize().multiplyScalar(SPEED);
+      forward.y = 0; forward.normalize().multiplyScalar(SPEED);
       camera.position.add(forward);
       controls.target.add(forward);
     }
-
     if (keys['KeyS']) {
       camera.getWorldDirection(forward);
-      forward.y = 0;
-      forward.normalize().multiplyScalar(-SPEED);
+      forward.y = 0; forward.normalize().multiplyScalar(-SPEED);
       camera.position.add(forward);
       controls.target.add(forward);
     }
-
     if (keys['KeyA']) {
       camera.getWorldDirection(forward);
       right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED);
       camera.position.add(right);
       controls.target.add(right);
     }
-
     if (keys['KeyD']) {
       camera.getWorldDirection(forward);
       right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED);

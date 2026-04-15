@@ -70,17 +70,16 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       scene.add(model);
 
       gltf.scene.traverse(function(obj) {
-  if (obj.name === 'Empty') {
-    obj.scale.setScalar(0.18);
-  }
-});
+        if (obj.name === 'Empty') {
+          obj.scale.setScalar(0.11);
+        }
+      });
 
       if (gltf.animations.length > 0) {
         var armatureObj = null;
         gltf.scene.traverse(function(obj) {
           if (obj.name === 'Armature') armatureObj = obj;
         });
-        console.log('armature found:', armatureObj ? armatureObj.name : 'none');
         mixer = new THREE.AnimationMixer(armatureObj || gltf.scene);
         gltf.animations.forEach(function(clip) {
           var action = mixer.clipAction(clip);

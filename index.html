@@ -70,6 +70,10 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       scene.add(model);
 
       gltf.scene.traverse(function(obj) {
+  console.log(obj.name, obj.type);
+});
+
+      gltf.scene.traverse(function(obj) {
         if (obj.name === 'Empty') {
           obj.scale.setScalar(0.11);
         }

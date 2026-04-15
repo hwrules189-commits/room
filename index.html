@@ -15,6 +15,7 @@ function loadScript(src, cb) {
   s.onload = cb;
   document.head.appendChild(s);
 }
+
 loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
@@ -35,91 +36,113 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x111111);
+
   var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-  scene.add(new THREE.AmbientLight(0xffffff, 2));
-  var dl = new THREE.DirectionalLight(0xffffff, 1.5);
-  dl.position.set(5, 10, 5);
-  scene.add(dl);
 
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.rotateSpeed = 0.5;
   controls.enableZoom = false;
   controls.enablePan = false;
-
-  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
-  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
   var mixer = null;
   var clock = new THREE.Clock();
   var currentRoom = 'room9';
 
-  function loadRoom(glbUrl) {
-    var toRemove = [];
-    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
-    toRemove.forEach(function(obj) { scene.remove(obj); });
+  function addLights() {
     scene.add(new THREE.AmbientLight(0xffffff, 2));
-    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
-    dl2.position.set(5, 10, 5);
-    scene.add(dl2);
-    if (mixer) { mixer.stopAllAction(); mixer = null; }
+    var dl = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl.position.set(5, 10, 5);
+    scene.add(dl);
+  }
+
+  function clearScene() {
+    var toRemove = [];
+    scene.traverse(function(obj) {
+      if (!obj.isScene) toRemove.push(obj);
+    });
+    toRemove.forEach(obj => scene.remove(obj));
+  }
+
+  function loadRoom(glbUrl) {
+    clearScene();
+    addLights();
+
+    if (mixer) {
+      mixer.stopAllAction();
+      mixer = null;
+    }
+
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
 
-      gltf.scene.traverse(function(obj) {
-        if (obj.name === 'Empty') {
-          obj.scale.set(0.011, 0.011, 0.011);
-        }
-      });
-
       scene.add(model);
 
-      if (gltf.animations.length > 0) {
-        var armatureObj = null;
-        gltf.scene.traverse(function(obj) {
-          if (obj.name === 'Armature') armatureObj = obj;
-        });
-       mixer = new THREE.AnimationMixer(gltf.scene);
+      // 🔍 DEBUG
+      console.log("Animations:", gltf.animations);
+      model.traverse(obj => console.log("Object:", obj.name));
+
+      // ✅ FIXED ANIMATION SETUP
+      if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(model);
+
         gltf.animations.forEach(function(clip) {
+          console.log("Playing clip:", clip.name);
+
           var action = mixer.clipAction(clip);
           action.reset();
-          action.setEffectiveTimeScale(1);
-          action.setEffectiveWeight(1);
           action.setLoop(THREE.LoopRepeat, Infinity);
+          action.clampWhenFinished = false;
+          action.enabled = true;
           action.play();
         });
+      } else {
+        console.warn("❌ No animations found in GLB");
       }
 
+      // Camera framing
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
+
       camera.position.set(center.x, center.y, center.z);
+
       if (currentRoom === 'room9') {
         controls.target.set(center.x + 0.01, center.y, center.z - 0.01);
       } else {
         controls.target.set(center.x + 0.01, center.y, center.z);
       }
+
       controls.update();
       SPEED = size.x * 0.01;
-    }, null, function(err) { console.error(err); });
+
+    }, null, function(err) {
+      console.error("GLB load error:", err);
+    });
   }
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb');
 
+  // Click interaction
   renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room9') return;
+
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
+
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
     raycaster.setFromCamera(mouse, camera);
+
     var all = [];
-    scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
+    scene.traverse(obj => { if (obj.isMesh) all.push(obj); });
+
     var intersects = raycaster.intersectObjects(all, true);
+
     if (intersects.length > 0) {
       var name = intersects[0].object.name.toLowerCase();
+
       if (name.indexOf('lamp') !== -1) {
         currentRoom = 'room2';
         loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/roomcolorful.glb');
@@ -127,24 +150,56 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     }
   });
 
+  // Movement
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
   var keys = {};
   var SPEED = 0.05;
-  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
-  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
+  document.addEventListener('keydown', e => keys[e.code] = true);
+  document.addEventListener('keyup', e => keys[e.code] = false);
 
   function animate() {
     requestAnimationFrame(animate);
+
     var delta = clock.getDelta();
+
     if (mixer) mixer.update(delta);
-    if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); controls.target.add(forward); }
-    if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); controls.target.add(forward); }
-    if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); controls.target.add(right); }
-    if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); controls.target.add(right); }
+
+    if (keys['KeyW']) {
+      camera.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize().multiplyScalar(SPEED);
+      camera.position.add(forward);
+      controls.target.add(forward);
+    }
+
+    if (keys['KeyS']) {
+      camera.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize().multiplyScalar(-SPEED);
+      camera.position.add(forward);
+      controls.target.add(forward);
+    }
+
+    if (keys['KeyA']) {
+      camera.getWorldDirection(forward);
+      right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED);
+      camera.position.add(right);
+      controls.target.add(right);
+    }
+
+    if (keys['KeyD']) {
+      camera.getWorldDirection(forward);
+      right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED);
+      camera.position.add(right);
+      controls.target.add(right);
+    }
+
     controls.update();
     renderer.render(scene, camera);
   }
+
   animate();
 
   window.addEventListener('resize', function() {

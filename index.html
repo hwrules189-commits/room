@@ -5,9 +5,12 @@
 <style>
 * { margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+#overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.4); display: none; pointer-events: none; z-index: 10; }
 </style>
 </head>
 <body>
+<div id="overlay"></div>
+
 <script>
 function loadScript(src, cb) {
   var s = document.createElement('script');
@@ -54,6 +57,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var mixer = null;
   var clock = new THREE.Clock();
   var currentRoom = 'room9';
+  var SPEED = 0.05;
+  var overlay = document.getElementById('overlay');
 
   function loadRoom(glbUrl) {
     var toRemove = [];
@@ -64,6 +69,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     dl2.position.set(5, 10, 5);
     scene.add(dl2);
     if (mixer) { mixer.stopAllAction(); mixer = null; }
+
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
@@ -76,16 +82,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 
       scene.add(model);
 
-      console.log('Animation count:', gltf.animations.length);
-gltf.animations.forEach(function(clip) { console.log('Clip:', clip.name, 'Duration:', clip.duration); });
-scene.traverse(function(obj) { console.log('Object:', obj.name, obj.type); });
-
       if (gltf.animations.length > 0) {
-        var armatureObj = null;
-        gltf.scene.traverse(function(obj) {
-          if (obj.name === 'Armature') armatureObj = obj;
-        });
-       mixer = new THREE.AnimationMixer(gltf.scene);
+        mixer = new THREE.AnimationMixer(gltf.scene);
         gltf.animations.forEach(function(clip) {
           var action = mixer.clipAction(clip);
           action.reset();
@@ -110,6 +108,47 @@ scene.traverse(function(obj) { console.log('Object:', obj.name, obj.type); });
     }, null, function(err) { console.error(err); });
   }
 
+  function loadPuppet() {
+    // Show white overlay
+    overlay.style.display = 'block';
+
+    var toRemove = [];
+    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
+    toRemove.forEach(function(obj) { scene.remove(obj); });
+    if (mixer) { mixer.stopAllAction(); mixer = null; }
+
+    scene.add(new THREE.AmbientLight(0xffffff, 2));
+    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl2.position.set(5, 10, 5);
+    scene.add(dl2);
+
+    gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/wrestlerpuppet.glb', function(gltf) {
+      var model = gltf.scene;
+      model.scale.setScalar(10);
+      scene.add(model);
+
+      if (gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        gltf.animations.forEach(function(clip) {
+          var action = mixer.clipAction(clip);
+          action.reset();
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.play();
+        });
+      }
+
+      var box = new THREE.Box3().setFromObject(model);
+      var center = box.getCenter(new THREE.Vector3());
+      var size = box.getSize(new THREE.Vector3());
+      var maxDim = Math.max(size.x, size.y, size.z);
+      camera.position.set(center.x, center.y, center.z + maxDim * 1.5);
+      controls.target.copy(center);
+      controls.enableZoom = true;
+      controls.update();
+
+    }, null, function(err) { console.error(err); });
+  }
+
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb');
 
   renderer.domElement.addEventListener('click', function(e) {
@@ -123,10 +162,10 @@ scene.traverse(function(obj) { console.log('Object:', obj.name, obj.type); });
     scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
     var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length > 0) {
-      var name = intersects[0].object.name.toLowerCase();
-      if (name.indexOf('lamp') !== -1) {
-        currentRoom = 'room';
-        loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/roomcolorful.glb');
+      var name = intersects[0].object.name;
+      if (name === 'Mesh_0') {
+        currentRoom = 'puppet';
+        loadPuppet();
       }
     }
   });
@@ -134,7 +173,6 @@ scene.traverse(function(obj) { console.log('Object:', obj.name, obj.type); });
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
   var keys = {};
-  var SPEED = 0.05;
   document.addEventListener('keydown', function(e) { keys[e.code] = true; });
   document.addEventListener('keyup', function(e) { keys[e.code] = false; });
 
@@ -161,4 +199,3 @@ scene.traverse(function(obj) { console.log('Object:', obj.name, obj.type); });
 </script>
 </body>
 </html>
-

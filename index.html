@@ -132,13 +132,18 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     dl3.position.set(-5, 5, -5);
     scene.add(dl3);
 
-    gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/wrestlerpuppet.glb', function(gltf) {
+   gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/wrestlerpuppet.glb', function(gltf) {
+      console.log('GLB loaded');
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
+      console.log('Model added');
 
+      var boneCount = 0;
       model.traverse(function(obj) {
+        console.log('Node:', obj.name, obj.type, 'isBone:', obj.isBone);
         if (obj.isBone) {
+          boneCount++;
           var geo = new THREE.SphereGeometry(0.04, 8, 8);
           var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.8 });
           var sphere = new THREE.Mesh(geo, mat);
@@ -149,6 +154,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
         }
       });
 
+      console.log('Bone count:', boneCount);
+      poseMode = true;
+
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
@@ -158,10 +166,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       controls.enableZoom = true;
       controls.update();
 
-      poseMode = true;
-      console.log('Puppet loaded, bones:', boneHelpers.length);
-    }, null, function(err) { console.error(err); });
-  }
+    }, null, function(err) { console.error('Load error:', err); });
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb');
 

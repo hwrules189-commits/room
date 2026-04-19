@@ -151,7 +151,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb');
 
-  renderer.domElement.addEventListener('click', function(e) {
+ renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room9') return;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
@@ -162,8 +162,18 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
     var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length > 0) {
-      var name = intersects[0].object.name;
-      if (name === 'Mesh_0.005' || name === 'Mesh_0') {
+      // Walk up the parent chain looking for Mesh_0
+      var obj = intersects[0].object;
+      var isWrestler = false;
+      while (obj) {
+        console.log('Checking:', obj.name);
+        if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {
+          isWrestler = true;
+          break;
+        }
+        obj = obj.parent;
+      }
+      if (isWrestler) {
         currentRoom = 'puppet';
         loadPuppet();
       }

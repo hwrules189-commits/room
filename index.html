@@ -21,7 +21,6 @@ function loadScript(src, cb) {
 loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js', function() {
 
   var dracoLoader = new THREE.DRACOLoader();
   dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
@@ -44,13 +43,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   dl.position.set(5, 10, 5);
   scene.add(dl);
 
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.rotateSpeed = 0.5;
-  controls.enableZoom = false;
-  controls.enablePan = false;
-
   renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
   renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
@@ -65,6 +57,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var selectedBone = null;
   var isDraggingBone = false;
   var lastMouse = new THREE.Vector2();
+
+  // Simple drag-to-look for room navigation
+  var isDraggingCamera = false;
+  var lastCamMouse = new THREE.Vector2();
+  var camYaw = 0;
+  var camPitch = 0;
 
   function loadRoom(glbUrl) {
     poseMode = false;
@@ -85,9 +83,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       model.scale.setScalar(10);
 
       gltf.scene.traverse(function(obj) {
-        if (obj.name === 'Empty') {
-          obj.scale.set(0.011, 0.011, 0.011);
-        }
+        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
       });
 
       scene.add(model);
@@ -108,9 +104,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       camera.position.set(center.x, center.y, center.z);
-      controls.target.set(center.x + 0.01, center.y, center.z - 0.01);
-      controls.update();
-       SPEED = size.x * 0.01;
+      camera.lookAt(center.x + 0.01, center.y, center.z - 0.01);
+      SPEED = size.x * 0.01;
     }, null, function(err) { console.error(err); });
   }
 
@@ -138,9 +133,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       var boxRaw = new THREE.Box3().setFromObject(model);
       var sizeRaw = boxRaw.getSize(new THREE.Vector3());
       var maxDimRaw = Math.max(sizeRaw.x, sizeRaw.y, sizeRaw.z);
-
-      var targetSize = 8;
-      var scaleFactor = targetSize / maxDimRaw;
+      var scaleFactor = 8 / maxDimRaw;
       model.scale.setScalar(scaleFactor);
       scene.add(model);
 
@@ -154,18 +147,14 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       var maxDim = Math.max(size.x, size.y, size.z);
 
       camera.position.set(0, 0, maxDim * 1.5);
-      controls.target.set(0, 0, 0);
-      controls.enableZoom = true;
-      controls.update();
+      camera.lookAt(0, 0, 0);
 
-      // Add bone spheres after model is scaled and centered
       model.traverse(function(obj) {
         if (obj.isBone) {
           var wp = new THREE.Vector3();
           obj.getWorldPosition(wp);
-          console.log('Bone:', obj.name, 'at', wp.x.toFixed(2), wp.y.toFixed(2), wp.z.toFixed(2));
 
-          var geo = new THREE.SphereGeometry(0.3, 8, 8);
+          var geo = new THREE.SphereGeometry(0.08, 8, 8);
           var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.9 });
           var sphere = new THREE.Mesh(geo, mat);
           sphere.userData.bone = obj;
@@ -211,7 +200,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     }
   });
 
-  // Bone dragging
+  // Bone dragging - capture phase so nothing else interferes
   renderer.domElement.addEventListener('mousedown', function(e) {
     if (!poseMode) return;
     var raycaster = new THREE.Raycaster();
@@ -222,14 +211,14 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     var intersects = raycaster.intersectObjects(boneHelpers, false);
     console.log('Bone intersects:', intersects.length);
     if (intersects.length > 0) {
+      e.stopPropagation();
       selectedBone = intersects[0].object.userData.bone;
       boneHelpers.forEach(function(h) { h.material.color.set(0x00ccff); });
       intersects[0].object.material.color.set(0xff6600);
       isDraggingBone = true;
-      controls.enabled = false;
       lastMouse.set(e.clientX, e.clientY);
     }
-  });
+  }, true);
 
   renderer.domElement.addEventListener('mousemove', function(e) {
     if (!isDraggingBone || !selectedBone) return;
@@ -241,10 +230,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   });
 
   renderer.domElement.addEventListener('mouseup', function() {
-    if (isDraggingBone) {
-      isDraggingBone = false;
-      controls.enabled = true;
-    }
+    isDraggingBone = false;
+    selectedBone = null;
   });
 
   var forward = new THREE.Vector3();
@@ -258,7 +245,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
 
-    // Keep bone spheres on their bones every frame
     if (poseMode && boneHelpers.length > 0) {
       boneHelpers.forEach(function(sphere) {
         var wp = new THREE.Vector3();
@@ -268,13 +254,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     }
 
     if (!poseMode) {
-      if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); controls.target.add(forward); }
-      if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); controls.target.add(forward); }
-      if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); controls.target.add(right); }
-      if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); controls.target.add(right); }
+      if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
+      if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
+      if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
+      if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
     }
 
-    controls.update();
     renderer.render(scene, camera);
   }
   animate();
@@ -285,7 +270,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-})})})});
+})})});
 </script>
 </body>
 </html>

@@ -149,8 +149,10 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       camera.position.set(0, 0, maxDim * 1.5);
       camera.lookAt(0, 0, 0);
 
-     model.traverse(function(obj) {
+    model.traverse(function(obj) {
         if (obj.isBone) {
+          // Skip rogue and duplicate bones
+          if (obj.name === 'neutral_bone' || obj.name === 'Bone009' || obj.name === 'Bone012') return;
           // Skip root/hips bone that causes the rogue dot
           if (obj.name.toLowerCase().indexOf('root') !== -1) return;
           var wp = new THREE.Vector3();

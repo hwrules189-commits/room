@@ -132,41 +132,55 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     dl3.position.set(-5, 5, -5);
     scene.add(dl3);
 
-   gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/wrestlerpuppet.glb', function(gltf) {
-      console.log('GLB loaded');
+    gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/wrestlerpuppet.glb', function(gltf) {
       var model = gltf.scene;
-      model.scale.setScalar(10);
-      scene.add(model);
-      console.log('Model added');
 
-      var boneCount = 0;
+      var boxRaw = new THREE.Box3().setFromObject(model);
+      var sizeRaw = boxRaw.getSize(new THREE.Vector3());
+      var maxDimRaw = Math.max(sizeRaw.x, sizeRaw.y, sizeRaw.z);
+
+      var targetSize = 8;
+      var scaleFactor = targetSize / maxDimRaw;
+      model.scale.setScalar(scaleFactor);
+      scene.add(model);
+
+      var box = new THREE.Box3().setFromObject(model);
+      var center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+
+      box = new THREE.Box3().setFromObject(model);
+      center = box.getCenter(new THREE.Vector3());
+      var size = box.getSize(new THREE.Vector3());
+      var maxDim = Math.max(size.x, size.y, size.z);
+
+      camera.position.set(0, 0, maxDim * 1.5);
+      controls.target.set(0, 0, 0);
+      controls.enableZoom = true;
+      controls.update();
+
+      // Add bone spheres after model is scaled and centered
       model.traverse(function(obj) {
-        console.log('Node:', obj.name, obj.type, 'isBone:', obj.isBone);
         if (obj.isBone) {
-          boneCount++;
-         var geo = new THREE.SphereGeometry(0.15, 8, 8);
-          var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.8 });
+          var wp = new THREE.Vector3();
+          obj.getWorldPosition(wp);
+          console.log('Bone:', obj.name, 'at', wp.x.toFixed(2), wp.y.toFixed(2), wp.z.toFixed(2));
+
+          var geo = new THREE.SphereGeometry(0.3, 8, 8);
+          var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.9 });
           var sphere = new THREE.Mesh(geo, mat);
           sphere.userData.bone = obj;
           sphere.renderOrder = 999;
+          sphere.position.copy(wp);
           scene.add(sphere);
           boneHelpers.push(sphere);
         }
       });
 
-      console.log('Bone count:', boneCount);
+      console.log('Puppet loaded, bones:', boneHelpers.length);
       poseMode = true;
 
-      var box = new THREE.Box3().setFromObject(model);
-      var center = box.getCenter(new THREE.Vector3());
-      var size = box.getSize(new THREE.Vector3());
-      var maxDim = Math.max(size.x, size.y, size.z);
-      camera.position.set(center.x, center.y, center.z + maxDim * 1.8);
-      controls.target.copy(center);
-      controls.enableZoom = true;
-      controls.update();
-
     }, null, function(err) { console.error('Load error:', err); });
+  }
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb');
 
@@ -197,7 +211,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     }
   });
 
- renderer.domElement.addEventListener('mousedown', function(e) {
+  // Bone dragging
+  renderer.domElement.addEventListener('mousedown', function(e) {
     if (!poseMode) return;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
@@ -243,6 +258,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
 
+    // Keep bone spheres on their bones every frame
     if (poseMode && boneHelpers.length > 0) {
       boneHelpers.forEach(function(sphere) {
         var wp = new THREE.Vector3();

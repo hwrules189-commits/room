@@ -163,7 +163,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length > 0) {
       var name = intersects[0].object.name;
-      if (name === 'Mesh_0.005') {
+      if (name === 'Mesh_0.005' || name === 'Mesh_0') {
         currentRoom = 'puppet';
         loadPuppet();
       }

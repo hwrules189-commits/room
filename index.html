@@ -60,7 +60,17 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
   var SPEED = 0.05;
   var overlay = document.getElementById('overlay');
 
+  // --- BONE POSING STATE ---
+  var poseMode = false;
+  var boneHelpers = [];
+  var selectedBone = null;
+  var isDraggingBone = false;
+  var lastMouse = new THREE.Vector2();
+
   function loadRoom(glbUrl) {
+    poseMode = false;
+    boneHelpers = [];
+    selectedBone = null;
     var toRemove = [];
     scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
     toRemove.forEach(function(obj) { scene.remove(obj); });
@@ -98,85 +108,121 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       camera.position.set(center.x, center.y, center.z);
-      if (currentRoom === 'room9') {
-        controls.target.set(center.x + 0.01, center.y, center.z - 0.01);
-      } else {
-        controls.target.set(center.x + 0.01, center.y, center.z);
-      }
+      controls.target.set(center.x + 0.01, center.y, center.z - 0.01);
       controls.update();
       SPEED = size.x * 0.01;
     }, null, function(err) { console.error(err); });
   }
 
   function loadPuppet() {
-    // Show white overlay
     overlay.style.display = 'block';
+    boneHelpers = [];
+    selectedBone = null;
 
     var toRemove = [];
     scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
     toRemove.forEach(function(obj) { scene.remove(obj); });
     if (mixer) { mixer.stopAllAction(); mixer = null; }
 
-    scene.add(new THREE.AmbientLight(0xffffff, 2));
-    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    scene.add(new THREE.AmbientLight(0xffffff, 3));
+    var dl2 = new THREE.DirectionalLight(0xffffff, 2);
     dl2.position.set(5, 10, 5);
     scene.add(dl2);
+    var dl3 = new THREE.DirectionalLight(0xffffff, 1);
+    dl3.position.set(-5, 5, -5);
+    scene.add(dl3);
 
     gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/wrestlerpuppet.glb', function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
       scene.add(model);
 
-      if (gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(gltf.scene);
-        gltf.animations.forEach(function(clip) {
-          var action = mixer.clipAction(clip);
-          action.reset();
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.play();
-        });
-      }
+      // Collect bones and add clickable sphere helpers
+      model.traverse(function(obj) {
+        if (obj.isBone) {
+          var geo = new THREE.SphereGeometry(0.04, 8, 8);
+          var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.8 });
+          var sphere = new THREE.Mesh(geo, mat);
+          sphere.userData.bone = obj;
+          sphere.renderOrder = 999;
+          scene.add(sphere); // add to scene so we can update position each frame
+          boneHelpers.push(sphere);
+        }
+      });
 
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       var maxDim = Math.max(size.x, size.y, size.z);
-      camera.position.set(center.x, center.y, center.z + maxDim * 1.5);
+
+      camera.position.set(center.x, center.y, center.z + maxDim * 1.8);
       controls.target.copy(center);
       controls.enableZoom = true;
       controls.update();
 
+      poseMode = true;
+      console.log('Bones found:', boneHelpers.length);
     }, null, function(err) { console.error(err); });
   }
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb');
 
- renderer.domElement.addEventListener('click', function(e) {
-    if (currentRoom !== 'room9') return;
+  // --- CLICK ---
+  renderer.domElement.addEventListener('mousedown', function(e) {
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+
+    if (poseMode) {
+      // Try to select a bone sphere
+      var intersects = raycaster.intersectObjects(boneHelpers, false);
+      if (intersects.length > 0) {
+        selectedBone = intersects[0].object.userData.bone;
+        boneHelpers.forEach(function(h) { h.material.color.set(0x00ccff); });
+        intersects[0].object.material.color.set(0xff6600);
+        isDraggingBone = true;
+        controls.enabled = false;
+        lastMouse.set(e.clientX, e.clientY);
+      }
+      return;
+    }
+
+    // Room click
+    if (currentRoom !== 'room9') return;
     var all = [];
     scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
-    var intersects = raycaster.intersectObjects(all, true);
-    if (intersects.length > 0) {
-      // Walk up the parent chain looking for Mesh_0
-      var obj = intersects[0].object;
+    var intersects2 = raycaster.intersectObjects(all, true);
+    if (intersects2.length > 0) {
+      var obj = intersects2[0].object;
       var isWrestler = false;
       while (obj) {
-        console.log('Checking:', obj.name);
-        if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {
-          isWrestler = true;
-          break;
-        }
+        if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') { isWrestler = true; break; }
         obj = obj.parent;
       }
       if (isWrestler) {
         currentRoom = 'puppet';
         loadPuppet();
       }
+      // Add more clickable object checks here
+    }
+  });
+
+  // --- DRAG BONE ---
+  renderer.domElement.addEventListener('mousemove', function(e) {
+    if (!isDraggingBone || !selectedBone) return;
+    var dx = (e.clientX - lastMouse.x) * 0.008;
+    var dy = (e.clientY - lastMouse.y) * 0.008;
+    selectedBone.rotation.z -= dx;
+    selectedBone.rotation.x += dy;
+    lastMouse.set(e.clientX, e.clientY);
+  });
+
+  renderer.domElement.addEventListener('mouseup', function() {
+    if (isDraggingBone) {
+      isDraggingBone = false;
+      controls.enabled = true;
     }
   });
 
@@ -190,10 +236,23 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
-    if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); controls.target.add(forward); }
-    if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); controls.target.add(forward); }
-    if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); controls.target.add(right); }
-    if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); controls.target.add(right); }
+
+    // Keep bone helper spheres on top of their bones
+    if (poseMode && boneHelpers.length > 0) {
+      boneHelpers.forEach(function(sphere) {
+        var wp = new THREE.Vector3();
+        sphere.userData.bone.getWorldPosition(wp);
+        sphere.position.copy(wp);
+      });
+    }
+
+    if (!poseMode) {
+      if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); controls.target.add(forward); }
+      if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); controls.target.add(forward); }
+      if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); controls.target.add(right); }
+      if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward,camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); controls.target.add(right); }
+    }
+
     controls.update();
     renderer.render(scene, camera);
   }

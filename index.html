@@ -162,10 +162,11 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitC
     scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
     var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length > 0) {
-      console.log('Clicked name:', intersects[0].object.name);
-      console.log('Clicked parent:', intersects[0].object.parent.name);
-    } else {
-      console.log('Nothing hit');
+      var name = intersects[0].object.name;
+      if (name === 'Mesh_0.005') {
+        currentRoom = 'puppet';
+        loadPuppet();
+      }
     }
   });
 

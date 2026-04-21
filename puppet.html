@@ -92,11 +92,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     console.log('Bones:', boneHelpers.length);
   }, null, function(err) { console.error(err); });
 
-  renderer.domElement.addEventListener('mousedown', function(e) {
-    var raycaster = new THREE.Raycaster();
+ renderer.domElement.addEventListener('mousedown', function(e) {
+    var rect = renderer.domElement.getBoundingClientRect();
     var mouse = new THREE.Vector2();
-    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    var raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(boneHelpers, false);
     console.log('Bone intersects:', intersects.length);

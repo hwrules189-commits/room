@@ -59,7 +59,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     var boxRaw = new THREE.Box3().setFromObject(model);
     var sizeRaw = boxRaw.getSize(new THREE.Vector3());
     var maxDimRaw = Math.max(sizeRaw.x, sizeRaw.y, sizeRaw.z);
-    var scaleFactor = 18 / maxDimRaw;
+    var scaleFactor = 38 / maxDimRaw;
     model.scale.setScalar(scaleFactor);
     scene.add(model);
 

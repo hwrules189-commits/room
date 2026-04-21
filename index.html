@@ -255,6 +255,16 @@ overlay.style.display = 'none';
       isDraggingBone = true;
       lastMouse.set(e.clientX, e.clientY);
     }
+   document.addEventListener('mousemove', function(e) {
+  if (!isDraggingBone || !selectedBone) return;
+  console.log('DRAG', e.clientX, e.clientY);
+  var dx = (e.clientX - lastMouse.x) * 0.008;
+  var dy = (e.clientY - lastMouse.y) * 0.008;
+  selectedBone.rotation.z -= dx;
+  selectedBone.rotation.x += dy;
+  selectedBone.updateMatrix();
+  lastMouse.set(e.clientX, e.clientY);
+});
   }, true);
 
  renderer.domElement.addEventListener('mousemove', function(e) {

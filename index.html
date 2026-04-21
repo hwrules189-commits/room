@@ -202,6 +202,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
       console.log('Puppet loaded, bones:', boneHelpers.length);
       poseMode = true;
+    overlay.style.pointerEvents = 'none';
+overlay.style.display = 'none';
 
     }, null, function(err) { console.error('Load error:', err); });
   }

@@ -10,35 +10,6 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 </head>
 <body>
 <div id="overlay"></div>
- <div class="ui-label" id="label-bottom-left">click figure to pose</div>
-<div class="ui-label" id="label-top-right">your name here</div>
- <!-- Add this right after <div id="overlay"></div> -->
-
-<div id="ui-text" style="
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  color: black;
-  font-family: sans-serif;
-  font-size: 14px;
-  z-index: 20;
-  pointer-events: none;
-">
-  WASD to move
-</div>
-
-<div id="title-text" style="
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  color: black;
-  font-family: sans-serif;
-  font-size: 20px;
-  z-index: 20;
-  pointer-events: none;
-">
-  My Room
-</div>
  
 
 <script>
@@ -202,8 +173,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
       console.log('Puppet loaded, bones:', boneHelpers.length);
       poseMode = true;
-    overlay.style.pointerEvents = 'none';
-overlay.style.display = 'none';
 
     }, null, function(err) { console.error('Load error:', err); });
   }
@@ -254,22 +223,7 @@ overlay.style.display = 'none';
       intersects[0].object.material.color.set(0xff6600);
       isDraggingBone = true;
       lastMouse.set(e.clientX, e.clientY);
- 
     }
-   renderer.domElement.addEventListener('mousedown', function(e) {
-    if (!poseMode) return;
-    console.log('poseMode:', poseMode, 'boneHelpers:', boneHelpers.length);
-    var raycaster = new THREE.Raycaster();
-   document.addEventListener('mousemove', function(e) {
-  if (!isDraggingBone || !selectedBone) return;
-  console.log('DRAG', e.clientX, e.clientY);
-  var dx = (e.clientX - lastMouse.x) * 0.008;
-  var dy = (e.clientY - lastMouse.y) * 0.008;
-  selectedBone.rotation.z -= dx;
-  selectedBone.rotation.x += dy;
-  selectedBone.updateMatrix();
-  lastMouse.set(e.clientX, e.clientY);
-});
   }, true);
 
  renderer.domElement.addEventListener('mousemove', function(e) {

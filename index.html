@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -58,7 +59,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var isDraggingBone = false;
   var lastMouse = new THREE.Vector2();
 
-  // Simple drag-to-look for room navigation
   var isDraggingCamera = false;
   var lastCamMouse = new THREE.Vector2();
   var camYaw = 0;
@@ -119,21 +119,23 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     toRemove.forEach(function(obj) { scene.remove(obj); });
     if (mixer) { mixer.stopAllAction(); mixer = null; }
 
-    scene.add(new THREE.AmbientLight(0xffffff, 3));
-    var dl2 = new THREE.DirectionalLight(0xffffff, 2);
+    scene.add(new THREE.AmbientLight(0xffffff, 1));
+    var dl2 = new THREE.DirectionalLight(0xffffff, 1);
     dl2.position.set(5, 10, 5);
     scene.add(dl2);
-    var dl3 = new THREE.DirectionalLight(0xffffff, 1);
+    var dl3 = new THREE.DirectionalLight(0xffffff, 0.5);
     dl3.position.set(-5, 5, -5);
     scene.add(dl3);
 
-   gltfLoader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wrestlerpuppet.glb', function(gltf) {
+    gltfLoader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wrestlerpuppet.glb', function(gltf) {
       var model = gltf.scene;
 
       var boxRaw = new THREE.Box3().setFromObject(model);
       var sizeRaw = boxRaw.getSize(new THREE.Vector3());
       var maxDimRaw = Math.max(sizeRaw.x, sizeRaw.y, sizeRaw.z);
-     model.scale.setScalar(50);
+
+      var scaleFactor = 5 / maxDimRaw;
+      model.scale.setScalar(scaleFactor);
       scene.add(model);
 
       var box = new THREE.Box3().setFromObject(model);
@@ -145,20 +147,18 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       var size = box.getSize(new THREE.Vector3());
       var maxDim = Math.max(size.x, size.y, size.z);
 
-      camera.position.set(0, 0, maxDim * 1.5);
+      camera.position.set(0, 0, maxDim * 2);
       camera.lookAt(0, 0, 0);
 
-    model.traverse(function(obj) {
+      model.traverse(function(obj) {
         if (obj.isBone) {
-          // Skip rogue and duplicate bones
           if (obj.name === 'neutral_bone' || obj.name === 'Bone009' || obj.name === 'Bone012') return;
-          // Skip root/hips bone that causes the rogue dot
           if (obj.name.toLowerCase().indexOf('root') !== -1) return;
           var wp = new THREE.Vector3();
           obj.getWorldPosition(wp);
           console.log('Bone:', obj.name, 'at', wp.x.toFixed(2), wp.y.toFixed(2), wp.z.toFixed(2));
 
-          var geo = new THREE.SphereGeometry(0.6, 8, 8);
+          var geo = new THREE.SphereGeometry(0.12, 8, 8);
           var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.9 });
           var sphere = new THREE.Mesh(geo, mat);
           sphere.userData.bone = obj;
@@ -204,7 +204,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     }
   });
 
-  // Bone dragging - capture phase so nothing else interferes
+  // Bone dragging - capture phase
   renderer.domElement.addEventListener('mousedown', function(e) {
     if (!poseMode) return;
     var raycaster = new THREE.Raycaster();
@@ -224,14 +224,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     }
   }, true);
 
- renderer.domElement.addEventListener('mousemove', function(e) {
+  renderer.domElement.addEventListener('mousemove', function(e) {
     if (!isDraggingBone || !selectedBone) return;
     var dx = (e.clientX - lastMouse.x) * 0.008;
     var dy = (e.clientY - lastMouse.y) * 0.008;
-    // Only rotate this specific bone, don't touch parents
     selectedBone.rotation.z -= dx;
     selectedBone.rotation.x += dy;
-    // Force matrix update on this bone only
     selectedBone.updateMatrix();
     lastMouse.set(e.clientX, e.clientY);
   });
@@ -281,3 +279,4 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 </script>
 </body>
 </html>
+```

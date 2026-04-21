@@ -36,6 +36,11 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   renderer.outputEncoding = THREE.sRGBEncoding;
   document.body.appendChild(renderer.domElement);
 
+  renderer.domElement.style.position = 'fixed';
+renderer.domElement.style.top = '0';
+renderer.domElement.style.left = '0';
+renderer.domElement.style.zIndex = '1';
+
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
   var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);

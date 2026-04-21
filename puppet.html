@@ -71,7 +71,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     var size = box.getSize(new THREE.Vector3());
     var maxDim = Math.max(size.x, size.y, size.z);
 
-    camera.position.set(0, 0, maxDim * 2);
+    camera.position.set(0, 0, maxDim * 0.8);
     camera.lookAt(0, 0, 0);
 
     model.traverse(function(obj) {

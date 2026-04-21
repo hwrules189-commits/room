@@ -159,7 +159,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
           obj.getWorldPosition(wp);
           console.log('Bone:', obj.name, 'at', wp.x.toFixed(2), wp.y.toFixed(2), wp.z.toFixed(2));
 
-          var geo = new THREE.SphereGeometry(0.2, 8, 8);
+          var geo = new THREE.SphereGeometry(0.5, 8, 8);
           var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.9 });
           var sphere = new THREE.Mesh(geo, mat);
           sphere.userData.bone = obj;

@@ -241,6 +241,34 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     isDraggingBone = false;
     selectedBone = null;
   });
+  renderer.domElement.addEventListener('mousedown', function(e) {
+  if (poseMode) return; // only in room mode
+  isDraggingCamera = true;
+  lastCamMouse.set(e.clientX, e.clientY);
+});
+
+renderer.domElement.addEventListener('mousemove', function(e) {
+  if (!isDraggingCamera || poseMode) return;
+
+  var dx = (e.clientX - lastCamMouse.x) * 0.005;
+  var dy = (e.clientY - lastCamMouse.y) * 0.005;
+
+  camYaw -= dx;
+  camPitch -= dy;
+
+  // Clamp vertical look so it doesn’t flip
+  camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));
+
+  lastCamMouse.set(e.clientX, e.clientY);
+});
+
+renderer.domElement.addEventListener('mouseup', function() {
+  isDraggingCamera = false;
+});
+
+renderer.domElement.addEventListener('mouseleave', function() {
+  isDraggingCamera = false;
+});
 
   var forward = new THREE.Vector3();
   var right = new THREE.Vector3();
@@ -261,16 +289,15 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       });
     }
 
-    if (!poseMode) {
-      if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
-      if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
-      if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
-      if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
-    }
-
     renderer.render(scene, camera);
   }
   animate();
+ 
+  if (!poseMode) {
+  camera.rotation.order = 'YXZ';
+  camera.rotation.y = camYaw;
+  camera.rotation.x = camPitch;
+}
 
   window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;

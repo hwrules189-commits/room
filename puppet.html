@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <style>
 * { margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #fff; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; }
+canvas { display: block; }
 </style>
 </head>
 <body>
@@ -25,7 +26,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   gltfLoader.setDRACOLoader(dracoLoader);
 
   var renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(400, 600);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
@@ -139,7 +140,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(400, 600);
   });
 
 })})});

@@ -138,17 +138,29 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       model.scale.setScalar(scaleFactor);
       scene.add(model);
 
-      var box = new THREE.Box3().setFromObject(model);
-      var center = box.getCenter(new THREE.Vector3());
-      model.position.sub(center);
+    // Ensure world matrices are updated first
+model.updateMatrixWorld(true);
+
+// Compute bounding box AFTER scaling
+var box = new THREE.Box3().setFromObject(model);
+var center = box.getCenter(new THREE.Vector3());
+
+// Move model so center sits at origin
+model.position.x -= center.x;
+model.position.y -= center.y;
+model.position.z -= center.z;
+
+// Update again after repositioning
+model.updateMatrixWorld(true);
 
       box = new THREE.Box3().setFromObject(model);
       center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       var maxDim = Math.max(size.x, size.y, size.z);
 
-      camera.position.set(0, 0, maxDim * 2);
-      camera.lookAt(0, 0, 0);
+     var distance = maxDim * 2.2; // slightly farther back
+camera.position.set(0, maxDim * 0.3, distance);
+camera.lookAt(0, 0, 0);
 
       model.traverse(function(obj) {
         if (obj.isBone) {

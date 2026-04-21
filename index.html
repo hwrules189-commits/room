@@ -254,7 +254,12 @@ overlay.style.display = 'none';
       intersects[0].object.material.color.set(0xff6600);
       isDraggingBone = true;
       lastMouse.set(e.clientX, e.clientY);
+ 
     }
+   renderer.domElement.addEventListener('mousedown', function(e) {
+    if (!poseMode) return;
+    console.log('poseMode:', poseMode, 'boneHelpers:', boneHelpers.length);
+    var raycaster = new THREE.Raycaster();
    document.addEventListener('mousemove', function(e) {
   if (!isDraggingBone || !selectedBone) return;
   console.log('DRAG', e.clientX, e.clientY);

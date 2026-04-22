@@ -58,6 +58,7 @@ var lamp2 = null;
   var camPitch = 0;
 
   function loadRoom(glbUrl) {
+    var model = null;
     currentRoom = 'room10';
     var toRemove = [];
     scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
@@ -71,6 +72,8 @@ var lamp2 = null;
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
+      model = gltf.scene;
+scene.add(model);
 
       gltf.scene.traverse(function(obj) {
         if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);

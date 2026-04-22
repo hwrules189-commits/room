@@ -115,9 +115,13 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
     // Load and add replacement at same position
     gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/lightlamp.glb', function(gltf) {
-      var replacement = gltf.scene;
-      replacement.position.copy(toRemovePos);
-      scene.add(replacement);
+     var replacement = gltf.scene;
+
+// 🔥 SCALE IT DOWN
+replacement.scale.setScalar(0.09); // try 0.1 first
+
+replacement.position.copy(pos);
+scene.add(replacement);
     });
   }
     var toRemove = [];

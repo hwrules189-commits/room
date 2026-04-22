@@ -41,6 +41,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   dl.position.set(5, 10, 5);
   scene.add(dl);
 
+  var lamp1 = null;
+var lamp2 = null;
+
   renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
   renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
@@ -74,6 +77,15 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       });
 
       scene.add(model);
+
+      model.traverse(function(obj) {
+  if (obj.name === "lamp1") lamp1 = obj;
+  if (obj.name === "lamp2") lamp2 = obj;
+});
+
+// initial state
+if (lamp1) lamp1.visible = true;
+if (lamp2) lamp2.visible = false;
 
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene);
@@ -117,7 +129,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     }
   });
 }
- renderer.domElement.addEventListener('click', function (e) {
+renderer.domElement.addEventListener('click', function (e) {
   if (currentRoom !== 'room10') return;
 
   var raycaster = new THREE.Raycaster();
@@ -128,32 +140,37 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
   raycaster.setFromCamera(mouse, camera);
 
-  var all = [];
-  scene.traverse(function (obj) {
-    if (obj.isMesh) all.push(obj);
-  });
-
-  var intersects = raycaster.intersectObjects(all, true);
-
+  var intersects = raycaster.intersectObjects(scene.children, true);
   if (intersects.length === 0) return;
 
   var clicked = intersects[0].object;
 
-  console.log("Clicked:", clicked.name);
-
-  // Walk up hierarchy to find target mesh
   var target = clicked;
 
   while (target) {
-    if (target.name === "textured_mesh002" || target.name === "lamp") {
-      console.log("Hiding object:", target.name);
-      target.visible = false;
+
+    if (target.name === "lamp1") {
+      console.log("lamp1 → lamp2");
+
+      if (lamp1) lamp1.visible = false;
+      if (lamp2) lamp2.visible = true;
+
       return;
     }
+
+    if (target.name === "lamp2") {
+      console.log("lamp2 → lamp1");
+
+      model.traverse(obj => console.log(obj.name));
+
+      if (lamp2) lamp2.visible = false;
+      if (lamp1) lamp1.visible = true;
+
+      return;
+    }
+
     target = target.parent;
   }
-
-  // optional other logic (wrestler, etc) goes here safely
 });
 
   // Camera drag to look

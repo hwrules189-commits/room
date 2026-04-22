@@ -138,7 +138,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       // Remove original object by name
       var toRemove = null;
       scene.traverse(function(obj) {
-        if (obj.name === 'lightlamp.glb') toRemove = obj;
+        if (obj.name === 'textured_mesh.002') toRemove = obj;
       });
       if (toRemove) scene.remove(toRemove);
 

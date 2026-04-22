@@ -130,7 +130,7 @@ if (lamp2) lamp2.visible = false;
   });
 }
 renderer.domElement.addEventListener('click', function (e) {
-  if (currentRoom !== 'room10') return;
+  if (!model) return;
 
   var raycaster = new THREE.Raycaster();
   var mouse = new THREE.Vector2();
@@ -140,36 +140,37 @@ renderer.domElement.addEventListener('click', function (e) {
 
   raycaster.setFromCamera(mouse, camera);
 
-  var intersects = raycaster.intersectObjects(scene.children, true);
-  if (intersects.length === 0) return;
+  var intersects = raycaster.intersectObject(model, true);
+  if (!intersects.length) return;
 
-  var clicked = intersects[0].object;
+  var obj = intersects[0].object;
 
-  var target = clicked;
+  // walk up to find lamp root
+  while (obj) {
 
-  while (target) {
+    if (obj.name === "lamp1") {
+      console.log("lamp1 clicked");
 
-    if (target.name === "lamp1") {
-      console.log("lamp1 → lamp2");
-
-      if (lamp1) lamp1.visible = false;
-      if (lamp2) lamp2.visible = true;
-
-      return;
-    }
-
-    if (target.name === "lamp2") {
-      console.log("lamp2 → lamp1");
-
-      model.traverse(obj => console.log(obj.name));
-
-      if (lamp2) lamp2.visible = false;
-      if (lamp1) lamp1.visible = true;
+      model.traverse(o => {
+        if (o.name === "lamp1") o.visible = false;
+        if (o.name === "lamp2") o.visible = true;
+      });
 
       return;
     }
 
-    target = target.parent;
+    if (obj.name === "lamp2") {
+      console.log("lamp2 clicked");
+
+      model.traverse(o => {
+        if (o.name === "lamp2") o.visible = false;
+        if (o.name === "lamp1") o.visible = true;
+      });
+
+      return;
+    }
+
+    obj = obj.parent;
   }
 });
 

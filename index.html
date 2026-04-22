@@ -170,10 +170,13 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') { isWrestler = true; break; }
         obj = obj.parent;
       }
-      if (isWrestler) {
-        currentRoom = 'puppet';
-        loadPuppet();
-        // Check for transformable object
+     if (isWrestler) {
+  currentRoom = 'puppet';
+  loadPuppet();
+  return; // stop here
+}
+
+// ✅ transform logic runs separately
 var isTransformable = false;
 var target = intersects[0].object;
 

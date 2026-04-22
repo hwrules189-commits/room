@@ -140,7 +140,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       scene.traverse(function(obj) {
         if (obj.name === 'textured_mesh002') toRemove = obj;
       });
-      if (toRemove) scene.remove(toRemove);
+     if (toRemove && toRemove.parent) {
+  toRemove.parent.remove(toRemove);
+}
 
       // Add replacement at same position
       var replacement = gltf.scene;

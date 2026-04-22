@@ -174,25 +174,25 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         currentRoom = 'puppet';
         loadPuppet();
         // Check for transformable object
-      var isTransformable = false;
-      var clickedObj = intersects[0].object;
-      while (clickedObj) {
-        if (clickedObj.name === 'lightlamp.glb') { isTransformable = true; break; }
-        clickedObj = clickedObj.parent;
-      }
-        var isTransformable = false;
-      var clickedObj2 = intersects[0].object;
-      while (clickedObj2) {
-        if (clickedObj2.name === 'textured_mesh.002') { isTransformable = true; break; }
-        clickedObj2 = clickedObj2.parent;
-      }
-      if (isTransformable) {
-        swapObject();
-      }
-      if (isTransformable) {
-        swapObject();
-      }
-      }
+var isTransformable = false;
+var target = intersects[0].object;
+
+while (target) {
+  if (
+    target.name === 'textured_mesh.002' ||
+    target.name === 'lightlamp.glb'
+  ) {
+    isTransformable = true;
+    break;
+  }
+  target = target.parent;
+}
+
+if (isTransformable) {
+  console.log('Swapping object');
+  swapObject();
+}
+    
     }
   });
 

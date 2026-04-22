@@ -107,6 +107,24 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:50;';
     document.body.appendChild(iframe);
   }
+  var swapped = false;
+  function swapObject() {
+    if (swapped) return; // only swap once
+    swapped = true;
+    gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/lightlamp.glb', function(gltf) {
+      // Remove original object by name
+      var toRemove = null;
+      scene.traverse(function(obj) {
+        if (obj.name === 'lightlamp.glb') toRemove = obj;
+      });
+      if (toRemove) scene.remove(toRemove);
+
+      // Add replacement at same position
+      var replacement = gltf.scene;
+      replacement.position.copy(toRemove ? toRemove.position : new THREE.Vector3());
+      scene.add(replacement);
+    });
+  }
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb');
 
@@ -132,6 +150,16 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       if (isWrestler) {
         currentRoom = 'puppet';
         loadPuppet();
+        // Check for transformable object
+      var isTransformable = false;
+      var clickedObj = intersects[0].object;
+      while (clickedObj) {
+        if (clickedObj.name === 'lightlamp.glb') { isTransformable = true; break; }
+        clickedObj = clickedObj.parent;
+      }
+      if (isTransformable) {
+        swapObject();
+      }
       }
     }
   });

@@ -97,6 +97,29 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   }
 
   function loadPuppet() {
+    var swapped = false;
+  function swapObject() {
+    if (swapped) return;
+    swapped = true;
+
+    // Find and remove the original object
+    var toRemove = null;
+    var toRemovePos = new THREE.Vector3();
+    scene.traverse(function(obj) {
+      if (obj.name === 'textured_mesh.002') {
+        toRemove = obj;
+        obj.getWorldPosition(toRemovePos);
+      }
+    });
+    if (toRemove) toRemove.parent.remove(toRemove);
+
+    // Load and add replacement at same position
+    gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/lightlamp.glb', function(gltf) {
+      var replacement = gltf.scene;
+      replacement.position.copy(toRemovePos);
+      scene.add(replacement);
+    });
+  }
     var toRemove = [];
     scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
     toRemove.forEach(function(obj) { scene.remove(obj); });
@@ -156,6 +179,15 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       while (clickedObj) {
         if (clickedObj.name === 'lightlamp.glb') { isTransformable = true; break; }
         clickedObj = clickedObj.parent;
+      }
+        var isTransformable = false;
+      var clickedObj2 = intersects[0].object;
+      while (clickedObj2) {
+        if (clickedObj2.name === 'textured_mesh.002') { isTransformable = true; break; }
+        clickedObj2 = clickedObj2.parent;
+      }
+      if (isTransformable) {
+        swapObject();
       }
       if (isTransformable) {
         swapObject();

@@ -152,7 +152,7 @@ replacement.scale.setScalar(0.09); // try 0.1 first
 replacement.position.copy(pos);
 scene.add(replacement);
     });
-  }
+  
     var toRemove = [];
     scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
     toRemove.forEach(function(obj) { scene.remove(obj); });

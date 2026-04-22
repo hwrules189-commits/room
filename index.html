@@ -106,7 +106,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     var toRemove = null;
     var toRemovePos = new THREE.Vector3();
     scene.traverse(function(obj) {
-      if (obj.name === 'textured_mesh.002') {
+      if (obj.name === 'textured_mesh002') {
         toRemove = obj;
         obj.getWorldPosition(toRemovePos);
       }
@@ -138,7 +138,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       // Remove original object by name
       var toRemove = null;
       scene.traverse(function(obj) {
-        if (obj.name === 'textured_mesh.002') toRemove = obj;
+        if (obj.name === 'textured_mesh002') toRemove = obj;
       });
       if (toRemove) scene.remove(toRemove);
 
@@ -182,7 +182,7 @@ var target = intersects[0].object;
 
 while (target) {
   if (
-    target.name === 'textured_mesh.002' ||
+    target.name === 'textured_mesh002' ||
     target.name === 'lightlamp.glb'
   ) {
     isTransformable = true;

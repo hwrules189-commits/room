@@ -59,28 +59,67 @@ var lamp2 = null;
   var camYaw = 0;
   var camPitch = 0;
 
-  function loadRoom(glbUrl) {
-  
-    currentRoom = 'room10';
-    var toRemove = [];
-    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
-    toRemove.forEach(function(obj) { scene.remove(obj); });
-    scene.add(new THREE.AmbientLight(0xffffff, 2));
-    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
-    dl2.position.set(5, 10, 5);
-    scene.add(dl2);
-    if (mixer) { mixer.stopAllAction(); mixer = null; }
+ function loadRoom(glbUrl) {
 
-   gltfLoader.load(glbUrl, function(gltf) {
-  model = gltf.scene;
+  currentRoom = 'room10';
 
-  model.scale.setScalar(10);
-  scene.add(model);
-
-  model.traverse(function(obj) {
-    if (obj.name === "lamp1") lamp1 = obj;
-    if (obj.name === "lamp2") lamp2 = obj;
+  var toRemove = [];
+  scene.traverse(function(obj) {
+    if (!obj.isScene) toRemove.push(obj);
   });
+  toRemove.forEach(function(obj) {
+    scene.remove(obj);
+  });
+
+  scene.add(new THREE.AmbientLight(0xffffff, 2));
+
+  var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
+  dl2.position.set(5, 10, 5);
+  scene.add(dl2);
+
+  if (mixer) { mixer.stopAllAction(); mixer = null; }
+
+  gltfLoader.load(glbUrl, function(gltf) {
+
+    // ✅ IMPORTANT: use GLOBAL model (no var!)
+    model = gltf.scene;
+
+    model.scale.setScalar(10);
+    scene.add(model);
+
+    // store lamps
+    lamp1 = null;
+    lamp2 = null;
+
+    model.traverse(function(obj) {
+      if (obj.name === "lamp1") lamp1 = obj;
+      if (obj.name === "lamp2") lamp2 = obj;
+    });
+
+    if (lamp1) lamp1.visible = true;
+    if (lamp2) lamp2.visible = false;
+
+    // animations
+    if (gltf.animations.length > 0) {
+      mixer = new THREE.AnimationMixer(model);
+
+      gltf.animations.forEach(function(clip) {
+        var action = mixer.clipAction(clip);
+        action.reset();
+        action.setLoop(THREE.LoopRepeat, Infinity);
+        action.play();
+      });
+    }
+
+    // camera fit
+    var box = new THREE.Box3().setFromObject(model);
+    var center = box.getCenter(new THREE.Vector3());
+
+    camera.position.set(center.x, center.y, center.z);
+    camera.lookAt(center.x, center.y, center.z);
+
+  });
+}
 
   if (lamp1) lamp1.visible = true;
   if (lamp2) lamp2.visible = false;

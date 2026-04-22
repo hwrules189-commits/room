@@ -110,6 +110,13 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb');
 
+  function hideObjectByName(name) {
+  scene.traverse(function(obj) {
+    if (obj.name === name) {
+      obj.visible = false;
+    }
+  });
+}
   // Room clicking
   renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room10') return;
@@ -128,6 +135,20 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       while (obj) {
         if (obj.name === 'Mesh_0' || obj.name === 'lamp') { isWrestler = true; break; }
         obj = obj.parent;
+        if (intersects.length > 0) {
+  var clicked = intersects[0].object;
+
+  // walk up hierarchy to find target
+  var target = clicked;
+
+  while (target) {
+    if (target.name === 'lamp') {
+      console.log('Hiding object');
+      hideObjectByName('lamp');
+      return;
+    }
+    target = target.parent;
+  
       }
       if (isWrestler) {
         currentRoom = 'puppet';

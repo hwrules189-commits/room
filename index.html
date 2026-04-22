@@ -20,6 +20,8 @@ loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', 
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
 loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
 
+  var model = null;
+
   var dracoLoader = new THREE.DRACOLoader();
   dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
   var gltfLoader = new THREE.GLTFLoader();
@@ -58,7 +60,7 @@ var lamp2 = null;
   var camPitch = 0;
 
   function loadRoom(glbUrl) {
-    var model = null;
+  
     currentRoom = 'room10';
     var toRemove = [];
     scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
@@ -69,15 +71,36 @@ var lamp2 = null;
     scene.add(dl2);
     if (mixer) { mixer.stopAllAction(); mixer = null; }
 
-    gltfLoader.load(glbUrl, function(gltf) {
-      var model = gltf.scene;
-      model.scale.setScalar(10);
-      model = gltf.scene;
-scene.add(model);
+   gltfLoader.load(glbUrl, function(gltf) {
+  model = gltf.scene;
 
-      gltf.scene.traverse(function(obj) {
-        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-      });
+  model.scale.setScalar(10);
+  scene.add(model);
+
+  model.traverse(function(obj) {
+    if (obj.name === "lamp1") lamp1 = obj;
+    if (obj.name === "lamp2") lamp2 = obj;
+  });
+
+  if (lamp1) lamp1.visible = true;
+  if (lamp2) lamp2.visible = false;
+
+  if (gltf.animations.length > 0) {
+    mixer = new THREE.AnimationMixer(gltf.scene);
+    gltf.animations.forEach(function(clip) {
+      var action = mixer.clipAction(clip);
+      action.reset();
+      action.setLoop(THREE.LoopRepeat, Infinity);
+      action.play();
+    });
+  }
+
+  var box = new THREE.Box3().setFromObject(model);
+  var center = box.getCenter(new THREE.Vector3());
+
+  camera.position.set(center.x, center.y, center.z);
+  camera.lookAt(center.x + 0.01, center.y, center.z);
+});
 
       scene.add(model);
 

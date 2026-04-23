@@ -1,39 +1,3 @@
-purge : https://purge.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb
-
-
-
-
-
-
-
-<model-viewer ar-status="not-presenting" camera-controls="" camera-orbit="0deg 90deg 0m" disable-tap="" disable-zoom="" field-of-view="100deg" interaction-prompt="none" max-camera-orbit="auto auto 0m" max-field-of-view="100deg" min-camera-orbit="auto auto 0m" min-field-of-view="100deg" src="https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room9.glb" style="width:100vw;height:100vh;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;" touch-action="pan-y">
-</model-viewer>
-
-<style>
-model-viewer::part(default-ar-button) { display: none; }
-</style>
-
-<script>
-document.querySelector('model-viewer').addEventListener('dblclick', function(e) {
-  e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-}, true);
-var mv = document.querySelector('model-viewer');
-mv.addEventListener('camera-change', function() {
-  var orbit = mv.getCameraOrbit();
-  if (orbit.radius > 0.01) {
-    mv.cameraOrbit = '0deg 90deg 0m';
-  }
-});
-</script>
-
-
-
-
-
-
-
-
-_____ _____ ____ index code
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,231 +5,6 @@ _____ _____ ____ index code
 <style>
 * { margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-</style>
-</head>
-<body>
-
-<script>
-function loadScript(src, cb) {
-  var s = document.createElement('script');
-  s.src = src;
-  s.onload = cb;
-  document.head.appendChild(s);
-}
-loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
-
-  var dracoLoader = new THREE.DRACOLoader();
-  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
-  var gltfLoader = new THREE.GLTFLoader();
-  gltfLoader.setDRACOLoader(dracoLoader);
-
-  var renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  document.body.appendChild(renderer.domElement);
-
-  var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
-  var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
-  scene.add(new THREE.AmbientLight(0xffffff, 2));
-  var dl = new THREE.DirectionalLight(0xffffff, 1.5);
-  dl.position.set(5, 10, 5);
-  scene.add(dl);
-
-  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
-  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-  var mixer = null;
-  var clock = new THREE.Clock();
-  var currentRoom = 'room10';
-  var SPEED = 0.05;
-
-  var isDraggingCamera = false;
-  var lastCamMouse = new THREE.Vector2();
-  var camYaw = 0;
-  var camPitch = 0;
-
-  function loadRoom(glbUrl) {
-    currentRoom = 'room10';
-    var toRemove = [];
-    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
-    toRemove.forEach(function(obj) { scene.remove(obj); });
-    scene.add(new THREE.AmbientLight(0xffffff, 2));
-    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
-    dl2.position.set(5, 10, 5);
-    scene.add(dl2);
-    if (mixer) { mixer.stopAllAction(); mixer = null; }
-
-    gltfLoader.load(glbUrl, function(gltf) {
-      var model = gltf.scene;
-      model.scale.setScalar(10);
-
-      gltf.scene.traverse(function(obj) {
-        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-      });
-
-      scene.add(model);
-
-      if (gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(gltf.scene);
-        gltf.animations.forEach(function(clip) {
-          var action = mixer.clipAction(clip);
-          action.reset();
-          action.setEffectiveTimeScale(1);
-          action.setEffectiveWeight(1);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.play();
-        });
-      }
-
-      var box = new THREE.Box3().setFromObject(model);
-      var center = box.getCenter(new THREE.Vector3());
-      var size = box.getSize(new THREE.Vector3());
-      camera.position.set(center.x, center.y, center.z);
-      camera.lookAt(center.x + 0.01, center.y, center.z - 0.01);
-      SPEED = size.x * 0.01;
-    }, null, function(err) { console.error(err); });
-  }
-
-  function loadPuppet() {
-    var toRemove = [];
-    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
-    toRemove.forEach(function(obj) { scene.remove(obj); });
-    if (mixer) { mixer.stopAllAction(); mixer = null; }
-
-    var iframe = document.createElement('iframe');
-    iframe.src = 'https://hwrules189-commits.github.io/room/puppet.html';
-    iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:50;';
-    document.body.appendChild(iframe);
-  }
-
-  loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb');
-
-  // Room clicking
-  renderer.domElement.addEventListener('click', function(e) {
-    if (currentRoom !== 'room10') return;
-    var raycaster = new THREE.Raycaster();
-    var mouse = new THREE.Vector2();
-    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    var all = [];
-    scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
-    var intersects = raycaster.intersectObjects(all, true);
-    if (intersects.length > 0) {
-      var obj = intersects[0].object;
-      console.log('Clicked:', obj.name);
-      var isWrestler = false;
-      while (obj) {
-        if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') { isWrestler = true; break; }
-        obj = obj.parent;
-      }
-      if (isWrestler) {
-        currentRoom = 'puppet';
-        loadPuppet();
-      }
-    }
-  });
-
-  // Camera drag to look
-  renderer.domElement.addEventListener('mousedown', function(e) {
-    isDraggingCamera = true;
-    lastCamMouse.set(e.clientX, e.clientY);
-  });
-
-  renderer.domElement.addEventListener('mousemove', function(e) {
-    if (!isDraggingCamera) return;
-    var dx = (e.clientX - lastCamMouse.x) * 0.005;
-    var dy = (e.clientY - lastCamMouse.y) * 0.005;
-    camYaw -= dx;
-    camPitch -= dy;
-    camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));
-    lastCamMouse.set(e.clientX, e.clientY);
-  });
-
-  renderer.domElement.addEventListener('mouseup', function() { isDraggingCamera = false; });
-  renderer.domElement.addEventListener('mouseleave', function() { isDraggingCamera = false; });
-
-  var forward = new THREE.Vector3();
-  var right = new THREE.Vector3();
-  var keys = {};
-  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
-  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
-
-  function animate() {
-    requestAnimationFrame(animate);
-    var delta = clock.getDelta();
-    if (mixer) mixer.update(delta);
-
-    camera.rotation.order = 'YXZ';
-    camera.rotation.y = camYaw;
-    camera.rotation.x = camPitch;
-
-    if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
-    if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
-    if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
-    if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', function() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-})})});
-</script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-puppet html:
-
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-* { margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; }
 canvas { display: block; }
 </style>
 </head>
@@ -277,147 +16,109 @@ function loadScript(src, cb) {
   s.onload = cb;
   document.head.appendChild(s);
 }
-loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
-
-  var dracoLoader = new THREE.DRACOLoader();
-  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
-  var gltfLoader = new THREE.GLTFLoader();
-  gltfLoader.setDRACOLoader(dracoLoader);
-
-  var W = 900;
-  var H = 1100;
-
-  var renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(W, H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  document.body.appendChild(renderer.domElement);
+loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function () {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function () {
 
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
-  var camera = new THREE.PerspectiveCamera(85, W / H, 0.001, 5000);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 1));
-  var dl = new THREE.DirectionalLight(0xffffff, 1);
+  var camera = new THREE.PerspectiveCamera(
+    85,
+    window.innerWidth / window.innerHeight,
+    0.001,
+    5000
+  );
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  document.body.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 2));
+  var dl = new THREE.DirectionalLight(0xffffff, 1.5);
   dl.position.set(5, 10, 5);
   scene.add(dl);
-  var dl2 = new THREE.DirectionalLight(0xffffff, 0.5);
-  dl2.position.set(-5, 5, -5);
-  scene.add(dl2);
 
-  var boneHelpers = [];
-  var selectedBone = null;
-  var isDraggingBone = false;
-  var lastMouse = new THREE.Vector2();
+  var dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
 
-  gltfLoader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wrestlerpuppet.glb', function(gltf) {
-    var model = gltf.scene;
+  var gltfLoader = new THREE.GLTFLoader();
+  gltfLoader.setDRACOLoader(dracoLoader);
 
-    var boxRaw = new THREE.Box3().setFromObject(model);
-    var sizeRaw = boxRaw.getSize(new THREE.Vector3());
-    var maxDimRaw = Math.max(sizeRaw.x, sizeRaw.y, sizeRaw.z);
-    var scaleFactor = 38 / maxDimRaw;
-    model.scale.setScalar(scaleFactor);
+  var model = null;
+  var lamp001 = null;
+  var lamp002 = null;
+
+  gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb', function(gltf) {
+    model = gltf.scene;
     scene.add(model);
+
+    model.traverse(function(obj) {
+      if (obj.name === 'lamp001') lamp001 = obj;
+      if (obj.name === 'lamp002') lamp002 = obj;
+    });
+
+    console.log('lamp001 found:', lamp001);
+    console.log('lamp002 found:', lamp002);
+
+    if (lamp001) lamp001.visible = true;
+    if (lamp002) lamp002.visible = false;
 
     var box = new THREE.Box3().setFromObject(model);
     var center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center);
+    camera.position.set(center.x, center.y, center.z + 5);
+    camera.lookAt(center);
+  },
+  function(xhr) {
+    console.log('Loading: ' + (xhr.loaded / xhr.total * 100).toFixed(1) + '%');
+  },
+  function(err) {
+    console.error('GLB load error:', err);
+  });
 
-    box = new THREE.Box3().setFromObject(model);
-    var size = box.getSize(new THREE.Vector3());
-    var maxDim = Math.max(size.x, size.y, size.z);
+  renderer.domElement.addEventListener('click', function (e) {
+    if (!model) return;
 
-    camera.position.set(0, 0, maxDim * 0.8);
-    camera.lookAt(0, 0, 0);
-
-    model.traverse(function(obj) {
-      if (obj.isBone) {
-        if (obj.name === 'neutral_bone' || obj.name === 'Bone009' || obj.name === 'Bone012') return;
-        if (obj.name.toLowerCase().indexOf('root') !== -1) return;
-        var wp = new THREE.Vector3();
-        obj.getWorldPosition(wp);
-        var geo = new THREE.SphereGeometry(0.52, 8, 8);
-        var mat = new THREE.MeshBasicMaterial({ color: 0x00ccff, depthTest: false, transparent: true, opacity: 0.9 });
-        var sphere = new THREE.Mesh(geo, mat);
-        sphere.userData.bone = obj;
-        sphere.renderOrder = 999;
-        sphere.position.copy(wp);
-        scene.add(sphere);
-        boneHelpers.push(sphere);
-      }
-    });
-
-    console.log('Bones:', boneHelpers.length);
-  }, null, function(err) { console.error(err); });
-
-  renderer.domElement.addEventListener('pointerdown', function(e) {
-    var rect = renderer.domElement.getBoundingClientRect();
-    var mouse = new THREE.Vector2();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects(boneHelpers, false);
-    console.log('Bone intersects:', intersects.length);
-    if (intersects.length > 0) {
-      selectedBone = intersects[0].object.userData.bone;
-      boneHelpers.forEach(function(h) { h.material.color.set(0x00ccff); });
-      intersects[0].object.material.color.set(0xff6600);
-      isDraggingBone = true;
-      lastMouse.set(e.clientX, e.clientY);
-      renderer.domElement.setPointerCapture(e.pointerId);
+
+    var hits = raycaster.intersectObject(model, true);
+    if (!hits.length) return;
+
+    var obj = hits[0].object;
+    while (obj && obj !== model) {
+      if (obj.name === 'lamp001') {
+        if (lamp001) lamp001.visible = false;
+        if (lamp002) lamp002.visible = true;
+        return;
+      }
+      if (obj.name === 'lamp002') {
+        if (lamp002) lamp002.visible = false;
+        if (lamp001) lamp001.visible = true;
+        return;
+      }
+      obj = obj.parent;
     }
-  });
-
-  renderer.domElement.addEventListener('pointermove', function(e) {
-    if (!isDraggingBone || !selectedBone) return;
-    var dx = (e.clientX - lastMouse.x) * 0.008;
-    var dy = (e.clientY - lastMouse.y) * 0.008;
-    selectedBone.rotation.z -= dx;
-    selectedBone.rotation.x += dy;
-    selectedBone.updateMatrix();
-    lastMouse.set(e.clientX, e.clientY);
-  });
-
-  renderer.domElement.addEventListener('pointerup', function(e) {
-    isDraggingBone = false;
-    selectedBone = null;
-    renderer.domElement.releasePointerCapture(e.pointerId);
   });
 
   function animate() {
     requestAnimationFrame(animate);
-    if (boneHelpers.length > 0) {
-      boneHelpers.forEach(function(sphere) {
-        var wp = new THREE.Vector3();
-        sphere.userData.bone.getWorldPosition(wp);
-        sphere.position.copy(wp);
-      });
-    }
     renderer.render(scene, camera);
   }
   animate();
 
-})})});
+  window.addEventListener('resize', function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})})}); 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

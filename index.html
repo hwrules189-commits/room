@@ -121,8 +121,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
   loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb?v=3');
 
-  // Click handler
-  renderer.domElement.addEventListener('click', function(e) {
+ renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room10') return;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
@@ -134,19 +133,26 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length === 0) return;
 
-    // Walk up ancestors to find named object
-    var obj = intersects[0].object;
+    var hit = intersects[0].object;
+
+    // Check if the hit mesh IS lamp001 or is a child of lamp001
+    var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));
+    var isLamp002 = lamp002 && (hit === lamp002 || lamp002.getObjectById(hit.id));
+
+    if (isLamp001) {
+      lamp001.visible = false;
+      lamp002.visible = true;
+      return;
+    }
+    if (isLamp002) {
+      lamp002.visible = false;
+      lamp001.visible = true;
+      return;
+    }
+
+    // Wrestler click
+    var obj = hit;
     while (obj) {
-      if (obj.name === 'lamp001') {
-        if (lamp001) lamp001.visible = false;
-        if (lamp002) lamp002.visible = true;
-        return;
-      }
-      if (obj.name === 'lamp002') {
-        if (lamp002) lamp002.visible = false;
-        if (lamp001) lamp001.visible = true;
-        return;
-      }
       if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {
         currentRoom = 'puppet';
         loadPuppet();
@@ -154,7 +160,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       }
       obj = obj.parent;
     }
-  });
+});
 
   // Camera drag to look
   renderer.domElement.addEventListener('mousedown', function(e) {

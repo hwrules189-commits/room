@@ -5,10 +5,10 @@
 <style>
 * { margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-canvas { display: block; }
 </style>
 </head>
 <body>
+
 <script>
 function loadScript(src, cb) {
   var s = document.createElement('script');
@@ -16,82 +16,127 @@ function loadScript(src, cb) {
   s.onload = cb;
   document.head.appendChild(s);
 }
-loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function () {
-loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function () {
+loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
 
-  var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
-
-  var camera = new THREE.PerspectiveCamera(
-    85,
-    window.innerWidth / window.innerHeight,
-    0.001,
-    5000
-  );
+  var dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
+  var gltfLoader = new THREE.GLTFLoader();
+  gltfLoader.setDRACOLoader(dracoLoader);
 
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
   renderer.outputEncoding = THREE.sRGBEncoding;
   document.body.appendChild(renderer.domElement);
 
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xffffff);
+  var camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.001, 5000);
   scene.add(new THREE.AmbientLight(0xffffff, 2));
   var dl = new THREE.DirectionalLight(0xffffff, 1.5);
   dl.position.set(5, 10, 5);
   scene.add(dl);
 
-  var dracoLoader = new THREE.DRACOLoader();
-  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
+  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
+  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-  var gltfLoader = new THREE.GLTFLoader();
-  gltfLoader.setDRACOLoader(dracoLoader);
+  var mixer = null;
+  var clock = new THREE.Clock();
+  var currentRoom = 'room10';
+  var SPEED = 0.05;
 
-  var model = null;
+  var isDraggingCamera = false;
+  var lastCamMouse = new THREE.Vector2();
+  var camYaw = 0;
+  var camPitch = 0;
+
   var lamp001 = null;
   var lamp002 = null;
 
-  gltfLoader.load('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb', function(gltf) {
-    model = gltf.scene;
-    scene.add(model);
+  function loadRoom(glbUrl) {
+    currentRoom = 'room10';
+    var toRemove = [];
+    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
+    toRemove.forEach(function(obj) { scene.remove(obj); });
+    scene.add(new THREE.AmbientLight(0xffffff, 2));
+    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl2.position.set(5, 10, 5);
+    scene.add(dl2);
+    if (mixer) { mixer.stopAllAction(); mixer = null; }
+    lamp001 = null;
+    lamp002 = null;
 
-    model.traverse(function(obj) {
-      if (obj.name === 'lamp001') lamp001 = obj;
-      if (obj.name === 'lamp002') lamp002 = obj;
-    });
+    gltfLoader.load(glbUrl, function(gltf) {
+      var model = gltf.scene;
+      model.scale.setScalar(10);
 
-    console.log('lamp001 found:', lamp001);
-    console.log('lamp002 found:', lamp002);
+      gltf.scene.traverse(function(obj) {
+        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
+        if (obj.name === 'lamp001') lamp001 = obj;
+        if (obj.name === 'lamp002') lamp002 = obj;
+      });
 
-    if (lamp001) lamp001.visible = true;
-    if (lamp002) lamp002.visible = false;
+      scene.add(model);
 
-    var box = new THREE.Box3().setFromObject(model);
-    var center = box.getCenter(new THREE.Vector3());
-    camera.position.set(center.x, center.y, center.z + 5);
-    camera.lookAt(center);
-  },
-  function(xhr) {
-    console.log('Loading: ' + (xhr.loaded / xhr.total * 100).toFixed(1) + '%');
-  },
-  function(err) {
-    console.error('GLB load error:', err);
-  });
+      // Initial lamp state
+      if (lamp001) lamp001.visible = true;
+      if (lamp002) lamp002.visible = false;
 
-  renderer.domElement.addEventListener('click', function (e) {
-    if (!model) return;
+      if (gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        gltf.animations.forEach(function(clip) {
+          var action = mixer.clipAction(clip);
+          action.reset();
+          action.setEffectiveTimeScale(1);
+          action.setEffectiveWeight(1);
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.play();
+        });
+      }
 
+      var box = new THREE.Box3().setFromObject(model);
+      var center = box.getCenter(new THREE.Vector3());
+      var size = box.getSize(new THREE.Vector3());
+      camera.position.set(center.x, center.y, center.z);
+      camera.lookAt(center.x + 0.01, center.y, center.z - 0.01);
+      SPEED = size.x * 0.01;
+    }, null, function(err) { console.error(err); });
+  }
+
+  function loadPuppet() {
+    var toRemove = [];
+    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
+    toRemove.forEach(function(obj) { scene.remove(obj); });
+    if (mixer) { mixer.stopAllAction(); mixer = null; }
+
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://hwrules189-commits.github.io/room/puppet.html';
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:50;';
+    document.body.appendChild(iframe);
+  }
+
+  loadRoom('https://cdn.jsdelivr.net/gh/hwrules189-commits/room@main/room10.glb');
+
+  // Click handler
+  renderer.domElement.addEventListener('click', function(e) {
+    if (currentRoom !== 'room10') return;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+    var all = [];
+    scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
+    var intersects = raycaster.intersectObjects(all, true);
+    if (intersects.length === 0) return;
 
-    var hits = raycaster.intersectObject(model, true);
-    if (!hits.length) return;
-
-    var obj = hits[0].object;
-    while (obj && obj !== model) {
+    // Walk up ancestors to find named object
+    var obj = intersects[0].object;
+    while (obj) {
       if (obj.name === 'lamp001') {
         if (lamp001) lamp001.visible = false;
         if (lamp002) lamp002.visible = true;
@@ -102,23 +147,65 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (lamp001) lamp001.visible = true;
         return;
       }
+      if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {
+        currentRoom = 'puppet';
+        loadPuppet();
+        return;
+      }
       obj = obj.parent;
     }
   });
 
+  // Camera drag to look
+  renderer.domElement.addEventListener('mousedown', function(e) {
+    isDraggingCamera = true;
+    lastCamMouse.set(e.clientX, e.clientY);
+  });
+
+  renderer.domElement.addEventListener('mousemove', function(e) {
+    if (!isDraggingCamera) return;
+    var dx = (e.clientX - lastCamMouse.x) * 0.005;
+    var dy = (e.clientY - lastCamMouse.y) * 0.005;
+    camYaw -= dx;
+    camPitch -= dy;
+    camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));
+    lastCamMouse.set(e.clientX, e.clientY);
+  });
+
+  renderer.domElement.addEventListener('mouseup', function() { isDraggingCamera = false; });
+  renderer.domElement.addEventListener('mouseleave', function() { isDraggingCamera = false; });
+
+  var forward = new THREE.Vector3();
+  var right = new THREE.Vector3();
+  var keys = {};
+  document.addEventListener('keydown', function(e) { keys[e.code] = true; });
+  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
   function animate() {
     requestAnimationFrame(animate);
+    var delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+
+    camera.rotation.order = 'YXZ';
+    camera.rotation.y = camYaw;
+    camera.rotation.x = camPitch;
+
+    if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
+    if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
+    if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
+    if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
+
     renderer.render(scene, camera);
   }
   animate();
 
-  window.addEventListener('resize', function () {
+  window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-})})}); 
+})})});
 </script>
 </body>
 </html>

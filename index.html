@@ -53,6 +53,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var lastCamMouse = new THREE.Vector2();
   var camYaw = 0;
   var camPitch = 0;
+  var mouseHasMoved = false;  // ADD THIS
 
   var lamp001 = null;
   var lamp2 = null;
@@ -129,6 +130,7 @@ console.log('=================================');
   
  renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room10') return;
+   if (mouseHasMoved) return; 
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -171,6 +173,7 @@ console.log('=================================');
   // Camera drag to look
   renderer.domElement.addEventListener('mousedown', function(e) {
     isDraggingCamera = true;
+    mouseHasMoved = false;  // ADD THIS
     lastCamMouse.set(e.clientX, e.clientY);
   });
 
@@ -178,6 +181,7 @@ console.log('=================================');
     if (!isDraggingCamera) return;
     var dx = (e.clientX - lastCamMouse.x) * 0.005;
     var dy = (e.clientY - lastCamMouse.y) * 0.005;
+    if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) mouseHasMoved = true;  // ADD THIS
     camYaw -= dx;
     camPitch -= dy;
     camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));

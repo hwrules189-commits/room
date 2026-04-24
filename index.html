@@ -80,6 +80,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'lamp002') lamp002 = obj;
       });
 
+      console.log('=== ALL OBJECT NAMES IN SCENE ===');
+model.traverse(function(obj) {
+  console.log(obj.type + ': "' + obj.name + '"');
+});
+console.log('=================================');
+
       scene.add(model);
 
       // Initial lamp state

@@ -56,7 +56,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var mouseHasMoved = false;  // ADD THIS
 
   var lamp001 = null;
-  var lamp2 = null;
+  var lamp002 = null;
 
   function loadRoom(glbUrl) {
     currentRoom = 'room11';
@@ -69,7 +69,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     scene.add(dl2);
     if (mixer) { mixer.stopAllAction(); mixer = null; }
     lamp001 = null;
-    lamp2 = null;
+    lamp002 = null;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -78,7 +78,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       gltf.scene.traverse(function(obj) {
         if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
         if (obj.name === 'lamp001') lamp001 = obj;
-        if (obj.name === 'lamp2') lamp2 = obj;
+        if (obj.name === 'lamp002') lamp002 = obj;
 
         // Create invisible hitboxes for lamps
 function makeHitbox(targetObj, name) {
@@ -96,7 +96,7 @@ function makeHitbox(targetObj, name) {
 }
 
 var hitbox1 = makeHitbox(lamp001, 'lamp001');
-var hitbox2 = makeHitbox(lamp2, 'lamp2');
+var hitbox2 = makeHitbox(lamp002, 'lamp002');
       });
 
       console.log('=== ALL OBJECT NAMES IN SCENE ===');
@@ -109,7 +109,7 @@ console.log('=================================');
 
       // Initial lamp state
       if (lamp001) lamp001.visible = true;
-      if (lamp2) lamp2.visible = false;
+      if (lamp002) lamp002.visible = false;
 
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene);
@@ -163,15 +163,15 @@ console.log('=================================');
 
     // Check if the hit mesh IS lamp001 or is a child of lamp001
     var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));
-    var isLamp2 = lamp2 && (hit === lamp2 || lamp2.getObjectById(hit.id));
+    var isLamp002 = lamp002 && (hit === lamp002 || lamp002.getObjectById(hit.id));
 
     if (isLamp001) {
       lamp001.visible = false;
-      lamp2.visible = true;
+      lamp002.visible = true;
       return;
     }
     if (isLamp2) {
-      lamp2.visible = false;
+      lamp002.visible = false;
       lamp001.visible = true;
       return;
     }

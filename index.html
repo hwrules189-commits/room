@@ -83,30 +83,6 @@ var lampOn = true;
     if (obj.name === 'lamp002') lamp002 = obj;
 });
 
-        // Create invisible hitboxes for lamps
-function makeHitbox(targetObj, name) {
-  if (!targetObj) return;
-  var box = new THREE.Box3().setFromObject(targetObj);
-  var size = box.getSize(new THREE.Vector3());
-  var center = box.getCenter(new THREE.Vector3());
-  var geo = new THREE.BoxGeometry(size.x, size.y, size.z);
-  var mat = new THREE.MeshBasicMaterial({ visible: false });
-  var hitbox = new THREE.Mesh(geo, mat);
-  hitbox.position.copy(center);
-  hitbox.name = name;
-  scene.add(hitbox);
-  return hitbox;
-}
-
-var hitbox1 = makeHitbox(lamp001, 'lamp001');
-var hitbox2 = makeHitbox(lamp002, 'lamp002');
-      });
-
-      console.log('=== ALL OBJECT NAMES IN SCENE ===');
-model.traverse(function(obj) {
-  console.log(obj.type + ': "' + obj.name + '"');
-});
-console.log('=================================');
 
       scene.add(model);
 
@@ -146,7 +122,7 @@ if (lamp001 && lamp002) {
       camera.position.set(center.x, center.y, center.z);
       camera.lookAt(center.x + 0.01, center.y, center.z - 0.01);
       SPEED = size.x * 0.01;
-    } null, function(err) { console.error(err); });
+    }, null, function(err) { console.error(err); });
   }
 
   function loadPuppet() {

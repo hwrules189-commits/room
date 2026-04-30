@@ -126,9 +126,8 @@ if (lamp001 && lamp002) {
         new THREE.MeshBasicMaterial({ visible: false })
     );
     lampHitbox.position.copy(hCenter);
-    scene.add(lampHitbox);
-}
-
+       scene.add(lampHitbox);
+    }
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene);
         gltf.animations.forEach(function(clip) {

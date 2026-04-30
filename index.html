@@ -56,7 +56,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var mouseHasMoved = false;  // ADD THIS
 
   var lamp001 = null;
-  var lamp002 = null;
+var lamp002 = null;
+var lampHitbox = null;
+var lampOn = true;
 
   function loadRoom(glbUrl) {
     currentRoom = 'room11';
@@ -76,9 +78,10 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       model.scale.setScalar(10);
 
       gltf.scene.traverse(function(obj) {
-        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-        if (obj.name === 'lamp001') lamp001 = obj;
-        if (obj.name === 'lamp002') lamp002 = obj;
+    if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
+    if (obj.name === 'lamp001') lamp001 = obj;
+    if (obj.name === 'lamp002') lamp002 = obj;
+});
 
         // Create invisible hitboxes for lamps
 function makeHitbox(targetObj, name) {
@@ -110,6 +113,21 @@ console.log('=================================');
       // Initial lamp state
       if (lamp001) lamp001.visible = true;
       if (lamp002) lamp002.visible = false;
+
+    // Build shared hitbox over both lamps
+if (lamp001 && lamp002) {
+    var b1 = new THREE.Box3().setFromObject(lamp001);
+    var b2 = new THREE.Box3().setFromObject(lamp002);
+    var combined = b1.union(b2);
+    var hSize = combined.getSize(new THREE.Vector3());
+    var hCenter = combined.getCenter(new THREE.Vector3());
+    lampHitbox = new THREE.Mesh(
+        new THREE.BoxGeometry(hSize.x, hSize.y, hSize.z),
+        new THREE.MeshBasicMaterial({ visible: false })
+    );
+    lampHitbox.position.copy(hCenter);
+    scene.add(lampHitbox);
+}
 
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene);
@@ -165,16 +183,12 @@ console.log('=================================');
     var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));
     var isLamp002 = lamp002 && (hit === lamp002 || lamp002.getObjectById(hit.id));
 
-    if (isLamp001) {
-      lamp001.visible = false;
-      lamp002.visible = true;
-      return;
-    }
-    if (isLamp002) {
-      lamp002.visible = false;
-      lamp001.visible = true;
-      return;
-    }
+    if (hit === lampHitbox || isLamp001 || isLamp002) {
+    lampOn = !lampOn;
+    if (lamp001) lamp001.visible = lampOn;
+    if (lamp002) lamp002.visible = !lampOn;
+    return;
+}
 
     // Wrestler click
     var obj = hit;

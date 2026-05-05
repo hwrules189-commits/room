@@ -69,31 +69,26 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     if (!cerealMesh) return;
     cerealVisible = !cerealVisible;
     cerealMesh.visible = cerealVisible;
-    cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
 
     if (cerealVisible) {
-      if (!cerealTextureApplied) {
+      if (!cerealTextureApplied && cerealVideo) {
         cerealTextureApplied = true;
         var videoTexture = new THREE.VideoTexture(cerealVideo);
         videoTexture.encoding = THREE.sRGBEncoding;
-        if (cerealMesh.isMesh) {
-          cerealMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture });
-          cerealMesh.material.needsUpdate = true;
-        }
-        cerealMesh.traverse(function(child) {
-          if (child.isMesh) {
-            child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
-            child.material.needsUpdate = true;
-          }
+        cerealMesh.material = new THREE.MeshBasicMaterial({
+          map: videoTexture,
+          side: THREE.DoubleSide
         });
       }
-      if (cerealVideo.readyState >= 2) {
-        cerealVideo.play();
-      } else {
-        cerealVideo.addEventListener('canplay', function handler() {
-          cerealVideo.removeEventListener('canplay', handler);
+      if (cerealVideo) {
+        if (cerealVideo.readyState >= 2) {
           cerealVideo.play();
-        });
+        } else {
+          cerealVideo.addEventListener('canplay', function handler() {
+            cerealVideo.removeEventListener('canplay', handler);
+            cerealVideo.play();
+          });
+        }
       }
     } else {
       if (cerealVideo) cerealVideo.pause();
@@ -128,7 +123,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'me_eating_cereal_') {
           cerealMesh = obj;
           obj.visible = false;
-          obj.rotation.z = Math.PI;
+
           cerealVideo = document.createElement('video');
           cerealVideo.loop = true;
           cerealVideo.muted = true;

@@ -218,13 +218,14 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
     }
 
     var obj = hit;
-    while (obj) {
-      if (obj.name === 'mesh001') {
-        toggleCereal();
-        return;
-      }
-      obj = obj.parent;
-    }
+while (obj) {
+  if (obj.name === 'mesh001') {
+    console.log('checking:', obj.name);
+    toggleCereal();
+    return;
+  }
+  obj = obj.parent;
+}
 
     obj = hit;
     while (obj) {

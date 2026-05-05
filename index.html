@@ -173,17 +173,17 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   }
 
   function toggleCereal() {
-    if (!cerealMesh) return;
-    cerealVisible = !cerealVisible;
-    cerealMesh.visible = cerealVisible;
-    cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
+  if (!cerealMesh) return;
+  cerealVisible = !cerealVisible;
+  cerealMesh.visible = cerealVisible;
+  cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
 
-    if (cerealVisible) {
-      cerealActions.forEach(function(action) { action.reset(); action.play(); });
-    } else {
-      cerealActions.forEach(function(action) { action.stop(); });
-    }
+  if (cerealVisible) {
+    if (cerealVideo) cerealVideo.play();
+  } else {
+    if (cerealVideo) cerealVideo.pause();
   }
+}
 
   loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room11.glb');
 

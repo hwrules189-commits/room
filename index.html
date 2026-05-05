@@ -80,16 +80,24 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
           cerealMesh.traverse(function(child) {
             if (child.isMesh) {
               child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+              child.material.needsUpdate = true;
             }
           });
         }
-        cerealVideo.play();
+        // Wait for video to be ready before playing
+        if (cerealVideo.readyState >= 2) {
+          cerealVideo.play();
+        } else {
+          cerealVideo.addEventListener('canplay', function handler() {
+            cerealVideo.removeEventListener('canplay', handler);
+            cerealVideo.play();
+          });
+        }
       }
     } else {
       if (cerealVideo) cerealVideo.pause();
     }
   }
-
   function loadRoom(glbUrl) {
     currentRoom = 'room11';
     var toRemove = [];

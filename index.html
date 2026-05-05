@@ -61,8 +61,34 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var lampOn = true;
 
   var cerealMesh = null;
-  var cerealActions = [];
   var cerealVisible = false;
+  var cerealVideo = null;
+  var cerealTextureApplied = false;
+
+  function toggleCereal() {
+    if (!cerealMesh) return;
+    cerealVisible = !cerealVisible;
+    cerealMesh.visible = cerealVisible;
+    cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
+
+    if (cerealVisible) {
+      if (cerealVideo) {
+        if (!cerealTextureApplied) {
+          cerealTextureApplied = true;
+          var videoTexture = new THREE.VideoTexture(cerealVideo);
+          videoTexture.encoding = THREE.sRGBEncoding;
+          cerealMesh.traverse(function(child) {
+            if (child.isMesh) {
+              child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+            }
+          });
+        }
+        cerealVideo.play();
+      }
+    } else {
+      if (cerealVideo) cerealVideo.pause();
+    }
+  }
 
   function loadRoom(glbUrl) {
     currentRoom = 'room11';
@@ -77,57 +103,29 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     lamp001 = null;
     lamp002 = null;
     cerealMesh = null;
-    cerealActions = [];
     cerealVisible = false;
+    cerealVideo = null;
+    cerealTextureApplied = false;
 
     gltfLoader.load(glbUrl, function(gltf) {
-      console.log('GLB loaded, objects:');
-  gltf.scene.traverse(function(obj) { console.log(obj.name); });
       var model = gltf.scene;
       model.scale.setScalar(10);
 
-      // top of file with other variables
-var cerealVideo = null;
-var cerealTextureApplied = false;
+      gltf.scene.traverse(function(obj) {
+        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
+        if (obj.name === 'lamp001') lamp001 = obj;
+        if (obj.name === 'lamp002') lamp002 = obj;
+        if (obj.name === 'me_eating_cereal_') {
+          cerealMesh = obj;
+          obj.visible = false;
 
-// in traverse:
-if (obj.name === 'me_eating_cereal_') {
-  cerealMesh = obj;
-  obj.visible = false;
-
-  cerealVideo = document.createElement('video');
-  cerealVideo.src = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/cereal.mp4';
-  cerealVideo.loop = true;
-  cerealVideo.muted = true;
-  cerealVideo.playsInline = true;
-}
-
-// updated toggleCereal:
-function toggleCereal() {
-  if (!cerealMesh) return;
-  cerealVisible = !cerealVisible;
-  cerealMesh.visible = cerealVisible;
-  cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
-
-  if (cerealVisible) {
-    if (cerealVideo) {
-      // Only apply texture once
-      if (!cerealTextureApplied) {
-        cerealTextureApplied = true;
-        var videoTexture = new THREE.VideoTexture(cerealVideo);
-        videoTexture.encoding = THREE.sRGBEncoding;
-        cerealMesh.traverse(function(child) {
-          if (child.isMesh) {
-            child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
-          }
-        });
-      }
-      cerealVideo.play();
-    }
-  } else {
-    if (cerealVideo) cerealVideo.pause();
-  }
-}
+          cerealVideo = document.createElement('video');
+          cerealVideo.src = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/cereal.mp4';
+          cerealVideo.loop = true;
+          cerealVideo.muted = true;
+          cerealVideo.playsInline = true;
+        }
+      });
 
       scene.add(model);
 
@@ -151,19 +149,12 @@ function toggleCereal() {
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene);
         gltf.animations.forEach(function(clip) {
-          var isCereal = clip.name.toLowerCase().includes('cereal') ||
-               clip.tracks.some(function(t) { return t.name.toLowerCase().includes('cereal'); });
           var action = mixer.clipAction(clip);
           action.reset();
           action.setEffectiveTimeScale(1);
           action.setEffectiveWeight(1);
-          if (isCereal) {
-            action.setLoop(THREE.LoopRepeat, Infinity);
-            cerealActions.push(action);
-          } else {
-            action.setLoop(THREE.LoopRepeat, Infinity);
-            action.play();
-          }
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.play();
         });
       }
 
@@ -187,19 +178,6 @@ function toggleCereal() {
     iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:50;';
     document.body.appendChild(iframe);
   }
-
-  function toggleCereal() {
-  if (!cerealMesh) return;
-  cerealVisible = !cerealVisible;
-  cerealMesh.visible = cerealVisible;
-  cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
-
-  if (cerealVisible) {
-    if (cerealVideo) cerealVideo.play();
-  } else {
-    if (cerealVideo) cerealVideo.pause();
-  }
-}
 
   loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room11.glb');
 
@@ -228,7 +206,6 @@ function toggleCereal() {
       return;
     }
 
-    // Mesh001 click — toggle cereal
     var obj = hit;
     while (obj) {
       if (obj.name === 'mesh001') {
@@ -238,7 +215,6 @@ function toggleCereal() {
       obj = obj.parent;
     }
 
-    // Wrestler click
     obj = hit;
     while (obj) {
       if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {

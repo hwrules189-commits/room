@@ -53,12 +53,16 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var lastCamMouse = new THREE.Vector2();
   var camYaw = 0;
   var camPitch = 0;
-  var mouseHasMoved = false;  // ADD THIS
+  var mouseHasMoved = false;
 
   var lamp001 = null;
-var lamp002 = null;
-var lampHitbox = null;
-var lampOn = true;
+  var lamp002 = null;
+  var lampHitbox = null;
+  var lampOn = true;
+
+  var cerealMesh = null;
+  var cerealActions = [];
+  var cerealVisible = false;
 
   function loadRoom(glbUrl) {
     currentRoom = 'room11';
@@ -72,47 +76,59 @@ var lampOn = true;
     if (mixer) { mixer.stopAllAction(); mixer = null; }
     lamp001 = null;
     lamp002 = null;
+    cerealMesh = null;
+    cerealActions = [];
+    cerealVisible = false;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       model.scale.setScalar(10);
 
       gltf.scene.traverse(function(obj) {
-    if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-    if (obj.name === 'lamp001') lamp001 = obj;
-    if (obj.name === 'lamp002') lamp002 = obj;
-});
-
+        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
+        if (obj.name === 'lamp001') lamp001 = obj;
+        if (obj.name === 'lamp002') lamp002 = obj;
+        if (obj.name === 'me eating cereal') {
+          cerealMesh = obj;
+          obj.visible = false;
+        }
+      });
 
       scene.add(model);
 
-      // Initial lamp state
       if (lamp001) lamp001.visible = true;
       if (lamp002) lamp002.visible = false;
 
-    // Build shared hitbox over both lamps
-if (lamp001 && lamp002) {
-    var b1 = new THREE.Box3().setFromObject(lamp001);
-    var b2 = new THREE.Box3().setFromObject(lamp002);
-    var combined = b1.union(b2);
-    var hSize = combined.getSize(new THREE.Vector3());
-    var hCenter = combined.getCenter(new THREE.Vector3());
-    lampHitbox = new THREE.Mesh(
-        new THREE.BoxGeometry(hSize.x, hSize.y, hSize.z),
-        new THREE.MeshBasicMaterial({ visible: false })
-    );
-    lampHitbox.position.copy(hCenter);
-       scene.add(lampHitbox);
-    }
+      if (lamp001 && lamp002) {
+        var b1 = new THREE.Box3().setFromObject(lamp001);
+        var b2 = new THREE.Box3().setFromObject(lamp002);
+        var combined = b1.union(b2);
+        var hSize = combined.getSize(new THREE.Vector3());
+        var hCenter = combined.getCenter(new THREE.Vector3());
+        lampHitbox = new THREE.Mesh(
+          new THREE.BoxGeometry(hSize.x, hSize.y, hSize.z),
+          new THREE.MeshBasicMaterial({ visible: false })
+        );
+        lampHitbox.position.copy(hCenter);
+        scene.add(lampHitbox);
+      }
+
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene);
         gltf.animations.forEach(function(clip) {
+          var isCereal = clip.name.toLowerCase().includes('cereal') ||
+                         clip.tracks.some(function(t) { return t.name.toLowerCase().includes('cereal'); });
           var action = mixer.clipAction(clip);
           action.reset();
           action.setEffectiveTimeScale(1);
           action.setEffectiveWeight(1);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.play();
+          if (isCereal) {
+            action.setLoop(THREE.LoopRepeat, Infinity);
+            cerealActions.push(action);
+          } else {
+            action.setLoop(THREE.LoopRepeat, Infinity);
+            action.play();
+          }
         });
       }
 
@@ -137,11 +153,25 @@ if (lamp001 && lamp002) {
     document.body.appendChild(iframe);
   }
 
- loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room11.glb');
-  
- renderer.domElement.addEventListener('click', function(e) {
+  function toggleCereal() {
+    if (!cerealMesh) return;
+    cerealVisible = !cerealVisible;
+    cerealMesh.visible = cerealVisible;
+    cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
+
+    if (cerealVisible) {
+      cerealActions.forEach(function(action) { action.reset(); action.play(); });
+    } else {
+      cerealActions.forEach(function(action) { action.stop(); });
+    }
+  }
+
+  loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room11.glb');
+
+  renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room11') return;
-   if (mouseHasMoved) return; 
+    if (mouseHasMoved) return;
+
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -154,19 +184,27 @@ if (lamp001 && lamp002) {
 
     var hit = intersects[0].object;
 
-    // Check if the hit mesh IS lamp001 or is a child of lamp001
     var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));
     var isLamp002 = lamp002 && (hit === lamp002 || lamp002.getObjectById(hit.id));
-
     if (hit === lampHitbox || isLamp001 || isLamp002) {
-    lampOn = !lampOn;
-    if (lamp001) lamp001.visible = lampOn;
-    if (lamp002) lamp002.visible = !lampOn;
-    return;
-}
+      lampOn = !lampOn;
+      if (lamp001) lamp001.visible = lampOn;
+      if (lamp002) lamp002.visible = !lampOn;
+      return;
+    }
+
+    // Mesh.001 click — toggle cereal
+    var obj = hit;
+    while (obj) {
+      if (obj.name === 'Mesh.001') {
+        toggleCereal();
+        return;
+      }
+      obj = obj.parent;
+    }
 
     // Wrestler click
-    var obj = hit;
+    obj = hit;
     while (obj) {
       if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {
         currentRoom = 'puppet';
@@ -175,12 +213,11 @@ if (lamp001 && lamp002) {
       }
       obj = obj.parent;
     }
-});
+  });
 
-  // Camera drag to look
   renderer.domElement.addEventListener('mousedown', function(e) {
     isDraggingCamera = true;
-    mouseHasMoved = false;  // ADD THIS
+    mouseHasMoved = false;
     lastCamMouse.set(e.clientX, e.clientY);
   });
 
@@ -188,7 +225,7 @@ if (lamp001 && lamp002) {
     if (!isDraggingCamera) return;
     var dx = (e.clientX - lastCamMouse.x) * 0.005;
     var dy = (e.clientY - lastCamMouse.y) * 0.005;
-    if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) mouseHasMoved = true;  // ADD THIS
+    if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) mouseHasMoved = true;
     camYaw -= dx;
     camPitch -= dy;
     camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));

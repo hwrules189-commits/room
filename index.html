@@ -98,18 +98,18 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   cerealMesh = obj;
   obj.visible = false;
 
-          cerealVideo = document.createElement('video');
-  cerealVideo.src = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/cereal.mp4'; // update this to your actual video filename/URL
+  cerealVideo = document.createElement('video');
+  cerealVideo.src = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/cereal.mp4';
   cerealVideo.loop = true;
-  cerealVideo.muted = true; // required for autoplay
+  cerealVideo.muted = true;
   cerealVideo.playsInline = true;
-  cerealVideo.crossOrigin = 'anonymous';
-          var videoTexture = new THREE.VideoTexture(cerealVideo);
+
+  var videoTexture = new THREE.VideoTexture(cerealVideo);
   videoTexture.encoding = THREE.sRGBEncoding;
   obj.traverse(function(child) {
     if (child.isMesh) {
       child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
-        }
+    }
   });
 }
 

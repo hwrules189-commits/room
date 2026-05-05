@@ -86,15 +86,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       var model = gltf.scene;
       model.scale.setScalar(10);
 
-      var cerealVideo = null;
+      // top of file with other variables
+var cerealVideo = null;
+var cerealTextureApplied = false;
 
-      gltf.scene.traverse(function(obj) {
-        console.log(obj.name); // ADD THIS TEMPORARILY
-        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-        if (obj.name === 'lamp001') lamp001 = obj;
-        if (obj.name === 'lamp002') lamp002 = obj;
-        if (obj.name === 'me_eating_cereal_') {
+// in traverse:
+if (obj.name === 'me_eating_cereal_') {
   cerealMesh = obj;
   obj.visible = false;
 
@@ -103,14 +100,33 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   cerealVideo.loop = true;
   cerealVideo.muted = true;
   cerealVideo.playsInline = true;
+}
 
-  var videoTexture = new THREE.VideoTexture(cerealVideo);
-  videoTexture.encoding = THREE.sRGBEncoding;
-  obj.traverse(function(child) {
-    if (child.isMesh) {
-      child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+// updated toggleCereal:
+function toggleCereal() {
+  if (!cerealMesh) return;
+  cerealVisible = !cerealVisible;
+  cerealMesh.visible = cerealVisible;
+  cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
+
+  if (cerealVisible) {
+    if (cerealVideo) {
+      // Only apply texture once
+      if (!cerealTextureApplied) {
+        cerealTextureApplied = true;
+        var videoTexture = new THREE.VideoTexture(cerealVideo);
+        videoTexture.encoding = THREE.sRGBEncoding;
+        cerealMesh.traverse(function(child) {
+          if (child.isMesh) {
+            child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+          }
+        });
+      }
+      cerealVideo.play();
     }
-  });
+  } else {
+    if (cerealVideo) cerealVideo.pause();
+  }
 }
 
       scene.add(model);

@@ -118,18 +118,16 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'me_eating_cereal_') {
           cerealMesh = obj;
           obj.visible = false;
-          obj.rotation.z = Math.PI; // flip 180 degrees
-
-         cerealVideo = document.createElement('video');
-cerealVideo.loop = true;
-cerealVideo.muted = true;
-cerealVideo.playsInline = true;
-
-fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
-  .then(function(r) { return r.blob(); })
-  .then(function(blob) {
-    cerealVideo.src = URL.createObjectURL(blob);
-  });
+          obj.rotation.z = Math.PI;
+          cerealVideo = document.createElement('video');
+          cerealVideo.loop = true;
+          cerealVideo.muted = true;
+          cerealVideo.playsInline = true;
+          fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
+            .then(function(r) { return r.blob(); })
+            .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
+        }
+      });
 
       scene.add(model);
 

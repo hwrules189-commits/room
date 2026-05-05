@@ -123,6 +123,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'me_eating_cereal_') {
           cerealMesh = obj;
           obj.visible = false;
+          obj.rotation.x = Math.PI; // flip on X instead of Z
 
           cerealVideo = document.createElement('video');
           cerealVideo.loop = true;

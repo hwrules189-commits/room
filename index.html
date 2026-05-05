@@ -222,7 +222,8 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       return;
     }
 
-    while (obj) {
+   var obj = hit;
+while (obj) {
   console.log('checking:', obj.name);
   if (obj.name === 'mesh001') {
     console.log('calling toggleCereal now');
@@ -232,16 +233,15 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
   obj = obj.parent;
 }
 
-    obj = hit;
-    while (obj) {
-      if (obj.name === 'Mesh_0' || obj.name === 'Mesh_0.005') {
-        currentRoom = 'puppet';
-        loadPuppet();
-        return;
-      }
-      obj = obj.parent;
-    }
-  });
+var obj2 = hit;
+while (obj2) {
+  if (obj2.name === 'Mesh_0' || obj2.name === 'Mesh_0.005') {
+    currentRoom = 'puppet';
+    loadPuppet();
+    return;
+  }
+  obj2 = obj2.parent;
+}
 
   renderer.domElement.addEventListener('mousedown', function(e) {
     isDraggingCamera = true;

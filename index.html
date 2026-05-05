@@ -73,19 +73,22 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     cerealMesh.visible = cerealVisible;
     cerealMesh.traverse(function(child) { child.visible = cerealVisible; });
 
-    if (cerealVisible) {
-      if (cerealVideo) {
-        if (!cerealTextureApplied) {
-          cerealTextureApplied = true;
-          var videoTexture = new THREE.VideoTexture(cerealVideo);
-          videoTexture.encoding = THREE.sRGBEncoding;
-          cerealMesh.traverse(function(child) {
-            if (child.isMesh) {
-              child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
-              child.material.needsUpdate = true;
-            }
-          });
-        }
+    if (!cerealTextureApplied) {
+  cerealTextureApplied = true;
+  var videoTexture = new THREE.VideoTexture(cerealVideo);
+  videoTexture.encoding = THREE.sRGBEncoding;
+  // Apply directly to cerealMesh too, not just children
+  if (cerealMesh.isMesh) {
+    cerealMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+    cerealMesh.material.needsUpdate = true;
+  }
+  cerealMesh.traverse(function(child) {
+    if (child.isMesh) {
+      child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
+      child.material.needsUpdate = true;
+    }
+  });
+}
         // Wait for video to be ready before playing
         if (cerealVideo.readyState >= 2) {
           cerealVideo.play();

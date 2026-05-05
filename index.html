@@ -77,7 +77,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
           cerealTextureApplied = true;
           var videoTexture = new THREE.VideoTexture(cerealVideo);
           videoTexture.encoding = THREE.sRGBEncoding;
-          videoTexture.flipY = false;
           cerealMesh.traverse(function(child) {
             if (child.isMesh) {
               child.material = new THREE.MeshBasicMaterial({ map: videoTexture });
@@ -119,6 +118,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'me_eating_cereal_') {
           cerealMesh = obj;
           obj.visible = false;
+          obj.rotation.z = Math.PI; // flip 180 degrees
 
          cerealVideo = document.createElement('video');
 cerealVideo.loop = true;

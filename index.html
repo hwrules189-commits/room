@@ -68,6 +68,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var dinosaurMesh = null;
 var dinosaurVisible = false;
 
+  var dinosaurVideo = null;
+var dinosaurTextureApplied = false;
+
   function toggleCereal() {
     if (!cerealMesh) return;
     cerealVisible = !cerealVisible;
@@ -98,10 +101,35 @@ var dinosaurVisible = false;
       if (cerealVideo) cerealVideo.pause();
     }
   }
-  function toggleDinosaur() {
+ function toggleDinosaur() {
   if (!dinosaurMesh) return;
   dinosaurVisible = !dinosaurVisible;
   dinosaurMesh.visible = dinosaurVisible;
+
+  if (dinosaurVisible) {
+    if (!dinosaurTextureApplied && dinosaurVideo) {
+      dinosaurTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(dinosaurVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      dinosaurMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
+    }
+    if (dinosaurVideo) {
+      if (dinosaurVideo.readyState >= 2) {
+        dinosaurVideo.play();
+      } else {
+        dinosaurVideo.addEventListener('canplay', function handler() {
+          dinosaurVideo.removeEventListener('canplay', handler);
+          dinosaurVideo.play();
+        });
+      }
+    }
+  } else {
+    if (dinosaurVideo) dinosaurVideo.pause();
+  }
 }
 
   function loadRoom(glbUrl) {
@@ -122,6 +150,8 @@ var dinosaurVisible = false;
     cerealTextureApplied = false;
     dinosaurMesh = null;
 dinosaurVisible = false;
+    dinosaurVideo = null;
+dinosaurTextureApplied = false;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -135,6 +165,14 @@ dinosaurVisible = false;
         if (obj.name === 'dinosaur001') {
   dinosaurMesh = obj;
   obj.visible = false;
+           dinosaurVideo = document.createElement('video');
+  dinosaurVideo.loop = true;
+  dinosaurVideo.muted = true;
+  dinosaurVideo.playsInline = true;
+  fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { dinosaurVideo.src = URL.createObjectURL(blob); });
+
 }
         if (obj.name === 'me_eating_cereal_') {
           cerealMesh = obj;

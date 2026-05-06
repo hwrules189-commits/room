@@ -121,20 +121,17 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'lamp001') lamp001 = obj;
         if (obj.name === 'lamp002') lamp002 = obj;
         if (obj.name === 'me_eating_cereal_') {
-          cerealMesh = obj;
-          obj.visible = false;
-    
-         
-
-          cerealVideo = document.createElement('video');
-          cerealVideo.loop = true;
-          cerealVideo.muted = true;
-          cerealVideo.playsInline = true;
-          fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
-            .then(function(r) { return r.blob(); })
-            .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
-        }
-      });
+  cerealMesh = obj;
+  obj.visible = false;
+  // NO rotation lines at all
+  cerealVideo = document.createElement('video');
+  cerealVideo.loop = true;
+  cerealVideo.muted = true;
+  cerealVideo.playsInline = true;
+  fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
+}
 
       scene.add(model);
 

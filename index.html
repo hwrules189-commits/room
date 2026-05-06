@@ -8,6 +8,18 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 </style>
 </head>
 <body>
+  <div id="photoOverlay" style="
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.9);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+">
+  <img id="overlayImg" src="" style="max-width:90%; max-height:90%;">
+</div>
 
 <script>
 function loadScript(src, cb) {
@@ -60,6 +72,11 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var lampHitbox = null;
   var lampOn = true;
 
+  var photoTargets = {
+  "photo_frame_1": "https://your-site.com/images/photo1.jpg",
+  "photo_frame_2": "https://your-site.com/images/photo2.jpg"
+};
+
   var cerealMesh = null;
   var cerealVisible = false;
   var cerealVideo = null;
@@ -101,6 +118,18 @@ var dinosaurTextureApplied = false;
       if (cerealVideo) cerealVideo.pause();
     }
   }
+  function showPhoto(src) {
+  document.getElementById('overlayImg').src = src;
+  document.getElementById('photoOverlay').style.display = 'flex';
+}
+
+function hidePhoto() {
+  document.getElementById('photoOverlay').style.display = 'none';
+}
+
+document.getElementById('photoOverlay').addEventListener('click', hidePhoto);
+}
+           }
  function toggleDinosaur() {
   if (!dinosaurMesh) return;
   dinosaurVisible = !dinosaurVisible;
@@ -256,6 +285,15 @@ scene.traverse(function(obj) { if (obj.isMesh && obj.visible) all.push(obj); });
     if (intersects.length === 0) return;
 
     var hit = intersects[0].object;
+    // PHOTO OVERLAY SYSTEM (separate from everything else)
+var objPhoto = hit;
+while (objPhoto) {
+  if (photoTargets[objPhoto.name]) {
+    showPhoto(photoTargets[objPhoto.name]);
+    return;
+  }
+  objPhoto = objPhoto.parent;
+}
 
 console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit.parent && hit.parent.parent && hit.parent.parent.name);
     var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));

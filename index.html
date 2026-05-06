@@ -132,7 +132,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
-}
+        }
+      });
 
       scene.add(model);
 

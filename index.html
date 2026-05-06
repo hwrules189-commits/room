@@ -204,6 +204,7 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
 
     var hit = intersects[0].object;
 
+console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit.parent && hit.parent.parent && hit.parent.parent.name);
     var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));
     var isLamp002 = lamp002 && (hit === lamp002 || lamp002.getObjectById(hit.id));
     if (hit === lampHitbox || isLamp001 || isLamp002) {

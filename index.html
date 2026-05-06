@@ -65,6 +65,9 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var cerealVideo = null;
   var cerealTextureApplied = false;
 
+  var dinosaurMesh = null;
+var dinosaurVisible = false;
+
   function toggleCereal() {
     if (!cerealMesh) return;
     cerealVisible = !cerealVisible;
@@ -95,6 +98,11 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
       if (cerealVideo) cerealVideo.pause();
     }
   }
+  function toggleDinosaur() {
+  if (!dinosaurMesh) return;
+  dinosaurVisible = !dinosaurVisible;
+  dinosaurMesh.visible = dinosaurVisible;
+}
 
   function loadRoom(glbUrl) {
     currentRoom = 'room11';
@@ -112,6 +120,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
     cerealVisible = false;
     cerealVideo = null;
     cerealTextureApplied = false;
+    dinosaurMesh = null;
+dinosaurVisible = false;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -122,6 +132,11 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
         if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
         if (obj.name === 'lamp001') lamp001 = obj;
         if (obj.name === 'lamp002') lamp002 = obj;
+        if (obj.name === 'dinosaur001') {
+  dinosaurMesh = obj;
+  obj.visible = false;
+
+}
         if (obj.name === 'me_eating_cereal_') {
           cerealMesh = obj;
           obj.visible = false;
@@ -233,6 +248,15 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       }
       obj2 = obj2.parent;
     }
+
+    var obj3 = hit;
+while (obj3) {
+  if (obj3.name === 'dinosaur') {
+    toggleDinosaur();
+    return;
+  }
+  obj3 = obj3.parent;
+}
   });
 
   renderer.domElement.addEventListener('mousedown', function(e) {

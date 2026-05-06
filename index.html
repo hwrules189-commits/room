@@ -213,7 +213,7 @@ dinosaurVisible = false;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
     var all = [];
-    scene.traverse(function(obj) { if (obj.isMesh) all.push(obj); });
+scene.traverse(function(obj) { if (obj.isMesh && obj.visible) all.push(obj); });
     var intersects = raycaster.intersectObjects(all, true);
     if (intersects.length === 0) return;
 
@@ -250,7 +250,7 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
 
     var obj3 = hit;
 while (obj3) {
-  if (obj3.name === 'dinosaur') {
+  if (obj3.name === 'dinosaur' || obj3.name === 'dinosaur001') {
     toggleDinosaur();
     return;
   }

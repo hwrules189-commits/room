@@ -435,9 +435,10 @@ while (obj3) {
 }
   });
 
-  renderer.domElement.addEventListener('mousedown', function(e) {
-    isDraggingCamera = true;
-    mouseHasMoved = false;
+  var DRAG_THRESHOLD = 4; // pixels
+renderer.domElement.addEventListener('mousedown', function(e) {
+isDraggingCamera = true;
+mouseHasMoved = false;
     lastCamMouse.set(e.clientX, e.clientY);
   });
 
@@ -445,7 +446,10 @@ while (obj3) {
     if (!isDraggingCamera) return;
     var dx = (e.clientX - lastCamMouse.x) * 0.005;
     var dy = (e.clientY - lastCamMouse.y) * 0.005;
-    if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) mouseHasMoved = true;
+    var pxDx = e.clientX - lastCamMouse.x;
+var pxDy = e.clientY - lastCamMouse.y;
+if (Math.abs(pxDx) > DRAG_THRESHOLD ||
+Math.abs(pxDy) > DRAG_THRESHOLD) mouseHasMoved = true;
     camYaw -= dx;
     camPitch -= dy;
     camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));
@@ -474,7 +478,10 @@ while (obj3) {
     if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
     if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
     if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
-
+if (cerealMesh && cerealMesh.visible && cerealMesh.material.map)
+cerealMesh.material.map.needsUpdate = true;
+if (dinosaurMesh && dinosaurMesh.visible && dinosaurMesh.material.map)
+dinosaurMesh.material.map.needsUpdate = true;
     renderer.render(scene, camera);
   }
   animate();

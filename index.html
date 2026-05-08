@@ -434,27 +434,28 @@ while (obj3) {
   obj3 = obj3.parent;
 }
   });
-
+var mouseDownPos = new THREE.Vector2();
   var DRAG_THRESHOLD = 4; // pixels
 renderer.domElement.addEventListener('mousedown', function(e) {
 isDraggingCamera = true;
 mouseHasMoved = false;
+  mouseDownPos.set(e.clientX, e.clientY);
     lastCamMouse.set(e.clientX, e.clientY);
   });
 
   renderer.domElement.addEventListener('mousemove', function(e) {
-    if (!isDraggingCamera) return;
-    var dx = (e.clientX - lastCamMouse.x) * 0.005;
-    var dy = (e.clientY - lastCamMouse.y) * 0.005;
-    var pxDx = e.clientX - lastCamMouse.x;
-var pxDy = e.clientY - lastCamMouse.y;
-if (Math.abs(pxDx) > DRAG_THRESHOLD ||
-Math.abs(pxDy) > DRAG_THRESHOLD) mouseHasMoved = true;
-    camYaw -= dx;
-    camPitch -= dy;
-    camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));
-    lastCamMouse.set(e.clientX, e.clientY);
-  });
+  if (!isDraggingCamera) return;
+  var dx = (e.clientX - lastCamMouse.x) * 0.005;
+  var dy = (e.clientY - lastCamMouse.y) * 0.005;
+  // Compare total distance from where mouse originally went down
+  var pxDx = e.clientX - mouseDownPos.x;
+  var pxDy = e.clientY - mouseDownPos.y;
+  if (Math.abs(pxDx) > DRAG_THRESHOLD || Math.abs(pxDy) > DRAG_THRESHOLD) mouseHasMoved = true;
+  camYaw -= dx;
+  camPitch -= dy;
+  camPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camPitch));
+  lastCamMouse.set(e.clientX, e.clientY); // still update lastCamMouse for smooth camera delta
+});
 
   renderer.domElement.addEventListener('mouseup', function() { isDraggingCamera = false; });
   renderer.domElement.addEventListener('mouseleave', function() { isDraggingCamera = false; });

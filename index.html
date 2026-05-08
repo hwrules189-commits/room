@@ -11,9 +11,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 <div id="videoOverlay" style="
   position:fixed;
   inset:0;
-  background:#000;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(4px);
   z-index:9999;
   cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 ">
 
   <video
@@ -24,47 +28,25 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
     playsinline
     webkit-playsinline
     style="
-      width:100%;
-      height:100%;
-      object-fit:cover;
+      width:700px;
+      max-width:90%;
+      border-radius:20px;
+      box-shadow:0 0 40px rgba(0,0,0,0.6);
     ">
-    <div id="videoOverlay" style="
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:9999;
-  cursor:pointer;
-">
-
-  <video
-    id="introVideo"
-    autoplay
-    muted
-    loop
-    playsinline
-    webkit-playsinline
-    style="
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      pointer-events:none;
-    ">
-    <source src="<source src="https://hwrules189-commits.github.io/room/click.mp4" type="video/mp4">
+    <source src="https://hwrules189-commits.github.io/room/click.mp4" type="video/mp4">
   </video>
 
   <div style="
     position:absolute;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    bottom:60px;
     color:white;
-    font-size:48px;
+    font-size:32px;
     font-family:sans-serif;
     font-weight:bold;
     text-shadow:0 0 20px black;
-    pointer-events:none;
   ">
+   
+  </div>
 
 </div>
   
@@ -334,7 +316,7 @@ dinosaurTextureApplied = false;
     document.body.appendChild(iframe);
   }
 
- loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room11.glb');
+loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room11.glb');
 
 document.getElementById('videoOverlay').addEventListener('click', function () {
 
@@ -342,8 +324,9 @@ document.getElementById('videoOverlay').addEventListener('click', function () {
 
   var video = document.getElementById('introVideo');
 
-  if (video) {
-    video.pause();
+  if (video) video.pause();
+
+});
   }
 
 });

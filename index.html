@@ -291,21 +291,32 @@ dinosaurTextureApplied = false;
   gltf.animations.forEach(function(clip) {
 
     console.log('ANIMATION:', clip.name);
+    gltf.animations.forEach(function(clip) {
+  clip.tracks.forEach(function(track) {
+    console.log('TRACK:', track.name); // shows "MeshName.position", "MeshName.visible", etc.
+  });
+});
 
     // FIND CLOSET DOOR ANIMATION
     if (
       clip.name.toLowerCase().includes('door') ||
       clip.name.toLowerCase().includes('closet')
     ) {
+     // Only keep tracks that belong to the door object itself
+      var filteredTracks = clip.tracks.filter(function(track) {
+        // track.name is like "door_closet_right.position" or "SomeOtherMesh.visible"
+        var trackObjName = track.name.split('.')[0];
+        return trackObjName === 'door_closet_right';
+      });
 
-      doorAction = mixer.clipAction(clip);
+      var filteredClip = new THREE.AnimationClip(clip.name, clip.duration, filteredTracks);
 
+      doorAction = mixer.clipAction(filteredClip);
       doorAction.clampWhenFinished = true;
       doorAction.loop = THREE.LoopOnce;
-
     }
-
   });
+
 
 }
 
@@ -378,6 +389,10 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       if (lamp002) lamp002.visible = !lampOn;
       return;
     }
+
+    
+
+    
 
     var obj = hit;
     while (obj) {

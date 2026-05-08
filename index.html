@@ -98,6 +98,8 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
   var mixer = null;
+  var doorAction = null;
+var doorOpen = false;
   var clock = new THREE.Clock();
   var currentRoom = 'room11';
   var SPEED = 0.05;
@@ -282,17 +284,30 @@ dinosaurTextureApplied = false;
         scene.add(lampHitbox);
       }
 
-      if (gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(gltf.scene);
-        gltf.animations.forEach(function(clip) {
-          var action = mixer.clipAction(clip);
-          action.reset();
-          action.setEffectiveTimeScale(1);
-          action.setEffectiveWeight(1);
-          action.setLoop(THREE.LoopRepeat, Infinity);
-          action.play();
-        });
-      }
+     if (gltf.animations.length > 0) {
+
+  mixer = new THREE.AnimationMixer(gltf.scene);
+
+  gltf.animations.forEach(function(clip) {
+
+    console.log('ANIMATION:', clip.name);
+
+    // FIND CLOSET DOOR ANIMATION
+    if (
+      clip.name.toLowerCase().includes('door') ||
+      clip.name.toLowerCase().includes('closet')
+    ) {
+
+      doorAction = mixer.clipAction(clip);
+
+      doorAction.clampWhenFinished = true;
+      doorAction.loop = THREE.LoopOnce;
+
+    }
+
+  });
+
+}
 
       var box = new THREE.Box3().setFromObject(model);
       var center = box.getCenter(new THREE.Vector3());
@@ -382,7 +397,34 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       }
       obj2 = obj2.parent;
     }
+// CLOSET DOOR CLICK
+var doorObj = hit;
 
+while (doorObj) {
+
+  if (doorObj.name === 'door_closet_right') {
+
+    if (doorAction) {
+
+      if (!doorOpen) {
+        doorAction.reset();
+        doorAction.timeScale = 1;
+        doorAction.play();
+      } else {
+        doorAction.paused = false;
+        doorAction.timeScale = -1;
+        doorAction.play();
+      }
+
+      doorOpen = !doorOpen;
+
+    }
+
+    return;
+  }
+
+  doorObj = doorObj.parent;
+}
     var obj3 = hit;
 while (obj3) {
   if (obj3.name === 'dinosaur' || obj3.name === 'dinosaur001') {

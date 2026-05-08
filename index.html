@@ -284,40 +284,37 @@ dinosaurTextureApplied = false;
         scene.add(lampHitbox);
       }
 
-     if (gltf.animations.length > 0) {
-
+    if (gltf.animations.length > 0) {
   mixer = new THREE.AnimationMixer(gltf.scene);
 
   gltf.animations.forEach(function(clip) {
-
     console.log('ANIMATION:', clip.name);
-    gltf.animations.forEach(function(clip) {
-  clip.tracks.forEach(function(track) {
-    console.log('TRACK:', track.name); // shows "MeshName.position", "MeshName.visible", etc.
-  });
-});
+    clip.tracks.forEach(function(track) {
+      console.log('TRACK:', track.name);
+    });
 
-    // FIND CLOSET DOOR ANIMATION
     if (
       clip.name.toLowerCase().includes('door') ||
       clip.name.toLowerCase().includes('closet')
     ) {
-     // Only keep tracks that belong to the door object itself
-     var filteredTracks = clip.tracks.filter(function(track) {
-  var trackObjName = track.name.split('.')[0];
-  if (trackObjName !== 'door_closet_right') return false;
+      var filteredTracks = clip.tracks.filter(function(track) {
+        var trackObjName = track.name.split('.')[0];
+        if (trackObjName !== 'door_closet_right') return false;
+        if (track.name.endsWith('.position')) {
+          var initialY = track.values[1];
+          for (var i = 1; i < track.values.length; i += 3) {
+            track.values[i] = initialY;
+          }
+        }
+        return true;
+      });
 
-  if (track.name.endsWith('.position')) {
-    var initialY = track.values[1];
-    for (var i = 1; i < track.values.length; i += 3) {
-      track.values[i] = initialY;
+      var filteredClip = new THREE.AnimationClip(clip.name, clip.duration, filteredTracks);
+      doorAction = mixer.clipAction(filteredClip);
+      doorAction.clampWhenFinished = true;
+      doorAction.loop = THREE.LoopOnce;
     }
-  }
-
-  return true;
-});
-
-
+  });
 }
 
       var box = new THREE.Box3().setFromObject(model);
@@ -508,7 +505,7 @@ dinosaurMesh.material.map.needsUpdate = true;
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-})})};
+})})});
 </script>
 </body>
 </html>

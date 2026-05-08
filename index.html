@@ -266,6 +266,13 @@ dinosaurTextureApplied = false;
       });
 
       scene.add(model);
+      model.traverse(function(obj) {
+  if (obj.isMesh) {
+    obj.frustumCulled = false;
+    if (obj.material && obj.material.transparent === false) {
+      obj.renderOrder = 0;
+  }
+});
 
       if (lamp001) lamp001.visible = true;
       if (lamp002) lamp002.visible = false;

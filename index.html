@@ -307,6 +307,10 @@ dinosaurTextureApplied = false;
         // track.name is like "door_closet_right.position" or "SomeOtherMesh.visible"
         var trackObjName = track.name.split('.')[0];
         return trackObjName === 'door_closet_right';
+        if (track.name.endsWith('.position')) {
+    // Zero out Y values in the position track (every 3rd value starting at index 1)
+    for (var i = 1; i < track.values.length; i += 3) {
+      track.values[i] = track.values[0 + 1]; // lock Y to its initial value
       });
 
       var filteredClip = new THREE.AnimationClip(clip.name, clip.duration, filteredTracks);

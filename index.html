@@ -60,6 +60,8 @@ var leftWindowOpen = false;
   var camYaw = 0;
   var camPitch = 0;
   var mouseHasMoved = false;
+  var armatureAction = null;
+var armaturePlaying = false;
 
   var lamp001 = null;
   var lamp002 = null;
@@ -190,6 +192,8 @@ dinosaurTextureApplied = false;
 endlessWindowVisible = false;
 endlessWindowVideo = null;
 endlessWindowTextureApplied = false;
+    armatureAction = null;
+armaturePlaying = false;
   
     closetDoorAction = null;
 closetDoorOpen = false;
@@ -314,6 +318,11 @@ if (obj.name === 'cereal') {
       leftWindowAction.clampWhenFinished = true;
       leftWindowAction.loop = THREE.LoopOnce;
     }
+    if (clip.name === 'ArmatureAction.001') {
+  armatureAction = mixer.clipAction(clip);
+  armatureAction.clampWhenFinished = true;
+  armatureAction.loop = THREE.LoopOnce;
+}
     if (clip.name === 'closet doorAction') {
   closetDoorAction = mixer.clipAction(clip);
   closetDoorAction.clampWhenFinished = true;
@@ -491,6 +500,24 @@ while (winObj2) {
     return;
   }
   winObj2 = winObj2.parent;
+}var bedObj = hit;
+while (bedObj) {
+  if (bedObj.name === 'bed') {
+    if (armatureAction) {
+      if (!armaturePlaying) {
+        armatureAction.reset();
+        armatureAction.timeScale = 1;
+        armatureAction.play();
+      } else {
+        armatureAction.paused = false;
+        armatureAction.timeScale = -1;
+        armatureAction.play();
+      }
+      armaturePlaying = !armaturePlaying;
+    }
+    return;
+  }
+  bedObj = bedObj.parent;
 }
     var closetObj = hit;
 while (closetObj) {

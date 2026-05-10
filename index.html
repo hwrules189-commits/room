@@ -66,6 +66,12 @@ var leftWindowOpen = false;
   var lampHitbox = null;
   var lampOn = true;
   var cerealScreenMesh = null;
+  var closetDoorAction = null;
+var closetDoorOpen = false;
+var pinklampAction = null;
+var bluelamponAction = null;
+var bluelampoffAction = null;
+var wrestlerAction = null;
 
   var cerealMesh = null;
   var cerealVisible = false;
@@ -125,10 +131,6 @@ function showEndlessWindow() {
   }
   if (endlessWindowVideo) {
     endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
-  
-
-  } else {
-    if (endlessWindowVideo) endlessWindowVideo.pause();
   }
 }
 
@@ -188,7 +190,13 @@ dinosaurTextureApplied = false;
 endlessWindowVisible = false;
 endlessWindowVideo = null;
 endlessWindowTextureApplied = false;
-    windowVideoShown = false;
+  
+    closetDoorAction = null;
+closetDoorOpen = false;
+pinklampAction = null;
+bluelamponAction = null;
+bluelampoffAction = null;
+wrestlerAction = null;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -306,6 +314,31 @@ if (obj.name === 'cereal') {
       leftWindowAction.clampWhenFinished = true;
       leftWindowAction.loop = THREE.LoopOnce;
     }
+    if (clip.name === 'closet doorAction') {
+  closetDoorAction = mixer.clipAction(clip);
+  closetDoorAction.clampWhenFinished = true;
+  closetDoorAction.loop = THREE.LoopOnce;
+}
+if (clip.name === 'pinklampAction') {
+  pinklampAction = mixer.clipAction(clip);
+  pinklampAction.loop = THREE.LoopRepeat;
+  pinklampAction.play();
+}
+if (clip.name === 'bluelamponAction.002') {
+  bluelamponAction = mixer.clipAction(clip);
+  bluelamponAction.loop = THREE.LoopRepeat;
+  bluelamponAction.play();
+}
+if (clip.name === 'bluelampoffAction') {
+  bluelampoffAction = mixer.clipAction(clip);
+  bluelampoffAction.loop = THREE.LoopRepeat;
+  bluelampoffAction.play();
+}
+if (clip.name === 'wrestlerAction.001') {
+  wrestlerAction = mixer.clipAction(clip);
+  wrestlerAction.loop = THREE.LoopRepeat;
+  wrestlerAction.play();
+}
   });
 }
 
@@ -458,6 +491,25 @@ while (winObj2) {
     return;
   }
   winObj2 = winObj2.parent;
+}
+    var closetObj = hit;
+while (closetObj) {
+  if (closetObj.name === 'closet_door') {
+    if (closetDoorAction) {
+      if (!closetDoorOpen) {
+        closetDoorAction.reset();
+        closetDoorAction.timeScale = 1;
+        closetDoorAction.play();
+      } else {
+        closetDoorAction.paused = false;
+        closetDoorAction.timeScale = -1;
+        closetDoorAction.play();
+      }
+      closetDoorOpen = !closetDoorOpen;
+    }
+    return;
+  }
+  closetObj = closetObj.parent;
 }
   });
 var mouseDownPos = new THREE.Vector2();

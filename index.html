@@ -61,6 +61,7 @@ var leftWindowOpen = false;
   var camPitch = 0;
   var mouseHasMoved = false;
   var armatureAction = null;
+  var meshAction001 = null;
 var armaturePlaying = false;
 
   var lamp001 = null;
@@ -193,6 +194,7 @@ endlessWindowVisible = false;
 endlessWindowVideo = null;
 endlessWindowTextureApplied = false;
     armatureAction = null;
+    meshAction001 = null;
 armaturePlaying = false;
   
     closetDoorAction = null;
@@ -322,6 +324,11 @@ if (obj.name === 'cereal') {
   armatureAction = mixer.clipAction(clip);
   armatureAction.clampWhenFinished = true;
   armatureAction.loop = THREE.LoopOnce;
+}
+    if (clip.name === 'meshAction.001') {
+  meshAction001 = mixer.clipAction(clip);
+  meshAction001.clampWhenFinished = true;
+  meshAction001.loop = THREE.LoopOnce;
 }
     if (clip.name === 'closet doorAction') {
   closetDoorAction = mixer.clipAction(clip);
@@ -503,21 +510,18 @@ while (winObj2) {
 }var bedObj = hit;
 while (bedObj) {
   if (bedObj.name === 'bed') {
-    if (armatureAction) {
-      if (!armaturePlaying) {
-        armatureAction.reset();
-        armatureAction.timeScale = 1;
-        armatureAction.play();
-      } else {
-        armatureAction.paused = false;
-        armatureAction.timeScale = -1;
-        armatureAction.play();
-      }
-      armaturePlaying = !armaturePlaying;
+    if (!armaturePlaying) {
+      if (armatureAction) { armatureAction.reset(); armatureAction.timeScale = 1; armatureAction.play(); }
+      if (meshAction001) { meshAction001.reset(); meshAction001.timeScale = 1; meshAction001.play(); }
+    } else {
+      if (armatureAction) { armatureAction.paused = false; armatureAction.timeScale = -1; armatureAction.play(); }
+      if (meshAction001) { meshAction001.paused = false; meshAction001.timeScale = -1; meshAction001.play(); }
     }
+    armaturePlaying = !armaturePlaying;
     return;
   }
   bedObj = bedObj.parent;
+
 }
     var closetObj = hit;
 while (closetObj) {

@@ -97,14 +97,7 @@ var dinosaurTextureApplied = false;
     if (cerealVideo) cerealVideo.pause();
   }
 }
-  function showPhoto(src) {
-  document.getElementById('overlayImg').src = src;
-  document.getElementById('photoOverlay').style.display = 'flex';
-}
-
-function hidePhoto() {
-  document.getElementById('photoOverlay').style.display = 'none';
-}
+  
 
 
 
@@ -296,15 +289,7 @@ scene.traverse(function(obj) { if (obj.isMesh && obj.visible) all.push(obj); });
     if (intersects.length === 0) return;
 
     var hit = intersects[0].object;
-    // PHOTO OVERLAY SYSTEM (separate from everything else)
-var objPhoto = hit;
-while (objPhoto) {
-  if (photoTargets[objPhoto.name]) {
-    showPhoto(photoTargets[objPhoto.name]);
-    return;
-  }
-  objPhoto = objPhoto.parent;
-}
+    
 
 console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit.parent && hit.parent.parent && hit.parent.parent.name);
     var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));

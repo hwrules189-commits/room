@@ -435,9 +435,7 @@ while (winObj) {
       }
       rightWindowOpen = !rightWindowOpen;
     }
-    if (!windowVideoShown) {
-      windowVideoShown = true;
-      toggleEndlessWindow();
+    showEndlessWindow();
     }
     return;
   }
@@ -459,9 +457,7 @@ while (winObj2) {
       }
       leftWindowOpen = !leftWindowOpen;
     }
-    if (!windowVideoShown) {
-      windowVideoShown = true;
-      toggleEndlessWindow();
+    showEndlessWindow();
     }
     return;
   }

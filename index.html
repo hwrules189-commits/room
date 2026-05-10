@@ -234,19 +234,28 @@ dinosaurTextureApplied = false;
         if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
         if (obj.name === 'lamp001') lamp001 = obj;
         if (obj.name === 'lamp002') lamp002 = obj;
-        if (obj.name === 'dinosaur001') if (obj.name === 'cereal') {
-  cerealScreenMesh = obj;
-  obj.visible = false;
-}
+        if (obj.name === 'dinosaur001') {
   dinosaurMesh = obj;
   obj.visible = false;
-           dinosaurVideo = document.createElement('video');
+  dinosaurVideo = document.createElement('video');
   dinosaurVideo.loop = true;
   dinosaurVideo.muted = true;
   dinosaurVideo.playsInline = true;
   fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { dinosaurVideo.src = URL.createObjectURL(blob); });
+}
+if (obj.name === 'cereal') {
+  cerealScreenMesh = obj;
+  obj.visible = false;
+  cerealVideo = document.createElement('video');
+  cerealVideo.loop = true;
+  cerealVideo.muted = true;
+  cerealVideo.playsInline = true;
+  fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
+}
 
 
         if (obj.name === 'cereal') {

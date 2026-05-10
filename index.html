@@ -188,6 +188,7 @@ dinosaurTextureApplied = false;
 endlessWindowVisible = false;
 endlessWindowVideo = null;
 endlessWindowTextureApplied = false;
+    windowVideoShown = false;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -417,7 +418,9 @@ while (obj3) {
   }
   obj3 = obj3.parent;
 }
-    var winObj = hit;
+    var windowVideoShown = false;
+
+var winObj = hit;
 while (winObj) {
   if (winObj.name === 'right_side_window') {
     if (rightWindowAction) {
@@ -432,7 +435,10 @@ while (winObj) {
       }
       rightWindowOpen = !rightWindowOpen;
     }
-    toggleEndlessWindow();
+    if (!windowVideoShown) {
+      windowVideoShown = true;
+      toggleEndlessWindow();
+    }
     return;
   }
   winObj = winObj.parent;
@@ -453,7 +459,10 @@ while (winObj2) {
       }
       leftWindowOpen = !leftWindowOpen;
     }
-    toggleEndlessWindow();
+    if (!windowVideoShown) {
+      windowVideoShown = true;
+      toggleEndlessWindow();
+    }
     return;
   }
   winObj2 = winObj2.parent;

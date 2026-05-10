@@ -108,25 +108,25 @@ var endlessWindowTextureApplied = false;
 }
   
 
-function toggleEndlessWindow() {
+function showEndlessWindow() {
   if (!endlessWindowMesh) return;
-  endlessWindowVisible = !endlessWindowVisible;
-  endlessWindowMesh.visible = endlessWindowVisible;
+  endlessWindowMesh.visible = true;
+  endlessWindowVisible = true;
 
-  if (endlessWindowVisible) {
-    if (!endlessWindowTextureApplied && endlessWindowVideo) {
-      endlessWindowTextureApplied = true;
-      var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
-      videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
-      endlessWindowMesh.material = new THREE.MeshBasicMaterial({
-        map: videoTexture,
-        side: THREE.DoubleSide
-      });
-    }
-    if (endlessWindowVideo) {
-      endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
-    }
+  if (!endlessWindowTextureApplied && endlessWindowVideo) {
+    endlessWindowTextureApplied = true;
+    var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
+    videoTexture.flipY = false;
+    videoTexture.encoding = THREE.sRGBEncoding;
+    endlessWindowMesh.material = new THREE.MeshBasicMaterial({
+      map: videoTexture,
+      side: THREE.DoubleSide
+    });
+  }
+  if (endlessWindowVideo) {
+    endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
+  }
+
   } else {
     if (endlessWindowVideo) endlessWindowVideo.pause();
   }

@@ -205,17 +205,7 @@ if (obj.name === 'cereal') {
 }
 
 
-        if (obj.name === 'cereal') {
-          cerealMesh = obj;
-          obj.visible = false;
-          cerealVideo = document.createElement('video');
-          cerealVideo.loop = true;
-          cerealVideo.muted = true;
-          cerealVideo.playsInline = true;
-          fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
-            .then(function(r) { return r.blob(); })
-            .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
-        }
+        
       });
 
       scene.add(model);

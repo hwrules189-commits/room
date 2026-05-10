@@ -47,6 +47,10 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var mixer = null;
   var doorAction = null;
 var doorOpen = false;
+  var rightWindowAction = null;
+var leftWindowAction = null;
+var rightWindowOpen = false;
+var leftWindowOpen = false;
   var clock = new THREE.Clock();
   var currentRoom = 'room12';
   var SPEED = 0.05;
@@ -74,6 +78,11 @@ var dinosaurVisible = false;
   var dinosaurVideo = null;
 var dinosaurTextureApplied = false;
 
+  var endlessWindowMesh = null;
+var endlessWindowVisible = false;
+var endlessWindowVideo = null;
+var endlessWindowTextureApplied = false;
+
   function toggleCereal() {
   if (!cerealScreenMesh) return;
   cerealVisible = !cerealVisible;
@@ -99,7 +108,29 @@ var dinosaurTextureApplied = false;
 }
   
 
+function toggleEndlessWindow() {
+  if (!endlessWindowMesh) return;
+  endlessWindowVisible = !endlessWindowVisible;
+  endlessWindowMesh.visible = endlessWindowVisible;
 
+  if (endlessWindowVisible) {
+    if (!endlessWindowTextureApplied && endlessWindowVideo) {
+      endlessWindowTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      endlessWindowMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
+    }
+    if (endlessWindowVideo) {
+      endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
+    }
+  } else {
+    if (endlessWindowVideo) endlessWindowVideo.pause();
+  }
+}
 
            
  function toggleDinosaur() {
@@ -153,6 +184,10 @@ var dinosaurTextureApplied = false;
 dinosaurVisible = false;
     dinosaurVideo = null;
 dinosaurTextureApplied = false;
+    endlessWindowMesh = null;
+endlessWindowVisible = false;
+endlessWindowVideo = null;
+endlessWindowTextureApplied = false;
 
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -163,6 +198,17 @@ dinosaurTextureApplied = false;
         if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
         if (obj.name === 'lamp001') lamp001 = obj;
         if (obj.name === 'lamp002') lamp002 = obj;
+        if (obj.name === 'endlesswindow') {
+  endlessWindowMesh = obj;
+  obj.visible = false;
+  endlessWindowVideo = document.createElement('video');
+  endlessWindowVideo.loop = true;
+  endlessWindowVideo.muted = true;
+  endlessWindowVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
+}
         if (obj.name === 'dinosaur001') {
   dinosaurMesh = obj;
   obj.visible = false;
@@ -230,6 +276,16 @@ if (obj.name === 'cereal') {
     if (
       clip.name.toLowerCase().includes('door') ||
       clip.name.toLowerCase().includes('closet')
+     if (clip.name === 'right side windowAction') {
+  rightWindowAction = mixer.clipAction(clip);
+  rightWindowAction.clampWhenFinished = true;
+  rightWindowAction.loop = THREE.LoopOnce;
+}
+if (clip.name === 'left side windowAction') {
+  leftWindowAction = mixer.clipAction(clip);
+  leftWindowAction.clampWhenFinished = true;
+  leftWindowAction.loop = THREE.LoopOnce;
+}
     ) {
       var filteredTracks = clip.tracks.filter(function(track) {
         var trackObjName = track.name.split('.')[0];
@@ -323,6 +379,7 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       }
       obj2 = obj2.parent;
     }
+   
 // CLOSET DOOR CLICK
 var doorObj = hit;
 
@@ -358,6 +415,47 @@ while (obj3) {
     return;
   }
   obj3 = obj3.parent;
+}
+    var winObj = hit;
+while (winObj) {
+  if (winObj.name === 'right_side_window') {
+    if (rightWindowAction) {
+      if (!rightWindowOpen) {
+        rightWindowAction.reset();
+        rightWindowAction.timeScale = 1;
+        rightWindowAction.play();
+      } else {
+        rightWindowAction.paused = false;
+        rightWindowAction.timeScale = -1;
+        rightWindowAction.play();
+      }
+      rightWindowOpen = !rightWindowOpen;
+    }
+    toggleEndlessWindow();
+    return;
+  }
+  winObj = winObj.parent;
+}
+
+var winObj2 = hit;
+while (winObj2) {
+  if (winObj2.name === 'left_side_window') {
+    if (leftWindowAction) {
+      if (!leftWindowOpen) {
+        leftWindowAction.reset();
+        leftWindowAction.timeScale = 1;
+        leftWindowAction.play();
+      } else {
+        leftWindowAction.paused = false;
+        leftWindowAction.timeScale = -1;
+        leftWindowAction.play();
+      }
+      leftWindowOpen = !leftWindowOpen;
+    }
+    toggleEndlessWindow();
+    return;
+  }
+  winObj2 = winObj2.parent;
 }
   });
 var mouseDownPos = new THREE.Vector2();
@@ -410,6 +508,8 @@ if (cerealScreenMesh && cerealScreenMesh.visible && cerealScreenMesh.material.ma
 if (dinosaurMesh && dinosaurMesh.visible && dinosaurMesh.material.map)
 dinosaurMesh.material.map.needsUpdate = true;
     renderer.render(scene, camera);
+    if (endlessWindowMesh && endlessWindowMesh.visible && endlessWindowMesh.material.map)
+  endlessWindowMesh.material.map.needsUpdate = true;
   }
   animate();
 

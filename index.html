@@ -497,8 +497,8 @@ mouseHasMoved = false;
     if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
     if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
     if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
-if (cerealMesh && cerealMesh.visible && cerealMesh.material.map)
-cerealMesh.material.map.needsUpdate = true;
+if (cerealScreenMesh && cerealScreenMesh.visible && cerealScreenMesh.material.map)
+  cerealScreenMesh.material.map.needsUpdate = true;
 if (dinosaurMesh && dinosaurMesh.visible && dinosaurMesh.material.map)
 dinosaurMesh.material.map.needsUpdate = true;
     renderer.render(scene, camera);

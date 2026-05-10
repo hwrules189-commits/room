@@ -114,6 +114,7 @@ var doorOpen = false;
   var lamp002 = null;
   var lampHitbox = null;
   var lampOn = true;
+  var cerealScreenMesh = null;
 
  var photoTargets = {
   "dancing_lady": "https://raw.githubusercontent.com/hwrules189-commits/room/main/dancinglady.png",
@@ -138,35 +139,28 @@ var dinosaurVisible = false;
 var dinosaurTextureApplied = false;
 
   function toggleCereal() {
-    if (!cerealMesh) return;
-    cerealVisible = !cerealVisible;
-    cerealMesh.visible = cerealVisible;
+  if (!cerealScreenMesh) return;
+  cerealVisible = !cerealVisible;
+  cerealScreenMesh.visible = cerealVisible;
 
-    if (cerealVisible) {
-      if (!cerealTextureApplied && cerealVideo) {
-        cerealTextureApplied = true;
-        var videoTexture = new THREE.VideoTexture(cerealVideo);
-        videoTexture.flipY = false;
-        videoTexture.encoding = THREE.sRGBEncoding;
-        cerealMesh.material = new THREE.MeshBasicMaterial({
-          map: videoTexture,
-          side: THREE.DoubleSide
-        });
-      }
-      if (cerealVideo) {
-        if (cerealVideo.readyState >= 2) {
-          cerealVideo.play();
-        } else {
-          cerealVideo.addEventListener('canplay', function handler() {
-            cerealVideo.removeEventListener('canplay', handler);
-            cerealVideo.play();
-          });
-        }
-      }
-    } else {
-      if (cerealVideo) cerealVideo.pause();
+  if (cerealVisible) {
+    if (!cerealTextureApplied && cerealVideo) {
+      cerealTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(cerealVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      cerealScreenMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
     }
+    if (cerealVideo) {
+      cerealVideo.readyState >= 2 ? cerealVideo.play() : cerealVideo.addEventListener('canplay', function h() { cerealVideo.removeEventListener('canplay', h); cerealVideo.play(); });
+    }
+  } else {
+    if (cerealVideo) cerealVideo.pause();
   }
+}
   function showPhoto(src) {
   document.getElementById('overlayImg').src = src;
   document.getElementById('photoOverlay').style.display = 'flex';
@@ -240,7 +234,10 @@ dinosaurTextureApplied = false;
         if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
         if (obj.name === 'lamp001') lamp001 = obj;
         if (obj.name === 'lamp002') lamp002 = obj;
-        if (obj.name === 'dinosaur001') {
+        if (obj.name === 'dinosaur001') if (obj.name === 'cereal') {
+  cerealScreenMesh = obj;
+  obj.visible = false;
+}
   dinosaurMesh = obj;
   obj.visible = false;
            dinosaurVideo = document.createElement('video');

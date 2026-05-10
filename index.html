@@ -63,12 +63,7 @@ var doorOpen = false;
   var lampOn = true;
   var cerealScreenMesh = null;
 
- var photoTargets = {
-  "dancing_lady": "https://raw.githubusercontent.com/hwrules189-commits/room/main/dancinglady.png",
-  "handshake": "https://raw.githubusercontent.com/hwrules189-commits/room/main/handshake.png",
-  "angel": "https://raw.githubusercontent.com/hwrules189-commits/room/main/angel.png",
-  "amish": "https://raw.githubusercontent.com/hwrules189-commits/room/main/amish.png",
-  "antiaging": "https://raw.githubusercontent.com/hwrules189-commits/room/main/antiaging.png"
+ 
 
   
   
@@ -333,7 +328,7 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
 
     var obj = hit;
     while (obj) {
-      if (obj.name === 'mesh001') {
+      if (obj.name === 'cerealMesh_2') {
         toggleCereal();
         return;
       }

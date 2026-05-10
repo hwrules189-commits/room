@@ -418,9 +418,7 @@ while (obj3) {
   }
   obj3 = obj3.parent;
 }
-    var windowVideoShown = false;
-
-var winObj = hit;
+    var winObj = hit;
 while (winObj) {
   if (winObj.name === 'right_side_window') {
     if (rightWindowAction) {
@@ -436,7 +434,6 @@ while (winObj) {
       rightWindowOpen = !rightWindowOpen;
     }
     showEndlessWindow();
-    }
     return;
   }
   winObj = winObj.parent;
@@ -458,7 +455,6 @@ while (winObj2) {
       leftWindowOpen = !leftWindowOpen;
     }
     showEndlessWindow();
-    }
     return;
   }
   winObj2 = winObj2.parent;

@@ -276,17 +276,6 @@ if (obj.name === 'cereal') {
     if (
       clip.name.toLowerCase().includes('door') ||
       clip.name.toLowerCase().includes('closet')
-      }
-     if (clip.name === 'right side windowAction') {
-  rightWindowAction = mixer.clipAction(clip);
-  rightWindowAction.clampWhenFinished = true;
-  rightWindowAction.loop = THREE.LoopOnce;
-}
-if (clip.name === 'left side windowAction') {
-  leftWindowAction = mixer.clipAction(clip);
-  leftWindowAction.clampWhenFinished = true;
-  leftWindowAction.loop = THREE.LoopOnce;
-}
     ) {
       var filteredTracks = clip.tracks.filter(function(track) {
         var trackObjName = track.name.split('.')[0];
@@ -304,6 +293,17 @@ if (clip.name === 'left side windowAction') {
       doorAction = mixer.clipAction(filteredClip);
       doorAction.clampWhenFinished = true;
       doorAction.loop = THREE.LoopOnce;
+    }
+    
+    if (clip.name === 'right side windowAction') {
+      rightWindowAction = mixer.clipAction(clip);
+      rightWindowAction.clampWhenFinished = true;
+      rightWindowAction.loop = THREE.LoopOnce;
+    }
+    if (clip.name === 'left side windowAction') {
+      leftWindowAction = mixer.clipAction(clip);
+      leftWindowAction.clampWhenFinished = true;
+      leftWindowAction.loop = THREE.LoopOnce;
     }
   });
 }

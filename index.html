@@ -125,7 +125,7 @@ function showEndlessWindow() {
   }
   if (endlessWindowVideo) {
     endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
-  }
+  
 
   } else {
     if (endlessWindowVideo) endlessWindowVideo.pause();

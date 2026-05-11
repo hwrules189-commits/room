@@ -63,7 +63,9 @@ var leftWindowOpen = false;
   var armatureAction = null;
   var meshAction001 = null;
 var armaturePlaying = false;
-
+var laceMesh = null;
+var laceVideo = null;
+var laceTextureApplied = false;
   var lamp001 = null;
   var lamp002 = null;
   var lampHitbox = null;
@@ -122,6 +124,7 @@ function showEndlessWindow() {
   endlessWindowMesh.visible = true;
   endlessWindowVisible = true;
 
+
   if (!endlessWindowTextureApplied && endlessWindowVideo) {
     endlessWindowTextureApplied = true;
     var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
@@ -136,6 +139,23 @@ function showEndlessWindow() {
     endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
   }
 }
+  function showLace() {
+  if (!laceMesh) return;
+  laceMesh.visible = true;
+  if (!laceTextureApplied && laceVideo) {
+    laceTextureApplied = true;
+    var videoTexture = new THREE.VideoTexture(laceVideo);
+    videoTexture.flipY = false;
+    videoTexture.encoding = THREE.sRGBEncoding;
+    laceMesh.material = new THREE.MeshBasicMaterial({
+      map: videoTexture,
+      side: THREE.DoubleSide
+    });
+  }
+  if (laceVideo) {
+    laceVideo.readyState >= 2 ? laceVideo.play() : laceVideo.addEventListener('canplay', function h() { laceVideo.removeEventListener('canplay', h); laceVideo.play(); });
+  }
+  }
 
            
  function toggleDinosaur() {
@@ -196,6 +216,9 @@ endlessWindowTextureApplied = false;
     armatureAction = null;
     meshAction001 = null;
 armaturePlaying = false;
+    laceMesh = null;
+laceVideo = null;
+laceTextureApplied = false;
   
     closetDoorAction = null;
 closetDoorOpen = false;
@@ -223,6 +246,17 @@ wrestlerAction = null;
   fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
+}
+        if (obj.name === 'lace') {
+  laceMesh = obj;
+  obj.visible = false;
+  laceVideo = document.createElement('video');
+  laceVideo.loop = true;
+  laceVideo.muted = true;
+  laceVideo.playsInline = true;
+  fetch('https://hwrules189-commits.github.io/room/lace.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { laceVideo.src = URL.createObjectURL(blob); });
 }
         if (obj.name === 'dinosaur001') {
   dinosaurMesh = obj;
@@ -287,7 +321,6 @@ if (obj.name === 'cereal') {
     clip.tracks.forEach(function(track) {
       console.log('TRACK:', track.name);
     });
-
     if (
       clip.name.toLowerCase().includes('door') ||
       clip.name.toLowerCase().includes('closet')
@@ -430,6 +463,14 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       }
       obj2 = obj2.parent;
     }
+    var dresserObj = hit;
+while (dresserObj) {
+  if (dresserObj.name === 'dresser') {
+    showLace();
+    return;
+  }
+  dresserObj = dresserObj.parent;
+}
    
 // CLOSET DOOR CLICK
 var doorObj = hit;
@@ -456,6 +497,7 @@ while (doorObj) {
 
     return;
   }
+  
 
   doorObj = doorObj.parent;
 }
@@ -593,6 +635,8 @@ if (cerealScreenMesh && cerealScreenMesh.visible && cerealScreenMesh.material.ma
 if (dinosaurMesh && dinosaurMesh.visible && dinosaurMesh.material.map)
 dinosaurMesh.material.map.needsUpdate = true;
     renderer.render(scene, camera);
+    if (laceMesh && laceMesh.visible && laceMesh.material.map)
+  laceMesh.material.map.needsUpdate = true;
     if (endlessWindowMesh && endlessWindowMesh.visible && endlessWindowMesh.material.map)
   endlessWindowMesh.material.map.needsUpdate = true;
   }

@@ -143,6 +143,7 @@ function showEndlessWindow() {
   if (!laceMesh) return;
   laceVisible = !laceVisible;
   laceMesh.visible = laceVisible;
+
   if (laceVisible) {
     if (!laceTextureApplied && laceVideo) {
       laceTextureApplied = true;
@@ -259,7 +260,7 @@ wrestlerAction = null;
   laceVideo.loop = true;
   laceVideo.muted = true;
   laceVideo.playsInline = true;
-  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4')
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { laceVideo.src = URL.createObjectURL(blob); });
 }
@@ -445,6 +446,10 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       if (lamp002) lamp002.visible = !lampOn;
       return;
     }
+
+    
+
+    
 
     var obj = hit;
     while (obj) {

@@ -78,6 +78,8 @@ var bluelamponAction = null;
 var bluelampoffAction = null;
 var wrestlerAction = null;
   var laceVisible = false;
+  var brainSoHotMesh = null;
+var brainSoHotLoaded = false;
 
   var cerealMesh = null;
   var cerealVisible = false;
@@ -116,6 +118,23 @@ var endlessWindowTextureApplied = false;
     }
   } else {
     if (cerealVideo) cerealVideo.pause();
+  }
+}
+  function toggleBrainSoHot() {
+  if (!brainSoHotMesh) return;
+  brainSoHotMesh.visible = !brainSoHotMesh.visible;
+
+  if (brainSoHotMesh.visible && !brainSoHotLoaded) {
+    brainSoHotLoaded = true;
+    var loader = new THREE.TextureLoader();
+    loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/brainsohot.png', function(texture) {
+      texture.flipY = false;
+      texture.encoding = THREE.sRGBEncoding;
+      brainSoHotMesh.material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide
+      });
+    });
   }
 }
   
@@ -232,7 +251,9 @@ pinklampAction = null;
 bluelamponAction = null;
 bluelampoffAction = null;
 wrestlerAction = null;
-
+brainSoHotMesh = null;
+brainSoHotLoaded = false;
+    
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
       gltf.scene.traverse(function(obj) { console.log(obj.type, obj.name); });
@@ -263,6 +284,10 @@ wrestlerAction = null;
   fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { laceVideo.src = URL.createObjectURL(blob); });
+}
+        if (obj.name === 'brain_so_hot') {
+  brainSoHotMesh = obj;
+  obj.visible = false;
 }
         if (obj.name === 'dinosaur001') {
   dinosaurMesh = obj;
@@ -447,10 +472,6 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       return;
     }
 
-    
-
-    
-
     var obj = hit;
     while (obj) {
       if (obj.name === 'cerealMesh_2') {
@@ -598,6 +619,24 @@ while (closetObj) {
   }
   closetObj = closetObj.parent;
 }
+    var outletObj = hit;
+while (outletObj) {
+  if (outletObj.name === 'outlet') {
+    toggleBrainSoHot();
+    return;
+  }
+  outletObj = outletObj.parent;
+}
+
+var brainObj = hit;
+while (brainObj) {
+  if (brainObj.name === 'brain_so_hot') {
+    toggleBrainSoHot();
+    return;
+  }
+  brainObj = brainObj.parent;
+}
+    
   });
 var mouseDownPos = new THREE.Vector2();
   var DRAG_THRESHOLD = 4; // pixels

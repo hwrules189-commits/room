@@ -477,6 +477,14 @@ while (dresserObj) {
   }
   dresserObj = dresserObj.parent;
 }
+    var laceObj = hit;
+while (laceObj) {
+  if (laceObj.name === 'lace') {
+    showLace();
+    return;
+  }
+  laceObj = laceObj.parent;
+}
    
 // CLOSET DOOR CLICK
 var doorObj = hit;

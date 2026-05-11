@@ -139,23 +139,28 @@ function showEndlessWindow() {
     endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
   }
 }
-  function showLace() {
+  function toggleLace() {
   if (!laceMesh) return;
-  laceMesh.visible = true;
-  if (!laceTextureApplied && laceVideo) {
-    laceTextureApplied = true;
-    var videoTexture = new THREE.VideoTexture(laceVideo);
-    videoTexture.flipY = false;
-    videoTexture.encoding = THREE.sRGBEncoding;
-    laceMesh.material = new THREE.MeshBasicMaterial({
-      map: videoTexture,
-      side: THREE.DoubleSide
-    });
+  laceVisible = !laceVisible;
+  laceMesh.visible = laceVisible;
+  if (laceVisible) {
+    if (!laceTextureApplied && laceVideo) {
+      laceTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(laceVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      laceMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
+    }
+    if (laceVideo) {
+      laceVideo.readyState >= 2 ? laceVideo.play() : laceVideo.addEventListener('canplay', function h() { laceVideo.removeEventListener('canplay', h); laceVideo.play(); });
+    }
+  } else {
+    if (laceVideo) laceVideo.pause();
   }
-  if (laceVideo) {
-    laceVideo.readyState >= 2 ? laceVideo.play() : laceVideo.addEventListener('canplay', function h() { laceVideo.removeEventListener('canplay', h); laceVideo.play(); });
-  }
-  }
+}
 
            
  function toggleDinosaur() {
@@ -441,10 +446,6 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
       return;
     }
 
-    
-
-    
-
     var obj = hit;
     while (obj) {
       if (obj.name === 'cerealMesh_2') {
@@ -466,7 +467,7 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
     var dresserObj = hit;
 while (dresserObj) {
   if (dresserObj.name === 'dresser') {
-    showLace();
+    toggleLace();
     return;
   }
   dresserObj = dresserObj.parent;

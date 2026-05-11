@@ -139,7 +139,7 @@ function showEndlessWindow() {
     endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
   }
 }
-  function toggleLace() {
+  function showLace() {
   if (!laceMesh) return;
   laceVisible = !laceVisible;
   laceMesh.visible = laceVisible;
@@ -467,7 +467,7 @@ console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit
     var dresserObj = hit;
 while (dresserObj) {
   if (dresserObj.name === 'dresser') {
-    toggleLace();
+    showLace();
     return;
   }
   dresserObj = dresserObj.parent;

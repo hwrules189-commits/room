@@ -142,10 +142,9 @@ function showEndlessWindow() {
 }
   function showLace() {
   if (!laceMesh) return;
-  laceVisible = !laceVisible;
-  laceMesh.visible = laceVisible;
+  laceMesh.visible = !laceMesh.visible;
 
-  if (laceVisible) {
+  if (laceMesh.visible) {
     if (!laceTextureApplied && laceVideo) {
       laceTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(laceVideo);

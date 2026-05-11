@@ -145,7 +145,7 @@ var endlessWindowTextureApplied = false;
   if (!creatureMesh) return;
   creatureMesh.visible = !creatureMesh.visible;
 
-  if ([creatureMesh.visible && !creatureLoaded) {
+  if (creatureMesh.visible && !creatureLoaded) {
    creatureLoaded = true;
     var loader = new THREE.TextureLoader();
     loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/creature.jpeg', function(texture) {

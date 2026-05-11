@@ -80,6 +80,9 @@ var wrestlerAction = null;
   var laceVisible = false;
   var brainSoHotMesh = null;
 var brainSoHotLoaded = false;
+  var creatureMesh = null;
+var IMG_2635Loaded = false;
+
 
   var cerealMesh = null;
   var cerealVisible = false;
@@ -137,6 +140,25 @@ var endlessWindowTextureApplied = false;
     });
   }
 }
+
+  function toggleIMG_2635() {
+  if (!creatureMesh) return;
+  creatureMesh.visible = !creatureMesh.visible;
+
+  if ([creatureMesh.visible && !IMG_2635Loaded) {
+   IMG_2635Loaded = true;
+    var loader = new THREE.TextureLoader();
+    loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/creature.png', function(texture) {
+      texture.flipY = false;
+      texture.encoding = THREE.sRGBEncoding;
+      creatureMesh.material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide
+      });
+    });
+  }
+}
+
   
 
 function showEndlessWindow() {
@@ -253,6 +275,9 @@ bluelampoffAction = null;
 wrestlerAction = null;
 brainSoHotMesh = null;
 brainSoHotLoaded = false;
+    ​​creatureMesh = null;
+IMG_2635Loaded = false;
+
     
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -274,6 +299,11 @@ brainSoHotLoaded = false;
     .then(function(r) { return r.blob(); })
     .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
 }
+        if (obj.name === 'creature') {
+  creatureMesh = obj;
+  obj.visible = false;
+}
+
         if (obj.name === 'lace') {
   laceMesh = obj;
   obj.visible = false;

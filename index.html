@@ -81,7 +81,7 @@ var wrestlerAction = null;
   var brainSoHotMesh = null;
 var brainSoHotLoaded = false;
   var creatureMesh = null;
-var IMG_2635Loaded = false;
+var creatureLoaded = false;
 
 
   var cerealMesh = null;
@@ -141,12 +141,12 @@ var endlessWindowTextureApplied = false;
   }
 }
 
-  function toggleIMG_2635() {
+  function togglecreature() {
   if (!creatureMesh) return;
   creatureMesh.visible = !creatureMesh.visible;
 
-  if ([creatureMesh.visible && !IMG_2635Loaded) {
-   IMG_2635Loaded = true;
+  if ([creatureMesh.visible && !creatureLoaded) {
+   creatureLoaded = true;
     var loader = new THREE.TextureLoader();
     loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/creature.png', function(texture) {
       texture.flipY = false;
@@ -276,7 +276,7 @@ wrestlerAction = null;
 brainSoHotMesh = null;
 brainSoHotLoaded = false;
     ​​creatureMesh = null;
-IMG_2635Loaded = false;
+creatureLoaded = false;
 
     
     gltfLoader.load(glbUrl, function(gltf) {

@@ -302,6 +302,17 @@ creatureLoaded = false;
         if (obj.name === 'creature001') {
   creatureMesh = obj;
   obj.visible = false;
+  var loader = new THREE.TextureLoader();
+  loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/creature.jpeg', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    creatureMesh.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide
+    });
+    creatureLoaded = true;
+  });
+
 }
 
         if (obj.name === 'lace') {
@@ -318,6 +329,16 @@ creatureLoaded = false;
         if (obj.name === 'brain_so_hot') {
   brainSoHotMesh = obj;
   obj.visible = false;
+  var loader2 = new THREE.TextureLoader();
+  loader2.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/brainsohot.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    brainSoHotMesh.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide
+    });
+    brainSoHotLoaded = true;
+  });
 }
         if (obj.name === 'dinosaur001') {
   dinosaurMesh = obj;

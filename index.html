@@ -299,7 +299,7 @@ creatureLoaded = false;
     .then(function(r) { return r.blob(); })
     .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
 }
-        if (obj.name === 'creature') {
+        if (obj.name === 'creature001') {
   creatureMesh = obj;
   obj.visible = false;
 }
@@ -666,7 +666,22 @@ while (brainObj) {
   }
   brainObj = brainObj.parent;
 }
-    
+    var creatureClickObj = hit;
+while (creatureClickObj) {
+  if (creatureClickObj.name === 'creature') {
+    togglecreature();
+    return;
+  }
+  creatureClickObj = creatureClickObj.parent;
+}
+    var creatureImgObj = hit;
+while (creatureImgObj) {
+  if (creatureImgObj.name === 'creature001') {
+    togglecreature();
+    return;
+  }
+  creatureImgObj = creatureImgObj.parent;
+}
   });
 var mouseDownPos = new THREE.Vector2();
   var DRAG_THRESHOLD = 4; // pixels

@@ -307,6 +307,16 @@ page6Mesh = null;
         if (obj.name === 'page_6') {
   page6Mesh = obj;
   obj.visible = false;
+  var loader3 = new THREE.TextureLoader();
+  loader3.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/page6.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    page6Mesh.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide
+    });
+  });
+}
 }
         if (obj.name === 'creature001') {
   creatureMesh = obj;

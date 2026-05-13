@@ -82,7 +82,7 @@ var wrestlerAction = null;
 var brainSoHotLoaded = false;
   var creatureMesh = null;
 var creatureLoaded = false;
-
+var page6Mesh = null;
 
   var cerealMesh = null;
   var cerealVisible = false;
@@ -236,6 +236,11 @@ function showEndlessWindow() {
   }
 }
 
+  function togglePage6() {
+  if (!page6Mesh) return;
+  page6Mesh.visible = !page6Mesh.visible;
+}
+
   function loadRoom(glbUrl) {
     currentRoom = 'room12';
     var toRemove = [];
@@ -277,7 +282,7 @@ brainSoHotMesh = null;
 brainSoHotLoaded = false;
 creatureMesh = null;
 creatureLoaded = false;
-
+page6Mesh = null;
     
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -298,6 +303,10 @@ creatureLoaded = false;
   fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
+}
+        if (obj.name === 'page_6') {
+  page6Mesh = obj;
+  obj.visible = false;
 }
         if (obj.name === 'creature001') {
   creatureMesh = obj;
@@ -650,6 +659,23 @@ while (bedObj) {
   }
   bedObj = bedObj.parent;
 
+}
+    var momdadObj = hit;
+while (momdadObj) {
+  if (momdadObj.name === 'momdad') {
+    togglePage6();
+    return;
+  }
+  momdadObj = momdadObj.parent;
+}
+
+var page6Obj = hit;
+while (page6Obj) {
+  if (page6Obj.name === 'page_6') {
+    togglePage6();
+    return;
+  }
+  page6Obj = page6Obj.parent;
 }
     var closetObj = hit;
 while (closetObj) {

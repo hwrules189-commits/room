@@ -88,6 +88,8 @@ var charlotte001Mesh = null;
 var flyMesh = null;
 var diana001Mesh = null;
 var zine001Mesh = null;
+var joanMesh = null;
+  var sculptureMesh = null;
 var pinkme001Mesh = null;
   var nun001Mesh = null;
   var westonMesh = null;
@@ -294,6 +296,14 @@ function toggleZine001() {
   if (!zine001Mesh) return;
   zine001Mesh.visible = !zine001Mesh.visible;
 }
+  function togglejoan() {
+  if (!joanMesh) return;
+  joanMesh.visible = !joanMesh.visible;
+}
+  function togglesculpture() {
+  if (!sculptureMesh) return;
+  sculptureMesh.visible = !sculptureMesh.visible;
+}
   function togglepinkme001() {
   if (!pinkme001Mesh) return;
   pinkme001Mesh.visible = !pinkme001Mesh.visible;
@@ -366,6 +376,8 @@ charlotte001Mesh = null;
 flyMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
+joanMesh = null;    
+sculptureMesh = null;    
 pinkme001Mesh = null;
 nun001Mesh = null;
 westonMesh = null;
@@ -486,6 +498,24 @@ if (obj.name === 'zine001') {
     texture.flipY = false;
     texture.encoding = THREE.sRGBEncoding;
     zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'joan') {
+  joanMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/joan.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    joanMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'sculpture') {
+  sculptureMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/sculp.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    sculptureMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
         if (obj.name === 'pinkme001') {
@@ -840,7 +870,17 @@ while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
 }
-    var pinkemeObj = hit;
+    var 4facesObj = hit;
+while (4facesObj) {
+  if (4facesObj.name === '4faces' || 4facesObj.name === 'joan') { togglejoan(); return; }
+  4facesObj = 4facesObj.parent;
+}
+    var sculptureObj = hit;
+while (sculptureObj) {
+  if (sculptureObj.name === 'sculpture' || sculptureObj.name === 'sculpture') { togglesculpture(); return; }
+  sculptureObj = sculptureObj.parent;
+}
+    var pinkmeObj = hit;
 while (pinkmeObj) {
   if (pinkmeObj.name === 'pinkme' || pinkmeObj.name === 'pinkme001') { togglepinkme001(); return; }
   pinkmeObj = pinkmeObj.parent;

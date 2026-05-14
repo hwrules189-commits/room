@@ -88,6 +88,9 @@ var charlotte001Mesh = null;
 var flyMesh = null;
 var diana001Mesh = null;
 var zine001Mesh = null;
+  var westonMesh = null;
+  var bwlambMesh = null;
+  var cardMesh = null;
   var handshakeMesh = null;
   var cerealMesh = null;
   var cerealVisible = false;
@@ -289,6 +292,18 @@ function toggleZine001() {
   if (!zine001Mesh) return;
   zine001Mesh.visible = !zine001Mesh.visible;
 }
+  function toggleweston() {
+  if (!westonMesh) return;
+  westonMesh.visible = !westonMesh.visible;
+}
+  function togglebwlamb() {
+  if (!bwlambMesh) return;
+  bwlambMesh.visible = !bwlambMesh.visible;
+}
+  function togglecard() {
+  if (!cardMesh) return;
+  cardMesh.visible = !cardMesh.visible;
+}
   function togglehandshake() {
   if (!handshakeMesh) return;
   handshakeMesh.visible = !handshakeMesh.visible;
@@ -341,6 +356,9 @@ charlotte001Mesh = null;
 flyMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
+westonMesh = null;
+bwlambMESH = null;
+cardMesh = null;
 handshakeMesh = null;
 memorial001Mesh = null;
 artificeMesh = null;
@@ -456,6 +474,33 @@ if (obj.name === 'zine001') {
     texture.flipY = false;
     texture.encoding = THREE.sRGBEncoding;
     zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'weston') {
+  westonMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/weston.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    westonMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'bwlamb') {
+  bwlambMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lamb.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    bwlambMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'card') {
+  cardMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/card.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    cardMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
         if (obj.name === 'handshake') {
@@ -764,6 +809,21 @@ var milwaukeeObj = hit;
 while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
+}
+    var sherryObj = hit;
+while (sherryObj) {
+  if (sherryObj.name === 'sherry' || sherryObj.name === 'weston') { toggleweston(); return; }
+  sherryObj = sherryObj.parent;
+}
+    var lambObj = hit;
+while (lambObj) {
+  if (lambObj.name === 'lamb' || lambObj.name === 'bwlamb') { togglebwlamb(); return; }
+  lambObj = lambObj.parent;
+}
+    var elyseObj = hit;
+while (elyseObj) {
+  if (elyseObj.name === 'elyse' || elyseObj.name === 'card') { togglecard(); return; }
+  elyseObj = elyseObj.parent;
 }
     var shakeObj = hit;
 while (shakeObj) {

@@ -381,7 +381,7 @@ sculptureMesh = null;
 pinkme001Mesh = null;
 nun001Mesh = null;
 westonMesh = null;
-bwlambMESH = null;
+bwlambMesh = null;
 cardMesh = null;
 handshakeMesh = null;
 memorial001Mesh = null;
@@ -870,10 +870,10 @@ while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
 }
-    var 4facesObj = hit;
-while (4facesObj) {
-  if (4facesObj.name === '4faces' || 4facesObj.name === 'joan') { togglejoan(); return; }
-  4facesObj = 4facesObj.parent;
+    var facesObj = hit;
+while (facesObj) {
+  if (facesObj.name === '4faces' || facesObj.name === 'joan') { togglejoan(); return; }
+  facesObj = facesObj.parent;
 }
     var sculptureObj = hit;
 while (sculptureObj) {

@@ -88,6 +88,7 @@ var charlotte001Mesh = null;
 var flyMesh = null;
 var diana001Mesh = null;
 var zine001Mesh = null;
+var pinkme001Mesh = null;
   var nun001Mesh = null;
   var westonMesh = null;
   var bwlambMesh = null;
@@ -293,6 +294,10 @@ function toggleZine001() {
   if (!zine001Mesh) return;
   zine001Mesh.visible = !zine001Mesh.visible;
 }
+  function togglepinkme001() {
+  if (!pinkme001Mesh) return;
+  pinkme001Mesh.visible = !pinkme001Mesh.visible;
+}
   function togglenun001() {
   if (!nun001Mesh) return;
   nun001Mesh.visible = !nun001Mesh.visible;
@@ -361,6 +366,7 @@ charlotte001Mesh = null;
 flyMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
+pinkme001Mesh = null;
 nun001Mesh = null;
 westonMesh = null;
 bwlambMESH = null;
@@ -480,6 +486,15 @@ if (obj.name === 'zine001') {
     texture.flipY = false;
     texture.encoding = THREE.sRGBEncoding;
     zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'pinkme001') {
+  pinkme001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/pinkme.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    pinkme001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
         if (obj.name === 'nun001') {
@@ -824,6 +839,11 @@ var milwaukeeObj = hit;
 while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
+}
+    var pinkemeObj = hit;
+while (pinkmeObj) {
+  if (pinkmeObj.name === 'pinkme' || pinkmeObj.name === 'pinkme001') { togglepinkme001(); return; }
+  pinkmeObj = pinkmeObj.parent;
 }
     var nunObj = hit;
 while (nunObj) {

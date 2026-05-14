@@ -88,6 +88,7 @@ var charlotte001Mesh = null;
 var flyMesh = null;
 var diana001Mesh = null;
 var zine001Mesh = null;
+  var handshakeMesh = null;
   var cerealMesh = null;
   var cerealVisible = false;
   var cerealVideo = null;
@@ -288,6 +289,10 @@ function toggleZine001() {
   if (!zine001Mesh) return;
   zine001Mesh.visible = !zine001Mesh.visible;
 }
+  function togglehandshake() {
+  if (!handshakeMesh) return;
+  handshakeMesh.visible = !handshakeMesh.visible;
+}
 
   function loadRoom(glbUrl) {
     currentRoom = 'room12';
@@ -336,7 +341,8 @@ charlotte001Mesh = null;
 flyMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
-    memorial001Mesh = null;
+handshakeMesh = null;
+memorial001Mesh = null;
 artificeMesh = null;
 bluegirlMesh = null;
 frame001Mesh = null;
@@ -450,6 +456,15 @@ if (obj.name === 'zine001') {
     texture.flipY = false;
     texture.encoding = THREE.sRGBEncoding;
     zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'handshake') {
+  handshakeMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/HANDSHAKE.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    handshakeMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
         
@@ -749,6 +764,11 @@ var milwaukeeObj = hit;
 while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
+}
+    var shakeObj = hit;
+while (shakeObj) {
+  if (shakeObj.name === 'shake' || shakeObj.name === 'handshake') { togglehandshake(); return; }
+  shakeObj = shakeObj.parent;
 }
     var memorialObj = hit;
 while (memorialObj) {

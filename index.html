@@ -83,7 +83,11 @@ var brainSoHotLoaded = false;
   var creatureMesh = null;
 var creatureLoaded = false;
 var page6Mesh = null;
-
+var goodmorningMesh = null;
+var charlotte001Mesh = null;
+var flyMesh = null;
+var diana001Mesh = null;
+var zine001Mesh = null;
   var cerealMesh = null;
   var cerealVisible = false;
   var cerealVideo = null;
@@ -240,6 +244,26 @@ function showEndlessWindow() {
   if (!page6Mesh) return;
   page6Mesh.visible = !page6Mesh.visible;
 }
+  function toggleGoodmorning() {
+  if (!goodmorningMesh) return;
+  goodmorningMesh.visible = !goodmorningMesh.visible;
+}
+function toggleCharlotte001() {
+  if (!charlotte001Mesh) return;
+  charlotte001Mesh.visible = !charlotte001Mesh.visible;
+}
+function toggleFly() {
+  if (!flyMesh) return;
+  flyMesh.visible = !flyMesh.visible;
+}
+function toggleDiana001() {
+  if (!diana001Mesh) return;
+  diana001Mesh.visible = !diana001Mesh.visible;
+}
+function toggleZine001() {
+  if (!zine001Mesh) return;
+  zine001Mesh.visible = !zine001Mesh.visible;
+}
 
   function loadRoom(glbUrl) {
     currentRoom = 'room12';
@@ -283,6 +307,11 @@ brainSoHotLoaded = false;
 creatureMesh = null;
 creatureLoaded = false;
 page6Mesh = null;
+goodmorningMesh = null;
+charlotte001Mesh = null;
+flyMesh = null;
+diana001Mesh = null;
+zine001Mesh = null;
     
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -303,6 +332,51 @@ page6Mesh = null;
   fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
+}
+        if (obj.name === 'goodmorning') {
+  goodmorningMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/printer.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    goodmorningMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'charlotte001') {
+  charlotte001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/charlotte.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    charlotte001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'fly') {
+  flyMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/fly.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    flyMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'diana001') {
+  diana001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dina.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    diana001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'zine001') {
+  zine001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/zine.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
 }
         if (obj.name === 'page_6') {
   page6Mesh = obj;
@@ -575,6 +649,31 @@ while (laceObj) {
     return;
   }
   laceObj = laceObj.parent;
+}
+    var dadprinterObj = hit;
+while (dadprinterObj) {
+  if (dadprinterObj.name === 'dadprinter' || dadprinterObj.name === 'goodmorning') { toggleGoodmorning(); return; }
+  dadprinterObj = dadprinterObj.parent;
+}
+var charlotteObj = hit;
+while (charlotteObj) {
+  if (charlotteObj.name === 'charlotte' || charlotteObj.name === 'charlotte001') { toggleCharlotte001(); return; }
+  charlotteObj = charlotteObj.parent;
+}
+var collageObj = hit;
+while (collageObj) {
+  if (collageObj.name === 'collage' || collageObj.name === 'fly') { toggleFly(); return; }
+  collageObj = collageObj.parent;
+}
+var dianaObj = hit;
+while (dianaObj) {
+  if (dianaObj.name === 'diana2' || dianaObj.name === 'diana001') { toggleDiana001(); return; }
+  dianaObj = dianaObj.parent;
+}
+var milwaukeeObj = hit;
+while (milwaukeeObj) {
+  if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
+  milwaukeeObj = milwaukeeObj.parent;
 }
    
 // CLOSET DOOR CLICK

@@ -88,6 +88,7 @@ var charlotte001Mesh = null;
 var flyMesh = null;
 var diana001Mesh = null;
 var zine001Mesh = null;
+  var nun001Mesh = null;
   var westonMesh = null;
   var bwlambMesh = null;
   var cardMesh = null;
@@ -292,6 +293,10 @@ function toggleZine001() {
   if (!zine001Mesh) return;
   zine001Mesh.visible = !zine001Mesh.visible;
 }
+  function togglenun001() {
+  if (!nun001Mesh) return;
+  nun001Mesh.visible = !nun001Mesh.visible;
+}
   function toggleweston() {
   if (!westonMesh) return;
   westonMesh.visible = !westonMesh.visible;
@@ -356,6 +361,7 @@ charlotte001Mesh = null;
 flyMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
+nun001Mesh = null;
 westonMesh = null;
 bwlambMESH = null;
 cardMesh = null;
@@ -474,6 +480,15 @@ if (obj.name === 'zine001') {
     texture.flipY = false;
     texture.encoding = THREE.sRGBEncoding;
     zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'nun001') {
+  nun001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/nun.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    nun001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
         if (obj.name === 'weston') {
@@ -809,6 +824,11 @@ var milwaukeeObj = hit;
 while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
+}
+    var nunObj = hit;
+while (nunObj) {
+  if (nunObj.name === 'nun' || nunObj.name === 'nun001') { togglenun001(); return; }
+  nunObj = nunObj.parent;
 }
     var sherryObj = hit;
 while (sherryObj) {

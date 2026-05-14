@@ -92,7 +92,11 @@ var zine001Mesh = null;
   var cerealVisible = false;
   var cerealVideo = null;
   var cerealTextureApplied = false;
-
+var memorial001Mesh = null;
+var artificeMesh = null;
+var bluegirlMesh = null;
+var frame001Mesh = null;
+var dinosaurphoneMesh = null;
   var dinosaurMesh = null;
 var dinosaurVisible = false;
 
@@ -126,6 +130,26 @@ var endlessWindowTextureApplied = false;
   } else {
     if (cerealVideo) cerealVideo.pause();
   }
+}
+  function toggleMemorial001() {
+  if (!memorial001Mesh) return;
+  memorial001Mesh.visible = !memorial001Mesh.visible;
+}
+function toggleArtifice() {
+  if (!artificeMesh) return;
+  artificeMesh.visible = !artificeMesh.visible;
+}
+function toggleBluegirl() {
+  if (!bluegirlMesh) return;
+  bluegirlMesh.visible = !bluegirlMesh.visible;
+}
+function toggleFrame001() {
+  if (!frame001Mesh) return;
+  frame001Mesh.visible = !frame001Mesh.visible;
+}
+function toggleDinosaurphone() {
+  if (!dinosaurphoneMesh) return;
+  dinosaurphoneMesh.visible = !dinosaurphoneMesh.visible;
 }
   function toggleBrainSoHot() {
   if (!brainSoHotMesh) return;
@@ -312,6 +336,11 @@ charlotte001Mesh = null;
 flyMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
+    memorial001Mesh = null;
+artificeMesh = null;
+bluegirlMesh = null;
+frame001Mesh = null;
+dinosaurphoneMesh = null;
     
     gltfLoader.load(glbUrl, function(gltf) {
       var model = gltf.scene;
@@ -340,6 +369,51 @@ zine001Mesh = null;
     texture.flipY = false;
     texture.encoding = THREE.sRGBEncoding;
     goodmorningMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+        if (obj.name === 'memorial001') {
+  memorial001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/memorial.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    memorial001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'artifice') {
+  artificeMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/artifice.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    artificeMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'bluegirl') {
+  bluegirlMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/blue.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    bluegirlMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'frame001') {
+  frame001Mesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/frame.png', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    frame001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+  });
+}
+if (obj.name === 'dinosaurphone') {
+  dinosaurphoneMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dinosaur%20phone.JPG', function(texture) {
+    texture.flipY = false;
+    texture.encoding = THREE.sRGBEncoding;
+    dinosaurphoneMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
 if (obj.name === 'charlotte001') {
@@ -378,6 +452,7 @@ if (obj.name === 'zine001') {
     zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
+        
         if (obj.name === 'page_6') {
   page6Mesh = obj;
   obj.visible = false;
@@ -674,6 +749,31 @@ var milwaukeeObj = hit;
 while (milwaukeeObj) {
   if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
   milwaukeeObj = milwaukeeObj.parent;
+}
+    var memorialObj = hit;
+while (memorialObj) {
+  if (memorialObj.name === 'memorial' || memorialObj.name === 'memorial001') { toggleMemorial001(); return; }
+  memorialObj = memorialObj.parent;
+}
+var cleverObj = hit;
+while (cleverObj) {
+  if (cleverObj.name === 'clever' || cleverObj.name === 'artifice') { toggleArtifice(); return; }
+  cleverObj = cleverObj.parent;
+}
+var blueObj = hit;
+while (blueObj) {
+  if (blueObj.name === 'blue' || blueObj.name === 'bluegirl') { toggleBluegirl(); return; }
+  blueObj = blueObj.parent;
+}
+var frameObj = hit;
+while (frameObj) {
+  if (frameObj.name === 'frame' || frameObj.name === 'frame001') { toggleFrame001(); return; }
+  frameObj = frameObj.parent;
+}
+var dinogirlObj = hit;
+while (dinogirlObj) {
+  if (dinogirlObj.name === 'dinogirl' || dinogirlObj.name === 'dinosaurphone') { toggleDinosaurphone(); return; }
+  dinogirlObj = dinogirlObj.parent;
 }
    
 // CLOSET DOOR CLICK

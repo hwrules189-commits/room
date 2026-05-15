@@ -498,6 +498,29 @@ function toggleZine001() {
   if (!handshakeMesh) return;
   handshakeMesh.visible = !handshakeMesh.visible;
 }
+  var imageUrls = [
+  'wave.png','hair.png','me.png','esb.png','diana.png','coin.jpg','hair2.png','john.png',
+  'eye.png','horses.png','knight.png','celeb.png','myles.png','rose.png','match.png',
+  'dianaa.png','louise2.png','brucke.png','tattoo.png','amish.png','bob.png','christmas.png',
+  'angel.png','owl.png','bauhaus.png','comic.png','braces.png','clown.png','model.png',
+  'bats.png','duchamp.png','hyvon.jpg','crown.png','pray.png','nude2.png','swim.png',
+  'leseur.png','pinkguy.png','wheel.png','ricky.png','hand.png','website.png','usa.png',
+  'mary.png','manyuses.png','gilda.png','tauwetter.png','bats2.png','lobster.png','tiger.png',
+  'myles2.png','dad.png','bosch.png','lib.png','slutangel.png','duchamb.png','shot.png',
+  'snow2.png','lange.png','banjo.png','age.png','que.png','ily.png','tamayo.png','guy.png',
+  'patti.png','hands.png','catch.png','queen.png','amy.png','finland.png','sich.png',
+  'zine.png','zine2.png','garda.png','junk.png','beer.png','pointilism.png','schauspielhaus.png',
+  'bogart.png','girlboy.png','dentist.png','berlin.png','snow.png','blanket.png','2step.png',
+  'bird.png','hey.png','sneaks.png','vinyl.png','mondrian.png','ticket.png','woman.png',
+  'wedding.png','honor.png','printer.png','memorial.png','artifice.png','blue.png','frame.png',
+  'dinosaur%20phone.JPG','charlotte.png','fly.png','dina.png','joan.png','sculp.png',
+  'pinkme.png','nun.png','weston.png','lamb.png','card.png','HANDSHAKE.png','page6.png',
+  'creature.jpeg','brainsohot.png'
+];
+var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
+imageUrls.forEach(function(url) {
+  fetch(base + url, { priority: 'low' });
+});
 
   function loadRoom(glbUrl) {
     currentRoom = 'room12';

@@ -234,6 +234,7 @@ var endlessWindowTextureApplied = false;
   } else {
     if (cerealVideo) cerealVideo.pause();
   }
+    function toggleHairdo() { if (!hairdoMesh) return; hairdoMesh.visible = !hairdoMesh.visible; }
 }
   function toggleMemorial001() {
   if (!memorial001Mesh) return;
@@ -642,7 +643,7 @@ momdadMesh = null;
     .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
 }
         if (obj.name === 'waves') { wavesMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wave.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; wavesMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-
+if (obj.name === 'hairdo') { hairdoMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hair.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; hairdoMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'ver') { verMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/me.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; verMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'bookesb') { bokesbMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/esb.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bokesbMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'diana5') { diana5Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/diana.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; diana5Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
@@ -1167,7 +1168,7 @@ while (dresserObj) {
     var horseyObj = hit; while (horseyObj) { if (horseyObj.name === 'horsey' || horseyObj.name === 'horses') { toggleHorses(); return; } horseyObj = horseyObj.parent; }
 var knightObj = hit; while (knightObj) { if (knightObj.name === 'knight' || knightObj.name === 'night') { toggleNight(); return; } knightObj = knightObj.parent; }
 var hairupObj = hit; while (hairupObj) { if (hairupObj.name === 'hairup' || hairupObj.name === 'hare') { toggleHare(); return; } hairupObj = hairupObj.parent; }
-var curlersObj = hit; while (curlersObj) { if (curlersObj.name === 'curlers' || curlersObj.name === 'hairdo') { togglehairdo(); return; } curlersObj = curlersObj.parent; }
+var curlersObj = hit; while (curlersObj) { if (curlersObj.name === 'curlers' || curlersObj.name === 'hairdo') { toggleHairdo(); return; } curlersObj = curlersObj.parent; }
     var harkObj = hit; while (harkObj) { if (harkObj.name === 'hark' || harkObj.name === 'angle') { toggleAngle(); return; } harkObj = harkObj.parent; }
 var ghostsObj = hit; while (ghostsObj) { if (ghostsObj.name === 'ghosts' || ghostsObj.name === 'ghost') { toggleGhost(); return; } ghostsObj = ghostsObj.parent; }
 var pinitekObj = hit; while (pinitekObj) { if (pinitekObj.name === 'pinotek' || pinitekObj.name === 'bau') { toggleBau(); return; } pinitekObj = pinitekObj.parent; }

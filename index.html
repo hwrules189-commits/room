@@ -841,15 +841,7 @@ if (obj.name === 'zine001') {
     joanMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
   });
 }
-       if (obj.name === 'pamphlet') {
-  sculptureMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/sculp.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    sculptureMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
+       if (obj.name === 'sculpture') { sculptureMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/sculp.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; sculptureMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
         if (obj.name === 'pinkme001') {
   pinkme001Mesh = obj;
   obj.visible = false;
@@ -1248,6 +1240,7 @@ var amyObj = hit; while (amyObj) { if (amyObj.name === 'amy' || amyObj.name === 
 var weddingObj = hit; while (weddingObj) { if (weddingObj.name === 'wedding' || weddingObj.name === 'wed') { toggleWed(); return; } weddingObj = weddingObj.parent; }
 var honorObj = hit; while (honorObj) { if (honorObj.name === 'honor' || honorObj.name === 'liz') { toggleLiz(); return; } honorObj = honorObj.parent; }
     var laceObj = hit;
+    
 while (laceObj) {
   if (laceObj.name === 'lace') {
     showLace();
@@ -1274,6 +1267,11 @@ var dianaObj = hit;
 while (dianaObj) {
   if (dianaObj.name === 'diana2' || dianaObj.name === 'diana001') { toggleDiana001(); return; }
   dianaObj = dianaObj.parent;
+}
+    var sculptureObj = hit;
+while (sculptureObj) {
+  if (sculptureObj.name === 'pamphlet' || sculptureObj.name === 'sculpture') { togglesculpture(); return; }
+  sculptureObj = sculptureObj.parent;
 }
 var milwaukeeObj = hit;
 while (milwaukeeObj) {
@@ -1305,11 +1303,7 @@ var amishObj = hit; while (amishObj) { if (amishObj.name === 'amish' || amishObj
 var dylanObj = hit; while (dylanObj) { if (dylanObj.name === 'dylan' || dylanObj.name === 'bob') { toggleBob(); return; } dylanObj = dylanObj.parent; }
 var polaroidObj = hit; while (polaroidObj) { if (polaroidObj.name === 'polaroid' || polaroidObj.name === 'momdad') { toggleMomdad(); return; } polaroidObj = polaroidObj.parent; }
 var nunObj = hit; while (nunObj) { if (nunObj.name === 'nun' || nunObj.name === 'nun001') { togglenun001(); return; } nunObj = nunObj.parent; }
-    var sculptureObj = hit;
-while (sculptureObj) {
-  if (sculptureObj.name === 'sculpture' || sculptureObj.name === 'sculpture') { togglesculpture(); return; }
-  sculptureObj = sculptureObj.parent;
-}
+    
     var pinkmeObj = hit;
 while (pinkmeObj) {
   if (pinkmeObj.name === 'pinkme' || pinkmeObj.name === 'pinkme001') { togglepinkme001(); return; }

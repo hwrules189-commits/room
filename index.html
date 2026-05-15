@@ -94,7 +94,7 @@ var hairMesh = null;
 var hairdoMesh = null;
 var lennonMesh = null;
 var eyeballzMesh = null;
-
+var usacat001Mesh = null;
 var nimroMesh = null;
 var roseMesh = null;
 var matchMesh = null;
@@ -266,7 +266,7 @@ function toggleClock() { if (!clockMesh) return; clockMesh.visible = !clockMesh.
 function toggleRick() { if (!rickMesh) return; rickMesh.visible = !rickMesh.visible; }
 function toggleHandz() { if (!handzMesh) return; handzMesh.visible = !handzMesh.visible; }
 function toggleWeb() { if (!webMesh) return; webMesh.visible = !webMesh.visible; }
-function toggleUsacat() { if (!usacatMesh) return; usacatMesh.visible = !usacatMesh.visible; }
+function toggleUsacat() { if (!usacat001Mesh) return; usacat001Mesh.visible = !usacat001Mesh.visible; }
 function toggleRussia() { if (!russiaMesh) return; russiaMesh.visible = !russiaMesh.visible; }
 function toggleUses() { if (!usesMesh) return; usesMesh.visible = !usesMesh.visible; }
 function toggleGild() { if (!gildMesh) return; gildMesh.visible = !gildMesh.visible; }
@@ -582,6 +582,7 @@ wrestlerAction = null;
 brainSoHotMesh = null;
 brainSoHotLoaded = false;
 creatureMesh = null;
+    usacat001Mesh = null;
 creatureLoaded = false;
 page6Mesh = null;
 goodmorningMesh = null;
@@ -688,7 +689,7 @@ if (obj.name === 'clock') { clockMesh = obj; obj.visible = false; new THREE.Text
 if (obj.name === 'rick') { rickMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/ricky.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; rickMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'handz') { handzMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hand.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; handzMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'web') { webMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/website.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; webMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'usacat') { usacatMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/usa.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; usacatMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+if (obj.name === 'usacat001') { usacat001Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/usa.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; usacat001Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'russia') { russiaMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/mary.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; russiaMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'uses') { usesMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/manyuses.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; usesMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'gild') { gildMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/gilda.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; gildMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }

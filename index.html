@@ -156,7 +156,7 @@ var tauMesh = null;
 var batMesh = null;
 var lobMesh = null;
 var catsMesh = null;
-var myles4Mesh = null;
+var myles_4Mesh = null;
 var dadaMesh = null;
 var botchMesh = null;
 var libMesh = null;
@@ -265,7 +265,7 @@ function toggleTau() { if (!tauMesh) return; tauMesh.visible = !tauMesh.visible;
 function toggleBat() { if (!batMesh) return; batMesh.visible = !batMesh.visible; }
 function toggleLob() { if (!lobMesh) return; lobMesh.visible = !lobMesh.visible; }
 function toggleCats() { if (!catsMesh) return; catsMesh.visible = !catsMesh.visible; }
-function toggleMyles4() { if (!myles4Mesh) return; myles4Mesh.visible = !myles4Mesh.visible; }
+function toggleMyles_4() { if (!myles_4Mesh) return; myles_4Mesh.visible = !myles_4Mesh.visible; }
 function toggleDada() { if (!dadaMesh) return; dadaMesh.visible = !dadaMesh.visible; }
 function toggleBotch() { if (!botchMesh) return; botchMesh.visible = !botchMesh.visible; }
 function toggleLib() { if (!libMesh) return; libMesh.visible = !libMesh.visible; }
@@ -540,7 +540,7 @@ katMesh = null; modolMesh = null; batzMesh = null; mrsMesh = null; finMesh = nul
 crownsMesh = null; marysMesh = null; swimmernudeMesh = null; swimyMesh = null; hairdoMesh = null;
 lesorMesh = null; pinkMesh = null; clockMesh = null; rickMesh = null; handzMesh = null;
 webMesh = null; usacatMesh = null; russiaMesh = null; usesMesh = null; gildMesh = null;
-tauMesh = null; batMesh = null; lobMesh = null; catsMesh = null; myles4Mesh = null;
+tauMesh = null; batMesh = null; lobMesh = null; catsMesh = null; myles_4Mesh = null;
 dadaMesh = null; botchMesh = null; libMesh = null; angelsMesh = null; whaleMesh = null;
 shotdownMesh = null; snowyMesh = null; motherMesh = null; brahMesh = null; bandMesh = null;
 ageMesh = null; chapMesh = null; luvMesh = null; tamMesh = null; guyMesh = null;
@@ -681,7 +681,7 @@ if (obj.name === 'tau') { tauMesh = obj; obj.visible = false; new THREE.TextureL
 if (obj.name === 'bat') { batMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bats2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; batMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'lob') { lobMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lobster.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; lobMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'cats') { catsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/tiger.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; catsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'myles 4') { myles4Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/myles2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; myles4Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+if (obj.name === 'myles_4') { myles_4Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/myles2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; myles_4Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'dada') { dadaMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dad.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; dadaMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'botch') { botchMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bosch.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; botchMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'lib') { libMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lib.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; libMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
@@ -1182,7 +1182,7 @@ var tauwitterObj = hit; while (tauwitterObj) { if (tauwitterObj.name === 'tauwet
 var batsObj = hit; while (batsObj) { if (batsObj.name === 'bats' || batsObj.name === 'bat') { toggleBat(); return; } batsObj = batsObj.parent; }
 var lobsterObj = hit; while (lobsterObj) { if (lobsterObj.name === 'lobster' || lobsterObj.name === 'lob') { toggleLob(); return; } lobsterObj = lobsterObj.parent; }
 var tigerObj = hit; while (tigerObj) { if (tigerObj.name === 'tiger' || tigerObj.name === 'cats') { toggleCats(); return; } tigerObj = tigerObj.parent; }
-var apdObj = hit; while (apdObj) { if (apdObj.name === 'apd' || apdObj.name === 'myles 4') { toggleMyles4(); return; } apdObj = apdObj.parent; }
+var apdObj = hit; while (apdObj) { if (apdObj.name === 'apd' || apdObj.name === 'myles_4') { toggleMyles_4(); return; } apdObj = apdObj.parent; }
 var dadObj = hit; while (dadObj) { if (dadObj.name === 'dad' || dadObj.name === 'dada') { toggleDada(); return; } dadObj = dadObj.parent; }
 var boschObj = hit; while (boschObj) { if (boschObj.name === 'bosch' || boschObj.name === 'botch') { toggleBotch(); return; } boschObj = boschObj.parent; }
 var libertyObj = hit; while (libertyObj) { if (libertyObj.name === 'liberty' || libertyObj.name === 'lib') { toggleLib(); return; } libertyObj = libertyObj.parent; }

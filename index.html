@@ -358,37 +358,11 @@ function toggleDinosaurphone() {
   function toggleBrainSoHot() {
   if (!brainSoHotMesh) return;
   brainSoHotMesh.visible = !brainSoHotMesh.visible;
-
-  if (brainSoHotMesh.visible && !brainSoHotLoaded) {
-    brainSoHotLoaded = true;
-    var loader = new THREE.TextureLoader();
-    loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/brainsohot.png', function(texture) {
-      texture.flipY = false;
-      texture.encoding = THREE.sRGBEncoding;
-      brainSoHotMesh.material = new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide
-      });
-    });
-  }
 }
 
   function togglecreature() {
   if (!creatureMesh) return;
   creatureMesh.visible = !creatureMesh.visible;
-
-  if (creatureMesh.visible && !creatureLoaded) {
-   creatureLoaded = true;
-    var loader = new THREE.TextureLoader();
-    loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/creature.png', function(texture) {
-      texture.flipY = false;
-      texture.encoding = THREE.sRGBEncoding;
-      creatureMesh.material = new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide
-      });
-    });
-  }
 }
 
   

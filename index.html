@@ -815,7 +815,11 @@ momdadMesh = null;
   });
 
   if (lamp001) lamp001.visible = true;
-  if (lamp002) lamp002.visible = false;
+if (lamp002) lamp002.visible = false;
+scene.traverse(function(obj) {
+  if (obj.name === 'bluelampon') obj.visible = false;
+  if (obj.name === 'bluelampoff') obj.visible = true;
+});
 
   if (lamp001 && lamp002) {
     var b1 = new THREE.Box3().setFromObject(lamp001);
@@ -916,8 +920,8 @@ if (!lampClicked) {
 if (lampClicked) {
   lampOn = !lampOn;
   scene.traverse(function(obj) {
-    if (obj.name === 'lamp001') obj.visible = lampOn;
-    if (obj.name === 'lamp002') obj.visible = !lampOn;
+    if (obj.name === 'lamp001' || obj.name === 'bluelampoff') obj.visible = lampOn;
+    if (obj.name === 'lamp002' || obj.name === 'bluelampon') obj.visible = !lampOn;
   });
   return;
 }

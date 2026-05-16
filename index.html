@@ -677,418 +677,194 @@ bobMesh = null;
 momdadMesh = null;
     
     gltfLoader.load(glbUrl, function(gltf) {
-      var model = gltf.scene;
-      gltf.scene.traverse(function(obj) { console.log(obj.type, obj.name); });
-      model.scale.setScalar(10);
+  var model = gltf.scene;
+  model.scale.setScalar(10);
 
-      var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
-var tl = new THREE.TextureLoader();
+  var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
+  function pt(url, mesh) {
+    if (T[url]) { mesh.material = new THREE.MeshBasicMaterial({map:T[url],side:THREE.DoubleSide}); return; }
+    new THREE.TextureLoader().load(base + url, function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; T[url]=t; mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); });
+  }
 
-function pt(url, cb) {
-  if (T[url]) { cb(T[url]); return; }
-  tl.load(base + url, function(t) {
-    t.flipY = false;
-    t.encoding = THREE.sRGBEncoding;
-    T[url] = t;
-    cb(t);
-  });
-}
+  var meshMap = {
+    'waves':'wave.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png',
+    'diana5':'diana.png','medcoin':'coin.jpg','hair':'hair2.png','lennon':'john.png',
+    'eyeballz':'eye.png','horses':'horses.png','night':'knight.png','hare':'celeb.png',
+    'nimro':'myles.png','rose':'rose.png','match':'match.png','diana4':'dianaa.png',
+    'brooks':'louise2.png','bridge':'brucke.png','tat':'tattoo.png','parents':'amish.png',
+    'bob':'bob.png','momdad':'christmas.png','angle':'angel.png','ghost':'owl.png',
+    'bau':'bauhaus.png','comik':'comic.png','brace':'braces.png','kat':'clown.png',
+    'modol':'model.png','batz':'bats.png','mrs':'duchamp.png','fin':'hyvon.jpg',
+    'crowns':'crown.png','marys':'pray.png','swimmernude':'nude2.png','swimy':'swim.png',
+    'lesor':'leseur.png','pink':'pinkguy.png','clock':'wheel.png','rick':'ricky.png',
+    'handz':'hand.png','web':'website.png','usacat001':'usa.png','russia':'mary.png',
+    'uses':'manyuses.png','gild':'gilda.png','tau':'tauwetter.png','bat':'bats2.png',
+    'lob':'lobster.png','cats':'tiger.png','myles_4':'myles2.png','dada':'dad.png',
+    'botch':'bosch.png','lib':'lib.png','angels':'slutangel.png','whale':'duchamb.png',
+    'shotdown':'shot.png','snowy':'snow2.png','mother':'lange.png','brah':'braces.png',
+    'band':'banjo.png','age':'age.png','chap':'que.png','luv':'ily.png',
+    'tam':'tamayo.png','guy':'guy.png','smith':'patti.png','hands':'hands.png',
+    'hart':'catch.png','hodge':'queen.png','amie':'amy.png','ditch':'finland.png',
+    'trans':'sich.png','goodbye':'zine.png','gard':'garda.png','scraps':'junk.png',
+    'beergirl':'beer.png','point':'pointilism.png','schau':'schauspielhaus.png',
+    'hump':'bogart.png','boyy':'girlboy.png','dent':'dentist.png','bur':'berlin.png',
+    'stole':'snow.png','book':'blanket.png','step':'2step.png','dead':'bird.png',
+    'tellme':'hey.png','sneks':'sneaks.png','dry':'vinyl.png','garde':'mondrian.png',
+    'parking':'ticket.png','bug':'woman.png','wed':'wedding.png','liz':'honor.png',
+    'goodmorning':'printer.png','memorial001':'memorial.png','artifice':'artifice.png',
+    'bluegirl':'blue.png','frame001':'frame.png','dinosaurphone':'dinosaur%20phone.JPG',
+    'charlotte001':'charlotte.png','fly':'fly.png','diana001':'dina.png',
+    'zine001':'zine2.png','joan':'joan.png','sculpture':'sculp.png',
+    'pinkme001':'pinkme.png','nun001':'nun.png','weston':'weston.png',
+    'bwlamb':'lamb.png','card':'card.png','handshake':'HANDSHAKE.png',
+    'page_6':'page6.png','creature001':'creature.jpeg','brain_so_hot':'brainsohot.png',
+    'wright':'maryw.png','vamp':'blankets.png','couch':'nude.png','riot':'riot.png',
+    'cake':'birth.png','blank':'blanket.png','boy':'wolf.png','baby':'wriston.png',
+    'warhol':'club.png'
+  };
 
-var priorityList = [
-  ['hare','celeb.png'],['ver','me.png'],['bookesb','esb.png'],['charlotte001','charlotte.png'],
-  ['diana5','diana.png'],['goodmorning','printer.png'],['handshake','HANDSHAKE.png'],
-  ['frame001','frame.png'],['horses','horses.png'],['night','knight.png'],['medcoin','coin.jpg'],
-  ['fly','fly.png'],['riot','riot.png'],['diana001','dina.png'],['bwlamb','lamb.png'],
-  ['artifice','artifice.png'],['blank','blanket.png'],['creature001','creature.jpeg'],
-  ['dinosaurphone','dinosaur%20phone.JPG'],['nimro','myles.png'],['weston','weston.png'],
-  ['sculpture','sculp.png'],['pinkme001','pinkme.png'],['boy','wolf.png'],['bluegirl','blue.png'],
-  ['waves','wave.png'],['hair','hair2.png'],['tat','tattoo.png'],['couch','nude.png'],
-  ['diana4','dianaa.png'],['bridge','brucke.png'],['match','match.png'],['bau','bauhaus.png'],
-  ['rose','rose.png'],['brooks','louise2.png'],['parents','amish.png'],['joan','joan.png'],
-  ['bob','bob.png'],['hairdo','hair.png'],['swimy','swim.png'],['pink','pinkguy.png'],
-  ['marys','pray.png'],['clock','wheel.png'],['lennon','john.png'],['ghost','owl.png'],
-  ['brace','braces.png'],['modol','model.png'],['comik','comic.png'],['swimmernude','nude2.png'],
-  ['rick','ricky.png'],['handz','hand.png'],['mrs','duchamp.png'],['cake','birth.png'],
-  ['russia','mary.png'],['uses','manyuses.png'],['usacat001','usa.png'],['gild','gilda.png'],
-  ['waves','wave.png'],['hairdo','hair.png'],['ver','me.png'],['medcoin','coin.jpg'],
-  ['hair','hair2.png'],['lennon','john.png'],['eyeballz','eye.png'],['horses','horses.png'],
-  ['night','knight.png'],['nimro','myles.png'],['rose','rose.png'],['match','match.png'],
-  ['diana4','dianaa.png'],['brooks','louise2.png'],['bridge','brucke.png'],['tat','tattoo.png'],
-  ['parents','amish.png'],['bob','bob.png'],['momdad','christmas.png'],['angle','angel.png'],
-  ['ghost','owl.png'],['bau','bauhaus.png'],['comik','comic.png'],['brace','braces.png'],
-  ['kat','clown.png'],['modol','model.png'],['batz','bats.png'],['mrs','duchamp.png'],
-  ['fin','hyvon.jpg'],['crowns','crown.png'],['marys','pray.png'],['swimmernude','nude2.png'],
-  ['swimy','swim.png'],['lesor','leseur.png'],['pink','pinkguy.png'],['clock','wheel.png'],
-  ['rick','ricky.png'],['handz','hand.png'],['web','website.png'],['russia','mary.png'],
-  ['uses','manyuses.png'],['gild','gilda.png'],['tau','tauwetter.png'],['bat','bats2.png'],
-  ['lob','lobster.png'],['cats','tiger.png'],['myles_4','myles2.png'],['dada','dad.png'],
-  ['botch','bosch.png'],['lib','lib.png'],['angels','slutangel.png'],['whale','duchamb.png'],
-  ['shotdown','shot.png'],['snowy','snow2.png'],['mother','lange.png'],['brah','braces.png'],
-  ['band','banjo.png'],['age','age.png'],['chap','que.png'],['luv','ily.png'],
-  ['tam','tamayo.png'],['guy','guy.png'],['smith','patti.png'],['hands','hands.png'],
-  ['hart','catch.png'],['hodge','queen.png'],['amie','amy.png'],['ditch','finland.png'],
-  ['trans','sich.png'],['goodbye','zine.png'],['gard','garda.png'],['scraps','junk.png'],
-  ['beergirl','beer.png'],['point','pointilism.png'],['schau','schauspielhaus.png'],
-  ['hump','bogart.png'],['boyy','girlboy.png'],['dent','dentist.png'],['bur','berlin.png'],
-  ['stole','snow.png'],['book','blanket.png'],['step','2step.png'],['dead','bird.png'],
-  ['tellme','hey.png'],['sneks','sneaks.png'],['dry','vinyl.png'],['garde','mondrian.png'],
-  ['parking','ticket.png'],['bug','woman.png'],['wed','wedding.png'],['liz','honor.png'],
-  ['goodmorning','printer.png'],['memorial001','memorial.png'],['artifice','artifice.png'],
-  ['bluegirl','blue.png'],['frame001','frame.png'],['dinosaurphone','dinosaur%20phone.JPG'],
-  ['charlotte001','charlotte.png'],['fly','fly.png'],['diana001','dina.png'],
-  ['zine001','zine.png'],['joan','joan.png'],['sculpture','sculp.png'],['pinkme001','pinkme.png'],
-  ['nun001','nun.png'],['weston','weston.png'],['bwlamb','lamb.png'],['card','card.png'],
-  ['handshake','HANDSHAKE.png'],['page_6','page6.png'],['creature001','creature.jpeg'],
-  ['brain_so_hot','brainsohot.png'],['wright','maryw.png'],['vamp','blankets.png'],
-  ['couch','nude.png'],['riot','riot.png'],['cake','birth.png'],['blank','blanket.png'],
-  ['boy','wolf.png'],['baby','wriston.png'],['warhol','club.png']
-];
+  var meshVarMap = {
+    'waves':function(o){wavesMesh=o;},'hairdo':function(o){hairdoMesh=o;},
+    'ver':function(o){verMesh=o;},'bookesb':function(o){bokesbMesh=o;},
+    'diana5':function(o){diana5Mesh=o;},'medcoin':function(o){medcoinMesh=o;},
+    'hair':function(o){hairMesh=o;},'lennon':function(o){lennonMesh=o;},
+    'eyeballz':function(o){eyeballzMesh=o;},'horses':function(o){horsesMesh=o;},
+    'night':function(o){nightMesh=o;},'hare':function(o){hareMesh=o;},
+    'nimro':function(o){nimroMesh=o;},'rose':function(o){roseMesh=o;},
+    'match':function(o){matchMesh=o;},'diana4':function(o){diana4Mesh=o;},
+    'brooks':function(o){brooksMesh=o;},'bridge':function(o){bridgeMesh=o;},
+    'tat':function(o){tatMesh=o;},'parents':function(o){parentsMesh=o;},
+    'bob':function(o){bobMesh=o;},'momdad':function(o){momdadMesh=o;},
+    'angle':function(o){angleMesh=o;},'ghost':function(o){ghostMesh=o;},
+    'bau':function(o){bauMesh=o;},'comik':function(o){comikMesh=o;},
+    'brace':function(o){braceMesh=o;},'kat':function(o){katMesh=o;},
+    'modol':function(o){modolMesh=o;},'batz':function(o){batzMesh=o;},
+    'mrs':function(o){mrsMesh=o;},'fin':function(o){finMesh=o;},
+    'crowns':function(o){crownsMesh=o;},'marys':function(o){marysMesh=o;},
+    'swimmernude':function(o){swimmernudeMesh=o;},'swimy':function(o){swimyMesh=o;},
+    'lesor':function(o){lesorMesh=o;},'pink':function(o){pinkMesh=o;},
+    'clock':function(o){clockMesh=o;},'rick':function(o){rickMesh=o;},
+    'handz':function(o){handzMesh=o;},'web':function(o){webMesh=o;},
+    'usacat001':function(o){usacat001Mesh=o;},'russia':function(o){russiaMesh=o;},
+    'uses':function(o){usesMesh=o;},'gild':function(o){gildMesh=o;},
+    'tau':function(o){tauMesh=o;},'bat':function(o){batMesh=o;},
+    'lob':function(o){lobMesh=o;},'cats':function(o){catsMesh=o;},
+    'myles_4':function(o){myles_4Mesh=o;},'dada':function(o){dadaMesh=o;},
+    'botch':function(o){botchMesh=o;},'lib':function(o){libMesh=o;},
+    'angels':function(o){angelsMesh=o;},'whale':function(o){whaleMesh=o;},
+    'shotdown':function(o){shotdownMesh=o;},'snowy':function(o){snowyMesh=o;},
+    'mother':function(o){motherMesh=o;},'brah':function(o){brahMesh=o;},
+    'band':function(o){bandMesh=o;},'age':function(o){ageMesh=o;},
+    'chap':function(o){chapMesh=o;},'luv':function(o){luvMesh=o;},
+    'tam':function(o){tamMesh=o;},'guy':function(o){guyMesh=o;},
+    'smith':function(o){smithMesh=o;},'hands':function(o){handsMesh=o;},
+    'hart':function(o){hartMesh=o;},'hodge':function(o){hodgeMesh=o;},
+    'amie':function(o){amieMesh=o;},'ditch':function(o){ditchMesh=o;},
+    'trans':function(o){transMesh=o;},'goodbye':function(o){goodbyeMesh=o;},
+    'gard':function(o){gardMesh=o;},'scraps':function(o){scrapsMesh=o;},
+    'beergirl':function(o){beergirlMesh=o;},'point':function(o){pointMesh=o;},
+    'schau':function(o){schauMesh=o;},'hump':function(o){humpMesh=o;},
+    'boyy':function(o){boyyMesh=o;},'dent':function(o){dentMesh=o;},
+    'bur':function(o){burMesh=o;},'stole':function(o){stoleMesh=o;},
+    'book':function(o){bookMesh=o;},'step':function(o){stepMesh=o;},
+    'dead':function(o){deadMesh=o;},'tellme':function(o){tellmeMesh=o;},
+    'sneks':function(o){sneksMesh=o;},'dry':function(o){dryMesh=o;},
+    'garde':function(o){gardeMesh=o;},'parking':function(o){parkingMesh=o;},
+    'bug':function(o){bugMesh=o;},'wed':function(o){wedMesh=o;},
+    'liz':function(o){lizMesh=o;},'goodmorning':function(o){goodmorningMesh=o;},
+    'memorial001':function(o){memorial001Mesh=o;},'artifice':function(o){artificeMesh=o;},
+    'bluegirl':function(o){bluegirlMesh=o;},'frame001':function(o){frame001Mesh=o;},
+    'dinosaurphone':function(o){dinosaurphoneMesh=o;},'charlotte001':function(o){charlotte001Mesh=o;},
+    'fly':function(o){flyMesh=o;},'diana001':function(o){diana001Mesh=o;},
+    'zine001':function(o){zine001Mesh=o;},'joan':function(o){joanMesh=o;},
+    'sculpture':function(o){sculptureMesh=o;},'pinkme001':function(o){pinkme001Mesh=o;},
+    'nun001':function(o){nun001Mesh=o;},'weston':function(o){westonMesh=o;},
+    'bwlamb':function(o){bwlambMesh=o;},'card':function(o){cardMesh=o;},
+    'handshake':function(o){handshakeMesh=o;},'page_6':function(o){page6Mesh=o;},
+    'creature001':function(o){creatureMesh=o;},'brain_so_hot':function(o){brainSoHotMesh=o;},
+    'wright':function(o){wrightMesh=o;},'vamp':function(o){vampMesh=o;},
+    'couch':function(o){couchMesh=o;},'riot':function(o){riotMesh=o;},
+    'cake':function(o){cakeMesh=o;},'blank':function(o){blankMesh=o;},
+    'boy':function(o){boyMesh=o;},'baby':function(o){babyMesh=o;},
+    'warhol':function(o){warholMesh=o;}
+  };
 
-priorityList.forEach(function(pair) {
-  pt(pair[1], function(t) {});
-});
-}
-        if (obj.name === 'memorial001') {
-  memorial001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/memorial.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    memorial001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'artifice') {
-  artificeMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/artifice.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    artificeMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'bluegirl') {
-  bluegirlMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/blue.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    bluegirlMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'frame001') {
-  frame001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/frame.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    frame001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'dinosaurphone') {
-  dinosaurphoneMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dinosaur%20phone.JPG', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    dinosaurphoneMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'charlotte001') {
-  charlotte001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/charlotte.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    charlotte001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'fly') {
-  flyMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/fly.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    flyMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'diana001') {
-  diana001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dina.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    diana001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-if (obj.name === 'zine001') {
-  zine001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/zine2.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    zine001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        if (obj.name === 'joan') {
-  joanMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/joan.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    joanMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-       if (obj.name === 'sculpture') { sculptureMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/sculp.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; sculptureMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-        if (obj.name === 'pinkme001') {
-  pinkme001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/pinkme.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    pinkme001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        if (obj.name === 'nun001') {
-  nun001Mesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/nun.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    nun001Mesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        if (obj.name === 'weston') {
-  westonMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/weston.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    westonMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        if (obj.name === 'bwlamb') {
-  bwlambMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lamb.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    bwlambMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        if (obj.name === 'card') {
-  cardMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/card.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    cardMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        if (obj.name === 'handshake') {
-  handshakeMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/HANDSHAKE.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    handshakeMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-  });
-}
-        
-        if (obj.name === 'page_6') {
-  page6Mesh = obj;
-  obj.visible = false;
-  var loader3 = new THREE.TextureLoader();
-  loader3.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/page6.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    page6Mesh.material = new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.DoubleSide
-    });
+  gltf.scene.traverse(function(obj) {
+    if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
+    if (obj.name === 'lamp001') lamp001 = obj;
+    if (obj.name === 'lamp002') lamp002 = obj;
+    if (obj.name === 'endlesswindow') { endlessWindowMesh = obj; obj.visible = false; endlessWindowVideo = document.createElement('video'); endlessWindowVideo.loop = true; endlessWindowVideo.muted = true; endlessWindowVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4').then(function(r){return r.blob();}).then(function(blob){endlessWindowVideo.src=URL.createObjectURL(blob);}); }
+    if (obj.name === 'lace') { laceMesh = obj; obj.visible = false; laceVideo = document.createElement('video'); laceVideo.loop = true; laceVideo.muted = true; laceVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4').then(function(r){return r.blob();}).then(function(blob){laceVideo.src=URL.createObjectURL(blob);}); }
+    if (obj.name === 'dinosaur001') { dinosaurMesh = obj; obj.visible = false; dinosaurVideo = document.createElement('video'); dinosaurVideo.loop = true; dinosaurVideo.muted = true; dinosaurVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4').then(function(r){return r.blob();}).then(function(blob){dinosaurVideo.src=URL.createObjectURL(blob);}); }
+    if (obj.name === 'cereal') { cerealScreenMesh = obj; obj.visible = false; cerealVideo = document.createElement('video'); cerealVideo.loop = true; cerealVideo.muted = true; cerealVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/cereal.mp4').then(function(r){return r.blob();}).then(function(blob){cerealVideo.src=URL.createObjectURL(blob);}); }
+
+    if (meshMap[obj.name]) {
+      if (meshVarMap[obj.name]) meshVarMap[obj.name](obj);
+      obj.visible = false;
+      pt(meshMap[obj.name], obj);
+    }
   });
 
-}
-        if (obj.name === 'creature001') {
-  creatureMesh = obj;
-  obj.visible = false;
-  var loader = new THREE.TextureLoader();
-  loader.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/creature.jpeg', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    creatureMesh.material = new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.DoubleSide
-    });
-    creatureLoaded = true;
+  scene.add(model);
+  model.traverse(function(obj) {
+    if (obj.isMesh) {
+      obj.frustumCulled = false;
+      if (obj.material && obj.material.transparent === false) obj.renderOrder = 0;
+    }
   });
 
-}
+  if (lamp001) lamp001.visible = true;
+  if (lamp002) lamp002.visible = false;
 
-        if (obj.name === 'lace') {
-  laceMesh = obj;
-  obj.visible = false;
-  laceVideo = document.createElement('video');
-  laceVideo.loop = true;
-  laceVideo.muted = true;
-  laceVideo.playsInline = true;
-  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4')
-    .then(function(r) { return r.blob(); })
-    .then(function(blob) { laceVideo.src = URL.createObjectURL(blob); });
-}
-        if (obj.name === 'brain_so_hot') {
-  brainSoHotMesh = obj;
-  obj.visible = false;
-  var loader2 = new THREE.TextureLoader();
-  loader2.load('https://raw.githubusercontent.com/hwrules189-commits/room/main/brainsohot.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    brainSoHotMesh.material = new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.DoubleSide
-    });
-    brainSoHotLoaded = true;
-  });
-}
-        if (obj.name === 'dinosaur001') {
-  dinosaurMesh = obj;
-  obj.visible = false;
-  dinosaurVideo = document.createElement('video');
-  dinosaurVideo.loop = true;
-  dinosaurVideo.muted = true;
-  dinosaurVideo.playsInline = true;
-  fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4')
-    .then(function(r) { return r.blob(); })
-    .then(function(blob) { dinosaurVideo.src = URL.createObjectURL(blob); });
-}
-if (obj.name === 'cereal') {
-  cerealScreenMesh = obj;
-  obj.visible = false;
-  cerealVideo = document.createElement('video');
-  cerealVideo.loop = true;
-  cerealVideo.muted = true;
-  cerealVideo.playsInline = true;
-  fetch('https://hwrules189-commits.github.io/room/cereal.mp4')
-    .then(function(r) { return r.blob(); })
-    .then(function(blob) { cerealVideo.src = URL.createObjectURL(blob); });
-}
+  if (lamp001 && lamp002) {
+    var b1 = new THREE.Box3().setFromObject(lamp001);
+    var b2 = new THREE.Box3().setFromObject(lamp002);
+    var combined = b1.union(b2);
+    var hSize = combined.getSize(new THREE.Vector3());
+    var hCenter = combined.getCenter(new THREE.Vector3());
+    lampHitbox = new THREE.Mesh(
+      new THREE.BoxGeometry(hSize.x, hSize.y, hSize.z),
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    lampHitbox.position.copy(hCenter);
+    scene.add(lampHitbox);
+  }
 
-
-        
-      });
-
-      scene.add(model);
-      model.traverse(function(obj) {
-  if (obj.isMesh) {
-    obj.frustumCulled = false;
-    if (obj.material && obj.material.transparent === false) {
-        obj.renderOrder = 0;
+  if (gltf.animations.length > 0) {
+    mixer = new THREE.AnimationMixer(gltf.scene);
+    gltf.animations.forEach(function(clip) {
+      if (clip.name.toLowerCase().includes('door') || clip.name.toLowerCase().includes('closet')) {
+        var filteredTracks = clip.tracks.filter(function(track) {
+          var trackObjName = track.name.split('.')[0];
+          if (trackObjName !== 'door_closet_right') return false;
+          if (track.name.endsWith('.position')) { var initialY = track.values[1]; for (var i = 1; i < track.values.length; i += 3) { track.values[i] = initialY; } }
+          return true;
+        });
+        var filteredClip = new THREE.AnimationClip(clip.name, clip.duration, filteredTracks);
+        doorAction = mixer.clipAction(filteredClip);
+        doorAction.clampWhenFinished = true;
+        doorAction.loop = THREE.LoopOnce;
       }
-    }
-  });
-
-
-      if (lamp001) lamp001.visible = true;
-      if (lamp002) lamp002.visible = false;
-
-      if (lamp001 && lamp002) {
-        var b1 = new THREE.Box3().setFromObject(lamp001);
-        var b2 = new THREE.Box3().setFromObject(lamp002);
-        var combined = b1.union(b2);
-        var hSize = combined.getSize(new THREE.Vector3());
-        var hCenter = combined.getCenter(new THREE.Vector3());
-        lampHitbox = new THREE.Mesh(
-          new THREE.BoxGeometry(hSize.x, hSize.y, hSize.z),
-          new THREE.MeshBasicMaterial({ visible: false })
-        );
-        lampHitbox.position.copy(hCenter);
-        scene.add(lampHitbox);
-      }
-
-    if (gltf.animations.length > 0) {
-  mixer = new THREE.AnimationMixer(gltf.scene);
-
-  gltf.animations.forEach(function(clip) {
-    console.log('ANIMATION:', clip.name);
-    clip.tracks.forEach(function(track) {
-      console.log('TRACK:', track.name);
+      if (clip.name === 'right side windowAction') { rightWindowAction = mixer.clipAction(clip); rightWindowAction.clampWhenFinished = true; rightWindowAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'left side windowAction') { leftWindowAction = mixer.clipAction(clip); leftWindowAction.clampWhenFinished = true; leftWindowAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'ArmatureAction.001') { armatureAction = mixer.clipAction(clip); armatureAction.clampWhenFinished = true; armatureAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'meshAction.001') { meshAction001 = mixer.clipAction(clip); meshAction001.clampWhenFinished = true; meshAction001.loop = THREE.LoopOnce; }
+      if (clip.name === 'closet doorAction') { closetDoorAction = mixer.clipAction(clip); closetDoorAction.clampWhenFinished = true; closetDoorAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'pinklampAction') { pinklampAction = mixer.clipAction(clip); pinklampAction.loop = THREE.LoopRepeat; pinklampAction.play(); }
+      if (clip.name === 'bluelamponAction.002') { bluelamponAction = mixer.clipAction(clip); bluelamponAction.loop = THREE.LoopRepeat; bluelamponAction.play(); }
+      if (clip.name === 'bluelampoffAction') { bluelampoffAction = mixer.clipAction(clip); bluelampoffAction.loop = THREE.LoopRepeat; bluelampoffAction.play(); }
+      if (clip.name === 'wrestlerAction.001') { wrestlerAction = mixer.clipAction(clip); wrestlerAction.loop = THREE.LoopRepeat; wrestlerAction.play(); }
     });
-    if (
-      clip.name.toLowerCase().includes('door') ||
-      clip.name.toLowerCase().includes('closet')
-    ) {
-      var filteredTracks = clip.tracks.filter(function(track) {
-        var trackObjName = track.name.split('.')[0];
-        if (trackObjName !== 'door_closet_right') return false;
-        if (track.name.endsWith('.position')) {
-          var initialY = track.values[1];
-          for (var i = 1; i < track.values.length; i += 3) {
-            track.values[i] = initialY;
-          }
-        }
-        return true;
-      });
+  }
 
-      var filteredClip = new THREE.AnimationClip(clip.name, clip.duration, filteredTracks);
-      doorAction = mixer.clipAction(filteredClip);
-      doorAction.clampWhenFinished = true;
-      doorAction.loop = THREE.LoopOnce;
-    }
-    
-    if (clip.name === 'right side windowAction') {
-      rightWindowAction = mixer.clipAction(clip);
-      rightWindowAction.clampWhenFinished = true;
-      rightWindowAction.loop = THREE.LoopOnce;
-    }
-    if (clip.name === 'left side windowAction') {
-      leftWindowAction = mixer.clipAction(clip);
-      leftWindowAction.clampWhenFinished = true;
-      leftWindowAction.loop = THREE.LoopOnce;
-    }
-    if (clip.name === 'ArmatureAction.001') {
-  armatureAction = mixer.clipAction(clip);
-  armatureAction.clampWhenFinished = true;
-  armatureAction.loop = THREE.LoopOnce;
-}
-    if (clip.name === 'meshAction.001') {
-  meshAction001 = mixer.clipAction(clip);
-  meshAction001.clampWhenFinished = true;
-  meshAction001.loop = THREE.LoopOnce;
-}
-    if (clip.name === 'closet doorAction') {
-  closetDoorAction = mixer.clipAction(clip);
-  closetDoorAction.clampWhenFinished = true;
-  closetDoorAction.loop = THREE.LoopOnce;
-}
-if (clip.name === 'pinklampAction') {
-  pinklampAction = mixer.clipAction(clip);
-  pinklampAction.loop = THREE.LoopRepeat;
-  pinklampAction.play();
-}
-if (clip.name === 'bluelamponAction.002') {
-  bluelamponAction = mixer.clipAction(clip);
-  bluelamponAction.loop = THREE.LoopRepeat;
-  bluelamponAction.play();
-}
-if (clip.name === 'bluelampoffAction') {
-  bluelampoffAction = mixer.clipAction(clip);
-  bluelampoffAction.loop = THREE.LoopRepeat;
-  bluelampoffAction.play();
-}
-if (clip.name === 'wrestlerAction.001') {
-  wrestlerAction = mixer.clipAction(clip);
-  wrestlerAction.loop = THREE.LoopRepeat;
-  wrestlerAction.play();
-}
-  });
-}
+  var box = new THREE.Box3().setFromObject(model);
+  var center = box.getCenter(new THREE.Vector3());
+  var size = box.getSize(new THREE.Vector3());
+  camera.position.set(center.x, center.y, center.z);
+  camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
+  SPEED = size.x * 0.01;
 
-      var box = new THREE.Box3().setFromObject(model);
-      var center = box.getCenter(new THREE.Vector3());
-      var size = box.getSize(new THREE.Vector3());
-      camera.position.set(center.x, center.y, center.z);
-      camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
-      SPEED = size.x * 0.01;
-    }, null, function(err) { console.error(err); });
+}, null, function(err) { console.error(err); });
   }
 
   function loadPuppet() {

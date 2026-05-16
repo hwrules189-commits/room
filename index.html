@@ -679,7 +679,12 @@ momdadMesh = null;
     gltfLoader.load(glbUrl, function(gltf) {
   var model = gltf.scene;
   model.scale.setScalar(10);
-      gltf.scene.traverse(function(obj) { console.log(obj.type, obj.name); });
+      gltf.animations.forEach(function(clip) {
+  console.log('ANIMATION:', clip.name);
+  clip.tracks.forEach(function(track) {
+    console.log('  TRACK:', track.name);
+  });
+});
 
   base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
   function pt(url, mesh) {

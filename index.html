@@ -62,6 +62,7 @@ var leftWindowOpen = false;
   var mouseHasMoved = false;
   var armatureAction = null;
   var meshAction001 = null;
+  var T = {};
 var armaturePlaying = false;
 var laceMesh = null;
 var laceVideo = null;
@@ -583,6 +584,7 @@ setTimeout(function() {
     dinosaurMesh = null;
 dinosaurVisible = false;
     dinosaurVideo = null;
+    T = {};
     angleMesh = null; ghostMesh = null; bauMesh = null; comikMesh = null; braceMesh = null;
 katMesh = null; modolMesh = null; batzMesh = null; mrsMesh = null; finMesh = null;
 crownsMesh = null; marysMesh = null; swimmernudeMesh = null; swimyMesh = null; 
@@ -679,133 +681,72 @@ momdadMesh = null;
       gltf.scene.traverse(function(obj) { console.log(obj.type, obj.name); });
       model.scale.setScalar(10);
 
-      gltf.scene.traverse(function(obj) {
-        if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
-        if (obj.name === 'lamp001') lamp001 = obj;
-        if (obj.name === 'lamp002') lamp002 = obj;
-        if (obj.name === 'endlesswindow') {
-  endlessWindowMesh = obj;
-  obj.visible = false;
-  endlessWindowVideo = document.createElement('video');
-  endlessWindowVideo.loop = true;
-  endlessWindowVideo.muted = true;
-  endlessWindowVideo.playsInline = true;
-  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4')
-    .then(function(r) { return r.blob(); })
-    .then(function(blob) { endlessWindowVideo.src = URL.createObjectURL(blob); });
-}
-        if (obj.name === 'waves') { wavesMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wave.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; wavesMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hairdo') { hairdoMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hair.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; hairdoMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'ver') { verMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/me.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; verMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bookesb') { bokesbMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/esb.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bokesbMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'diana5') { diana5Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/diana.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; diana5Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'medcoin') { medcoinMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/coin.jpg', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; medcoinMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hair') { hairMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hair2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; hairMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'lennon') { lennonMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/john.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; lennonMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'eyeballz') { eyeballzMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/eye.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; eyeballzMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'horses') { horsesMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/horses.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; horsesMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'night') { nightMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/knight.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; nightMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hare') { hareMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/celeb.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; hareMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'nimro') { nimroMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/myles.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; nimroMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'rose') { roseMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/rose.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; roseMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'match') { matchMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/match.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; matchMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'diana4') { diana4Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dianaa.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; diana4Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'brooks') { brooksMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/louise2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; brooksMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bridge') { bridgeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/brucke.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bridgeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'tat') { tatMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/tattoo.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tatMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'parents') { parentsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/amish.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; parentsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bob') { bobMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bob.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bobMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'momdad') { momdadMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/christmas.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; momdadMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'angle') { angleMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/angel.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; angleMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'ghost') { ghostMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/owl.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; ghostMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bau') { bauMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bauhaus.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bauMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'comik') { comikMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/comic.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; comikMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'brace') { braceMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/braces.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; braceMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'kat') { katMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/clown.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; katMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'modol') { modolMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/model.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; modolMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'batz') { batzMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bats.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; batzMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'mrs') { mrsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/duchamp.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; mrsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'fin') { finMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hyvon.jpg', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; finMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'crowns') { crownsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/crown.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; crownsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'marys') { marysMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/pray.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; marysMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'swimmernude') { swimmernudeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/nude2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; swimmernudeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'swimy') { swimyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/swim.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; swimyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'wright') { wrightMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/maryw.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; wrightMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'vamp') { vampMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/blankets.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; vampMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'couch') { couchMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/nude.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; couchMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'riot') { riotMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/riot.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; riotMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'cake') { cakeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/birth.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; cakeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'lesor') { lesorMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/leseur.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; lesorMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'pink') { pinkMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/pinkguy.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; pinkMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'clock') { clockMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wheel.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; clockMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'rick') { rickMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/ricky.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; rickMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'handz') { handzMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hand.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; handzMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'web') { webMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/website.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; webMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'usacat001') { usacat001Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/usa.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; usacat001Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'russia') { russiaMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/mary.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; russiaMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'uses') { usesMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/manyuses.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; usesMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'gild') { gildMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/gilda.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; gildMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'tau') { tauMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/tauwetter.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tauMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bat') { batMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bats2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; batMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'lob') { lobMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lobster.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; lobMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'cats') { catsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/tiger.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; catsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'myles_4') { myles_4Mesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/myles2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; myles_4Mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'dada') { dadaMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dad.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; dadaMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'botch') { botchMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bosch.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; botchMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'lib') { libMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lib.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; libMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'angels') { angelsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/slutangel.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; angelsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'whale') { whaleMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/duchamb.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; whaleMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'shotdown') { shotdownMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/shot.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; shotdownMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'snowy') { snowyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/snow2.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; snowyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'mother') { motherMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/lange.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; motherMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'brah') { brahMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/braces.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; brahMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'band') { bandMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/banjo.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bandMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'age') { ageMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/age.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; ageMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'chap') { chapMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/que.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; chapMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'luv') { luvMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/ily.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; luvMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'tam') { tamMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/tamayo.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tamMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'guy') { guyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/guy.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; guyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'smith') { smithMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/patti.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; smithMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hands') { handsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hands.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; handsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hart') { hartMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/catch.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; hartMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hodge') { hodgeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/queen.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; hodgeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'amie') { amieMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/amy.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; amieMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'ditch') { ditchMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/finland.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; ditchMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'trans') { transMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/sich.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; transMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'goodbye') { goodbyeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/zine.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; goodbyeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'gard') { gardMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/garda.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; gardMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'scraps') { scrapsMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/junk.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; scrapsMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'beergirl') { beergirlMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/beer.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; beergirlMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'point') { pointMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/pointilism.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; pointMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'schau') { schauMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/schauspielhaus.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; schauMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'hump') { humpMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bogart.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; humpMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'boyy') { boyyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/girlboy.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; boyyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'dent') { dentMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/dentist.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; dentMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bur') { burMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/berlin.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; burMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'stole') { stoleMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/snow.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; stoleMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'book') { bookMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/blanket.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bookMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'step') { stepMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/2step.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; stepMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'dead') { deadMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/bird.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; deadMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'tellme') { tellmeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/hey.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tellmeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'sneks') { sneksMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/sneaks.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; sneksMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'dry') { dryMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/vinyl.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; dryMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'garde') { gardeMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/mondrian.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; gardeMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'parking') { parkingMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/ticket.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; parkingMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'bug') { bugMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/woman.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bugMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'wed') { wedMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wedding.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; wedMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'liz') { lizMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/honor.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; lizMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-        if (obj.name === 'blank') { blankMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/blanket.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; blankMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'boy') { boyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wolf.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; boyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'baby') { babyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wriston.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; babyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-if (obj.name === 'warhol') { warholMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/club.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; warholMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
-        if (obj.name === 'goodmorning') {
-  goodmorningMesh = obj;
-  obj.visible = false;
-  new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/printer.png', function(texture) {
-    texture.flipY = false;
-    texture.encoding = THREE.sRGBEncoding;
-    goodmorningMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+      var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
+var tl = new THREE.TextureLoader();
+
+function pt(url, cb) {
+  if (T[url]) { cb(T[url]); return; }
+  tl.load(base + url, function(t) {
+    t.flipY = false;
+    t.encoding = THREE.sRGBEncoding;
+    T[url] = t;
+    cb(t);
   });
+}
+
+var priorityList = [
+  ['hare','celeb.png'],['ver','me.png'],['bookesb','esb.png'],['charlotte001','charlotte.png'],
+  ['diana5','diana.png'],['goodmorning','printer.png'],['handshake','HANDSHAKE.png'],
+  ['frame001','frame.png'],['horses','horses.png'],['night','knight.png'],['medcoin','coin.jpg'],
+  ['fly','fly.png'],['riot','riot.png'],['diana001','dina.png'],['bwlamb','lamb.png'],
+  ['artifice','artifice.png'],['blank','blanket.png'],['creature001','creature.jpeg'],
+  ['dinosaurphone','dinosaur%20phone.JPG'],['nimro','myles.png'],['weston','weston.png'],
+  ['sculpture','sculp.png'],['pinkme001','pinkme.png'],['boy','wolf.png'],['bluegirl','blue.png'],
+  ['waves','wave.png'],['hair','hair2.png'],['tat','tattoo.png'],['couch','nude.png'],
+  ['diana4','dianaa.png'],['bridge','brucke.png'],['match','match.png'],['bau','bauhaus.png'],
+  ['rose','rose.png'],['brooks','louise2.png'],['parents','amish.png'],['joan','joan.png'],
+  ['bob','bob.png'],['hairdo','hair.png'],['swimy','swim.png'],['pink','pinkguy.png'],
+  ['marys','pray.png'],['clock','wheel.png'],['lennon','john.png'],['ghost','owl.png'],
+  ['brace','braces.png'],['modol','model.png'],['comik','comic.png'],['swimmernude','nude2.png'],
+  ['rick','ricky.png'],['handz','hand.png'],['mrs','duchamp.png'],['cake','birth.png'],
+  ['russia','mary.png'],['uses','manyuses.png'],['usacat001','usa.png'],['gild','gilda.png'],
+  ['waves','wave.png'],['hairdo','hair.png'],['ver','me.png'],['medcoin','coin.jpg'],
+  ['hair','hair2.png'],['lennon','john.png'],['eyeballz','eye.png'],['horses','horses.png'],
+  ['night','knight.png'],['nimro','myles.png'],['rose','rose.png'],['match','match.png'],
+  ['diana4','dianaa.png'],['brooks','louise2.png'],['bridge','brucke.png'],['tat','tattoo.png'],
+  ['parents','amish.png'],['bob','bob.png'],['momdad','christmas.png'],['angle','angel.png'],
+  ['ghost','owl.png'],['bau','bauhaus.png'],['comik','comic.png'],['brace','braces.png'],
+  ['kat','clown.png'],['modol','model.png'],['batz','bats.png'],['mrs','duchamp.png'],
+  ['fin','hyvon.jpg'],['crowns','crown.png'],['marys','pray.png'],['swimmernude','nude2.png'],
+  ['swimy','swim.png'],['lesor','leseur.png'],['pink','pinkguy.png'],['clock','wheel.png'],
+  ['rick','ricky.png'],['handz','hand.png'],['web','website.png'],['russia','mary.png'],
+  ['uses','manyuses.png'],['gild','gilda.png'],['tau','tauwetter.png'],['bat','bats2.png'],
+  ['lob','lobster.png'],['cats','tiger.png'],['myles_4','myles2.png'],['dada','dad.png'],
+  ['botch','bosch.png'],['lib','lib.png'],['angels','slutangel.png'],['whale','duchamb.png'],
+  ['shotdown','shot.png'],['snowy','snow2.png'],['mother','lange.png'],['brah','braces.png'],
+  ['band','banjo.png'],['age','age.png'],['chap','que.png'],['luv','ily.png'],
+  ['tam','tamayo.png'],['guy','guy.png'],['smith','patti.png'],['hands','hands.png'],
+  ['hart','catch.png'],['hodge','queen.png'],['amie','amy.png'],['ditch','finland.png'],
+  ['trans','sich.png'],['goodbye','zine.png'],['gard','garda.png'],['scraps','junk.png'],
+  ['beergirl','beer.png'],['point','pointilism.png'],['schau','schauspielhaus.png'],
+  ['hump','bogart.png'],['boyy','girlboy.png'],['dent','dentist.png'],['bur','berlin.png'],
+  ['stole','snow.png'],['book','blanket.png'],['step','2step.png'],['dead','bird.png'],
+  ['tellme','hey.png'],['sneks','sneaks.png'],['dry','vinyl.png'],['garde','mondrian.png'],
+  ['parking','ticket.png'],['bug','woman.png'],['wed','wedding.png'],['liz','honor.png'],
+  ['goodmorning','printer.png'],['memorial001','memorial.png'],['artifice','artifice.png'],
+  ['bluegirl','blue.png'],['frame001','frame.png'],['dinosaurphone','dinosaur%20phone.JPG'],
+  ['charlotte001','charlotte.png'],['fly','fly.png'],['diana001','dina.png'],
+  ['zine001','zine.png'],['joan','joan.png'],['sculpture','sculp.png'],['pinkme001','pinkme.png'],
+  ['nun001','nun.png'],['weston','weston.png'],['bwlamb','lamb.png'],['card','card.png'],
+  ['handshake','HANDSHAKE.png'],['page_6','page6.png'],['creature001','creature.jpeg'],
+  ['brain_so_hot','brainsohot.png'],['wright','maryw.png'],['vamp','blankets.png'],
+  ['couch','nude.png'],['riot','riot.png'],['cake','birth.png'],['blank','blanket.png'],
+  ['boy','wolf.png'],['baby','wriston.png'],['warhol','club.png']
+];
+
+priorityList.forEach(function(pair) {
+  pt(pair[1], function(t) {});
+});
 }
         if (obj.name === 'memorial001') {
   memorial001Mesh = obj;

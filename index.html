@@ -48,8 +48,6 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   var doorAction = null;
 var doorOpen = false;
   var rightWindowAction = null;
-  var doorAction = null;
-var doorOpen = false;
 var haltMesh = null;
 var forktallVideo = null;
 var forktallTextureApplied = false;
@@ -66,12 +64,14 @@ var leftWindowOpen = false;
   var camYaw = 0;
   var camPitch = 0;
   var mouseHasMoved = false;
+  var quapMesh = null;
   var armatureAction = null;
   var meshAction001 = null;
   var T = {};
 var armaturePlaying = false;
 var laceMesh = null;
 var laceVideo = null;
+  var essaysMesh = null;
 var laceTextureApplied = false;
   var lamp001 = null;
   var lamp002 = null;
@@ -123,6 +123,10 @@ var charlotte001Mesh = null;
 var vampMesh = null;
 var couchMesh = null;
 var riotMesh = null;
+  var rightbooks1Mesh = null;
+var kleeVideo = null;
+var kleeTextureApplied = false;
+var kleeVisible = false;
 var cakeMesh = null;
 var flyMesh = null;
 var diana001Mesh = null;
@@ -186,6 +190,7 @@ var snowyMesh = null;
 var motherMesh = null;
 var brahMesh = null;
 var bandMesh = null;
+  var tweetMesh = null;
 var ageMesh = null;
 var chapMesh = null;
 var luvMesh = null;
@@ -256,6 +261,7 @@ var endlessWindowTextureApplied = false;
   if (!memorial001Mesh) return;
   memorial001Mesh.visible = !memorial001Mesh.visible;
 }
+  function toggleQuap() { if (!quapMesh) return; quapMesh.visible = !quapMesh.visible; }
   function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
   function toggleHalt() {
   if (!haltMesh) return;
@@ -277,6 +283,25 @@ var endlessWindowTextureApplied = false;
   }
 }
   function toggleBlank() { if (!blankMesh) return; blankMesh.visible = !blankMesh.visible; }
+  function toggleRightbooks1() {
+  if (!rightbooks1Mesh) return;
+  kleeVisible = !kleeVisible;
+  rightbooks1Mesh.visible = kleeVisible;
+  if (kleeVisible) {
+    if (!kleeTextureApplied && kleeVideo) {
+      kleeTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(kleeVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      rightbooks1Mesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (kleeVideo) {
+      kleeVideo.readyState >= 2 ? kleeVideo.play() : kleeVideo.addEventListener('canplay', function h() { kleeVideo.removeEventListener('canplay', h); kleeVideo.play(); });
+    }
+  } else {
+    if (kleeVideo) kleeVideo.pause();
+  }
+}
 function toggleBoy() { if (!boyMesh) return; boyMesh.visible = !boyMesh.visible; }
 function toggleBaby() { if (!babyMesh) return; babyMesh.visible = !babyMesh.visible; }
 function toggleWarhol() { if (!warholMesh) return; warholMesh.visible = !warholMesh.visible; }
@@ -328,6 +353,7 @@ function toggleSnowy() { if (!snowyMesh) return; snowyMesh.visible = !snowyMesh.
 function toggleMother() { if (!motherMesh) return; motherMesh.visible = !motherMesh.visible; }
 function toggleBrah() { if (!brahMesh) return; brahMesh.visible = !brahMesh.visible; }
 function toggleBand() { if (!bandMesh) return; bandMesh.visible = !bandMesh.visible; }
+function toggleTweet() { if (!tweetMesh) return; tweetMesh.visible = !tweetMesh.visible; }
 function toggleAge() { if (!ageMesh) return; ageMesh.visible = !ageMesh.visible; }
 function toggleChap() { if (!chapMesh) return; chapMesh.visible = !chapMesh.visible; }
 function toggleLuv() { if (!luvMesh) return; luvMesh.visible = !luvMesh.visible; }
@@ -529,6 +555,7 @@ function toggleZine001() {
   if (!westonMesh) return;
   westonMesh.visible = !westonMesh.visible;
 }
+  function toggleEssays() { if (!essaysMesh) return; essaysMesh.visible = !essaysMesh.visible; }
   function togglebwlamb() {
   if (!bwlambMesh) return;
   bwlambMesh.visible = !bwlambMesh.visible;
@@ -542,7 +569,7 @@ function toggleZine001() {
   handshakeMesh.visible = !handshakeMesh.visible;
 }
   var imageUrls = [
-  'wave.png','hair.png','me.png','esb.png','diana.png','coin.jpg','hair2.png','john.png',
+  'wave.png','hair.png','me.png','esb.png','diana.png','coin.jpg','hair2.png','john.png', 'essay.png',
   'eye.png','horses.png','knight.png','celeb.png','myles.png','rose.png','match.png',
   'dianaa.png','louise2.png','brucke.png','tattoo.png','amish.png','bob.png','christmas.png',
   'angel.png','owl.png','bauhaus.png','comic.png','braces.png','clown.png','model.png',
@@ -611,6 +638,7 @@ dinosaurVisible = false;
     dinosaurVideo = null;
     T = {};
     angleMesh = null; ghostMesh = null; bauMesh = null; comikMesh = null; braceMesh = null;
+    quapMesh = null;
 katMesh = null; modolMesh = null; batzMesh = null; mrsMesh = null; finMesh = null;
 crownsMesh = null; marysMesh = null; swimmernudeMesh = null; swimyMesh = null; 
 lesorMesh = null; pinkMesh = null; clockMesh = null; rickMesh = null; handzMesh = null;
@@ -648,6 +676,7 @@ forktallVideo = null;
 forktallTextureApplied = false;
 forktallVisible = false;
     medcoinMesh = null;
+    essaysMesh = null;
 laceTextureApplied = false;
   laceVisible = false;
     closetDoorAction = null;
@@ -695,7 +724,10 @@ diana5Mesh = null;
 hairMesh = null;
 lennonMesh = null;
 eyeballzMesh = null;
-
+rightbooks1Mesh = null;
+kleeVideo = null;
+kleeTextureApplied = false;
+kleeVisible = false;
 nimroMesh = null;
 roseMesh = null;
 matchMesh = null;
@@ -724,7 +756,7 @@ momdadMesh = null;
   }
 
   var meshMap = {
-    'waves':'wave.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png',
+    'waves':'wave.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png', 'quap':'que.png', 'essays':'essay.png',
     'diana5':'diana.png','medcoin':'coin.jpg','hair':'hair2.png','lennon':'john.png',
     'eyeballz':'eye.png','horses':'horses.png','night':'knight.png','hare':'celeb.png',
     'nimro':'myles.png','rose':'rose.png','match':'match.png','diana4':'dianaa.png',
@@ -761,7 +793,9 @@ momdadMesh = null;
   };
 
   var meshVarMap = {
+    'essays':function(o){essaysMesh=o;},
     'waves':function(o){wavesMesh=o;},'hairdo':function(o){hairdoMesh=o;},
+    'quap':function(o){quapMesh=o;},
     'ver':function(o){verMesh=o;},'bookesb':function(o){bokesbMesh=o;},
     'diana5':function(o){diana5Mesh=o;},'medcoin':function(o){medcoinMesh=o;},
     'hair':function(o){hairMesh=o;},'lennon':function(o){lennonMesh=o;},
@@ -830,6 +864,38 @@ momdadMesh = null;
     if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
     if (obj.name === 'lamp001') lamp001 = obj;
     if (obj.name === 'lamp002') lamp002 = obj;
+    if (obj.name === 'tweet') { tweetMesh = obj; obj.visible = false; new THREE.TextureLoader().load(base + 'nard.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tweetMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+    if (obj.name === 'rightbooks1') {
+  rightbooks1Mesh = obj;
+  obj.visible = false;
+  kleeVideo = document.createElement('video');
+  kleeVideo.loop = true;
+  kleeVideo.muted = true;
+  kleeVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/klee.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { kleeVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'halt') {
+  haltMesh = obj;
+  forktallVideo = document.createElement('video');
+  forktallVideo.loop = true;
+  forktallVideo.muted = true;
+  forktallVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/forktall.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      forktallVideo.src = URL.createObjectURL(blob);
+      forktallVideo.addEventListener('canplay', function h() {
+        forktallVideo.removeEventListener('canplay', h);
+        var videoTexture = new THREE.VideoTexture(forktallVideo);
+        videoTexture.flipY = false;
+        videoTexture.encoding = THREE.sRGBEncoding;
+        obj.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+        forktallVideo.play();
+      });
+    });
+}
     if (obj.name === 'endlesswindow') { endlessWindowMesh = obj; obj.visible = false; endlessWindowVideo = document.createElement('video'); endlessWindowVideo.loop = true; endlessWindowVideo.muted = true; endlessWindowVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4').then(function(r){return r.blob();}).then(function(blob){endlessWindowVideo.src=URL.createObjectURL(blob);}); }
     if (obj.name === 'lace') { laceMesh = obj; obj.visible = false; laceVideo = document.createElement('video'); laceVideo.loop = true; laceVideo.muted = true; laceVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4').then(function(r){return r.blob();}).then(function(blob){laceVideo.src=URL.createObjectURL(blob);}); }
     if (obj.name === 'dinosaur001') { dinosaurMesh = obj; obj.visible = false; dinosaurVideo = document.createElement('video'); dinosaurVideo.loop = true; dinosaurVideo.muted = true; dinosaurVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4').then(function(r){return r.blob();}).then(function(blob){dinosaurVideo.src=URL.createObjectURL(blob);}); }
@@ -1013,6 +1079,9 @@ while (doorObj) {
   }
   doorObj = doorObj.parent;
 }
+    var essayObj = hit; while (essayObj) { if (essayObj.name === 'essay' || essayObj.name === 'essays') { toggleEssays(); return; } essayObj = essayObj.parent; }
+    var rightbook1Obj = hit; while (rightbook1Obj) { if (rightbook1Obj.name === 'rightbook1' || rightbook1Obj.name === 'rightbooks1') { toggleRightbooks1(); return; } rightbook1Obj = rightbook1Obj.parent; }
+    var quapoObj = hit; while (quapoObj) { if (quapoObj.name === 'quapo' || quapoObj.name === 'quap') { toggleQuap(); return; } quapoObj = quapoObj.parent; }
     var horseyObj = hit; while (horseyObj) { if (horseyObj.name === 'horsey' || horseyObj.name === 'horses') { toggleHorses(); return; } horseyObj = horseyObj.parent; }
 var scaryObj = hit; while (scaryObj) { if (scaryObj.name === 'scary' || scaryObj.name === 'blank') { toggleBlank(); return; } scaryObj = scaryObj.parent; }
 var wolfObj = hit; while (wolfObj) { if (wolfObj.name === 'wolf' || wolfObj.name === 'boy') { toggleBoy(); return; } wolfObj = wolfObj.parent; }
@@ -1062,8 +1131,8 @@ var langeObj = hit; while (langeObj) { if (langeObj.name === 'lange' || langeObj
 var bracesObj = hit; while (bracesObj) { if (bracesObj.name === 'braces' || bracesObj.name === 'brah') { toggleBrah(); return; } bracesObj = bracesObj.parent; }
 var gmaObj = hit; while (gmaObj) { if (gmaObj.name === 'gma' || gmaObj.name === 'band') { toggleBand(); return; } gmaObj = gmaObj.parent; }
 var antiagingObj = hit; while (antiagingObj) { if (antiagingObj.name === 'antiaging' || antiagingObj.name === 'age') { toggleAge(); return; } antiagingObj = antiagingObj.parent; }
-var quapoObj = hit; while (quapoObj) { if (quapoObj.name === 'quapo' || quapoObj.name === 'chap') { toggleChap(); return; } quapoObj = quapoObj.parent; }
 var ilyObj = hit; while (ilyObj) { if (ilyObj.name === 'ily' || ilyObj.name === 'luv') { toggleLuv(); return; } ilyObj = ilyObj.parent; }
+var birdObj = hit; while (birdObj) { if (birdObj.name === 'bird' || birdObj.name === 'tweet') { toggleTweet(); return; } birdObj = birdObj.parent; }
 var jasperObj = hit; while (jasperObj) { if (jasperObj.name === 'jasper' || jasperObj.name === 'tam') { toggleTam(); return; } jasperObj = jasperObj.parent; }
 var almondObj = hit; while (almondObj) { if (almondObj.name === 'almond' || almondObj.name === 'guy') { toggleGuy(); return; } almondObj = almondObj.parent; }
 var pattiObj = hit; while (pattiObj) { if (pattiObj.name === 'patti' || pattiObj.name === 'smith') { toggleSmith(); return; } pattiObj = pattiObj.parent; }
@@ -1439,6 +1508,7 @@ dinosaurMesh.material.map.needsUpdate = true;
     if (endlessWindowMesh && endlessWindowMesh.visible && endlessWindowMesh.material.map)
   endlessWindowMesh.material.map.needsUpdate = true;
     if (haltMesh && haltMesh.visible && haltMesh.material.map) haltMesh.material.map.needsUpdate = true;
+    if (rightbooks1Mesh && rightbooks1Mesh.visible && rightbooks1Mesh.material.map) rightbooks1Mesh.material.map.needsUpdate = true;
   }
   animate();
 

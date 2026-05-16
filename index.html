@@ -63,7 +63,12 @@ var leftWindowOpen = false;
   var armatureAction = null;
   var meshAction001 = null;
   var T = {};
+  var haltMesh = null;
+var forktallVideo = null;
+var forktallTextureApplied = false;
+var forktallVisible = false;
 var armaturePlaying = false;
+  var tweetMesh = null;
 var laceMesh = null;
 var laceVideo = null;
 var laceTextureApplied = false;
@@ -250,6 +255,26 @@ var endlessWindowTextureApplied = false;
   if (!memorial001Mesh) return;
   memorial001Mesh.visible = !memorial001Mesh.visible;
 }
+  function toggleHalt() {
+  if (!haltMesh) return;
+  forktallVisible = !forktallVisible;
+  haltMesh.visible = forktallVisible;
+  if (forktallVisible) {
+    if (!forktallTextureApplied && forktallVideo) {
+      forktallTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(forktallVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      haltMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (forktallVideo) {
+      forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
+    }
+  } else {
+    if (forktallVideo) forktallVideo.pause();
+  }
+}
+  function toggleTweet() { if (!tweetMesh) return; tweetMesh.visible = !tweetMesh.visible; }
   function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
   function toggleBlank() { if (!blankMesh) return; blankMesh.visible = !blankMesh.visible; }
 function toggleBoy() { if (!boyMesh) return; boyMesh.visible = !boyMesh.visible; }
@@ -533,7 +558,7 @@ function toggleZine001() {
   'wedding.png','honor.png','printer.png','memorial.png','artifice.png','blue.png','frame.png',
   'dinosaur%20phone.JPG','charlotte.png','fly.png','dina.png','joan.png','sculp.png',
   'pinkme.png','nun.png','weston.png','lamb.png','card.png','HANDSHAKE.png','page6.png',
-  'creature.png','brainsohot.png','maryw.png','blankets.png','nude.png','riot.png','birth.png'
+  'creature.png','brainsohot.png','maryw.png','blankets.png','nude.png','riot.png','birth.png', 'nard.png'
 ];
 var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
 
@@ -650,6 +675,10 @@ cardMesh = null;
 handshakeMesh = null;
 memorial001Mesh = null;
 artificeMesh = null;
+    haltMesh = null;
+forktallVideo = null;
+forktallTextureApplied = false;
+forktallVisible = false;
 bluegirlMesh = null;
 frame001Mesh = null;
 dinosaurphoneMesh = null;
@@ -675,6 +704,7 @@ tatMesh = null;
 parentsMesh = null;
 bobMesh = null;
 momdadMesh = null;
+    tweetMesh = null;
     
     gltfLoader.load(glbUrl, function(gltf) {
   var model = gltf.scene;
@@ -798,12 +828,24 @@ momdadMesh = null;
   gltf.scene.traverse(function(obj) {
     if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
     if (obj.name === 'lamp001') lamp001 = obj;
+    
     if (obj.name === 'lamp002') lamp002 = obj;
+    if (obj.name === 'halt') {
+  haltMesh = obj;
+  obj.visible = false;
+  forktallVideo = document.createElement('video');
+  forktallVideo.loop = true;
+  forktallVideo.muted = true;
+  forktallVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/forktall.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { forktallVideo.src = URL.createObjectURL(blob); });
+}
     if (obj.name === 'endlesswindow') { endlessWindowMesh = obj; obj.visible = false; endlessWindowVideo = document.createElement('video'); endlessWindowVideo.loop = true; endlessWindowVideo.muted = true; endlessWindowVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4').then(function(r){return r.blob();}).then(function(blob){endlessWindowVideo.src=URL.createObjectURL(blob);}); }
     if (obj.name === 'lace') { laceMesh = obj; obj.visible = false; laceVideo = document.createElement('video'); laceVideo.loop = true; laceVideo.muted = true; laceVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4').then(function(r){return r.blob();}).then(function(blob){laceVideo.src=URL.createObjectURL(blob);}); }
     if (obj.name === 'dinosaur001') { dinosaurMesh = obj; obj.visible = false; dinosaurVideo = document.createElement('video'); dinosaurVideo.loop = true; dinosaurVideo.muted = true; dinosaurVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4').then(function(r){return r.blob();}).then(function(blob){dinosaurVideo.src=URL.createObjectURL(blob);}); }
     if (obj.name === 'cereal') { cerealScreenMesh = obj; obj.visible = false; cerealVideo = document.createElement('video'); cerealVideo.loop = true; cerealVideo.muted = true; cerealVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/cereal.mp4').then(function(r){return r.blob();}).then(function(blob){cerealVideo.src=URL.createObjectURL(blob);}); }
-
+if (obj.name === 'tweet') { tweetMesh = obj; obj.visible = false; new THREE.TextureLoader().load(base + 'nard.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tweetMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
     if (meshMap[obj.name]) {
       if (meshVarMap[obj.name]) meshVarMap[obj.name](obj);
       obj.visible = false;
@@ -957,6 +999,7 @@ while (dresserObj) {
   }
   dresserObj = dresserObj.parent;
 }
+    var birdObj = hit; while (birdObj) { if (birdObj.name === 'bird' || birdObj.name === 'tweet') { toggleTweet(); return; } birdObj = birdObj.parent; }
     var horseyObj = hit; while (horseyObj) { if (horseyObj.name === 'horsey' || horseyObj.name === 'horses') { toggleHorses(); return; } horseyObj = horseyObj.parent; }
 var scaryObj = hit; while (scaryObj) { if (scaryObj.name === 'scary' || scaryObj.name === 'blank') { toggleBlank(); return; } scaryObj = scaryObj.parent; }
 var wolfObj = hit; while (wolfObj) { if (wolfObj.name === 'wolf' || wolfObj.name === 'boy') { toggleBoy(); return; } wolfObj = wolfObj.parent; }
@@ -1289,6 +1332,7 @@ while (closetObj) {
         closetDoorAction.play();
       }
       closetDoorOpen = !closetDoorOpen;
+      toggleHalt();
     }
     return;
   }
@@ -1382,6 +1426,7 @@ dinosaurMesh.material.map.needsUpdate = true;
   laceMesh.material.map.needsUpdate = true;
     if (endlessWindowMesh && endlessWindowMesh.visible && endlessWindowMesh.material.map)
   endlessWindowMesh.material.map.needsUpdate = true;
+    if (haltMesh && haltMesh.visible && haltMesh.material.map) haltMesh.material.map.needsUpdate = true;
   }
   animate();
 

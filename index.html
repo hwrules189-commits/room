@@ -679,8 +679,9 @@ momdadMesh = null;
     gltfLoader.load(glbUrl, function(gltf) {
   var model = gltf.scene;
   model.scale.setScalar(10);
+      gltf.scene.traverse(function(obj) { console.log(obj.type, obj.name); });
 
-  var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
+  base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
   function pt(url, mesh) {
     if (T[url]) { mesh.material = new THREE.MeshBasicMaterial({map:T[url],side:THREE.DoubleSide}); return; }
     new THREE.TextureLoader().load(base + url, function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; T[url]=t; mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); });

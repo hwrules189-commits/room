@@ -528,9 +528,34 @@ function toggleZine001() {
   'creature.jpeg','brainsohot.png','maryw.png','blankets.png','nude.png','riot.png','birth.png'
 ];
 var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
-imageUrls.forEach(function(url) {
-  fetch(base + url, { priority: 'low' });
+
+var priorityUrls = [
+  'celeb.png','me.png','esb.png','charlotte.png','diana.png','printer.png','HANDSHAKE.png',
+  'frame.png','horses.png','knight.png','coin.jpg','fly.png','riot.png','dina.png',
+  'lamb.png','artifice.png','blankets.png','creature.jpeg','dinosaur%20phone.JPG',
+  'myles.png','weston.png','sculp.png','pinkme.png','girlboy.png','blue.png',
+  'wave.png','hair2.png','tattoo.png','nude.png','dianaa.png','brucke.png','match.png',
+  'bauhaus.png','rose.png','louise2.png','riot.png','amish.png','joan.png','bob.png',
+  'hair.png','swim.png','pinkguy.png','pray.png','wheel.png','john.png','owl.png',
+  'braces.png','model.png','comic.png','nude2.png','ricky.png','hand.png','duchamp.png',
+  'birth.png','mary.png','manyuses.png','usa.png','gilda.png'
+];
+
+var secondaryUrls = imageUrls.filter(function(url) {
+  return priorityUrls.indexOf(url) === -1;
 });
+
+priorityUrls.forEach(function(url) {
+  var img = new Image();
+  img.src = base + url;
+});
+
+setTimeout(function() {
+  secondaryUrls.forEach(function(url) {
+    var img = new Image();
+    img.src = base + url;
+  });
+}, 2000);
 
   function loadRoom(glbUrl) {
     currentRoom = 'room12';
@@ -1105,7 +1130,7 @@ if (clip.name === 'wrestlerAction.001') {
       var center = box.getCenter(new THREE.Vector3());
       var size = box.getSize(new THREE.Vector3());
       camera.position.set(center.x, center.y, center.z);
-      camera.lookAt(center.x + 0.01, center.y, center.z - 0.01);
+      camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
       SPEED = size.x * 0.01;
     }, null, function(err) { console.error(err); });
   }

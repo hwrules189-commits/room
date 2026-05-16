@@ -911,11 +911,13 @@ if (!lampClicked) {
   }
 }
 if (lampClicked) {
-      lampOn = !lampOn;
-      if (lamp001) lamp001.visible = lampOn;
-      if (lamp002) lamp002.visible = !lampOn;
-      return;
-    }
+  lampOn = !lampOn;
+  scene.traverse(function(obj) {
+    if (obj.name === 'lamp001') obj.visible = lampOn;
+    if (obj.name === 'lamp002') obj.visible = !lampOn;
+  });
+  return;
+}
 
     var obj = hit;
     while (obj) {

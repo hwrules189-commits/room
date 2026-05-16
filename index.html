@@ -99,6 +99,11 @@ var diana5Mesh = null;
 var blankMesh = null;
 var boyMesh = null;
 var babyMesh = null;
+  var hwabouMesh = null;
+var ingredMesh = null;
+var zinenoteM = null;
+var contextMesh = null;
+var scotMesh = null;
 var warholMesh = null;
 var hairMesh = null;
 var hairdoMesh = null;
@@ -261,6 +266,11 @@ var endlessWindowTextureApplied = false;
   if (!memorial001Mesh) return;
   memorial001Mesh.visible = !memorial001Mesh.visible;
 }
+  function toggleHwabou() { if (!hwabouMesh) return; hwabouMesh.visible = !hwabouMesh.visible; }
+function toggleIngred() { if (!ingredMesh) return; ingredMesh.visible = !ingredMesh.visible; }
+function toggleZinenote() { if (!zinenoteM) return; zinenoteM.visible = !zinenoteM.visible; }
+function toggleContext() { if (!contextMesh) return; contextMesh.visible = !contextMesh.visible; }
+function toggleScot() { if (!scotMesh) return; scotMesh.visible = !scotMesh.visible; }
   function toggleQuap() { if (!quapMesh) return; quapMesh.visible = !quapMesh.visible; }
   function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
   function toggleHalt() {
@@ -585,7 +595,7 @@ function toggleZine001() {
   'wedding.png','honor.png','printer.png','memorial.png','artifice.png','blue.png','frame.png',
   'dinosaur%20phone.JPG','charlotte.png','fly.png','dina.png','joan.png','sculp.png',
   'pinkme.png','nun.png','weston.png','lamb.png','card.png','HANDSHAKE.png','page6.png',
-  'creature.png','brainsohot.png','maryw.png','blankets.png','nude.png','riot.png','birth.png'
+  'creature.png','brainsohot.png','maryw.png','blankets.png','nude.png','riot.png','birth.png', 'hwis.jpg','ingredients.jpg','outofcontent.png','scotland.png'
 ];
 var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
 
@@ -685,6 +695,11 @@ pinklampAction = null;
 bluelamponAction = null;
 bluelampoffAction = null;
 wrestlerAction = null;
+    hwabouMesh = null;
+ingredMesh = null;
+zinenoteM = null;
+contextMesh = null;
+scotMesh = null;
 brainSoHotMesh = null;
 brainSoHotLoaded = false;
 creatureMesh = null;
@@ -756,7 +771,11 @@ momdadMesh = null;
   }
 
   var meshMap = {
-    'waves':'wave.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png', 'quap':'que.png', 'essays':'essay.png',
+    'waves':'wave.png', 'hwabou':'hwis.jpg',
+'ingred':'ingredients.jpg',
+'zinenote':'zine.png',
+'context':'outofcontent.png',
+'scot':'scotland.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png', 'quap':'que.png', 'essays':'essay.png',
     'diana5':'diana.png','medcoin':'coin.jpg','hair':'hair2.png','lennon':'john.png',
     'eyeballz':'eye.png','horses':'horses.png','night':'knight.png','hare':'celeb.png',
     'nimro':'myles.png','rose':'rose.png','match':'match.png','diana4':'dianaa.png',
@@ -794,6 +813,11 @@ momdadMesh = null;
 
   var meshVarMap = {
     'essays':function(o){essaysMesh=o;},
+    'hwabou':function(o){hwabouMesh=o;},
+'ingred':function(o){ingredMesh=o;},
+'zinenote':function(o){zinenoteM=o;},
+'context':function(o){contextMesh=o;},
+'scot':function(o){scotMesh=o;},
     'waves':function(o){wavesMesh=o;},'hairdo':function(o){hairdoMesh=o;},
     'quap':function(o){quapMesh=o;},
     'ver':function(o){verMesh=o;},'bookesb':function(o){bokesbMesh=o;},
@@ -1164,8 +1188,25 @@ var ticketObj = hit; while (ticketObj) { if (ticketObj.name === 'ticket' || tick
 var amyObj = hit; while (amyObj) { if (amyObj.name === 'amy' || amyObj.name === 'bug') { toggleBug(); return; } amyObj = amyObj.parent; }
 var weddingObj = hit; while (weddingObj) { if (weddingObj.name === 'wedding' || weddingObj.name === 'wed') { toggleWed(); return; } weddingObj = weddingObj.parent; }
 var honorObj = hit; while (honorObj) { if (honorObj.name === 'honor' || honorObj.name === 'liz') { toggleLiz(); return; } honorObj = honorObj.parent; }
-    var laceObj = hit;
-    var marywrightObj = hit; while (marywrightObj) { if (marywrightObj.name === 'marywright' || marywrightObj.name === 'wright') { toggleWright(); return; } marywrightObj = marywrightObj.parent; }
+var laceObj = hit;
+var deskObj = hit;
+while (deskObj) {
+  if (deskObj.name === 'desk') {
+    toggleHwabou();
+    toggleIngred();
+    toggleZinenote();
+    toggleContext();
+    toggleScot();
+    return;
+  }
+  deskObj = deskObj.parent;
+}
+var hwabouObj = hit; while (hwabouObj) { if (hwabouObj.name === 'hwabou') { toggleHwabou(); return; } hwabouObj = hwabouObj.parent; }
+var ingredObj = hit; while (ingredObj) { if (ingredObj.name === 'ingred') { toggleIngred(); return; } ingredObj = ingredObj.parent; }
+var zinenoteObj = hit; while (zinenoteObj) { if (zinenoteObj.name === 'zinenote') { toggleZinenote(); return; } zinenoteObj = zinenoteObj.parent; }
+var contextObj = hit; while (contextObj) { if (contextObj.name === 'context') { toggleContext(); return; } contextObj = contextObj.parent; }
+var scotObj = hit; while (scotObj) { if (scotObj.name === 'scot') { toggleScot(); return; } scotObj = scotObj.parent; }    
+var marywrightObj = hit; while (marywrightObj) { if (marywrightObj.name === 'marywright' || marywrightObj.name === 'wright') { toggleWright(); return; } marywrightObj = marywrightObj.parent; }
 var vampireObj = hit; while (vampireObj) { if (vampireObj.name === 'vampire' || vampireObj.name === 'vamp') { toggleVamp(); return; } vampireObj = vampireObj.parent; }
 var nudeObj = hit; while (nudeObj) { if (nudeObj.name === 'nude' || nudeObj.name === 'couch') { toggleCouch(); return; } nudeObj = nudeObj.parent; }
 var pussyriotObj = hit; while (pussyriotObj) { if (pussyriotObj.name === 'pussyriot' || pussyriotObj.name === 'riot') { toggleRiot(); return; } pussyriotObj = pussyriotObj.parent; }

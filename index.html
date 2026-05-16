@@ -89,7 +89,10 @@ var hareMesh = null;
 var verMesh = null;
 var bokesbMesh = null;
 var diana5Mesh = null;
-
+var blankMesh = null;
+var boyMesh = null;
+var babyMesh = null;
+var warholMesh = null;
 var hairMesh = null;
 var hairdoMesh = null;
 var lennonMesh = null;
@@ -247,6 +250,10 @@ var endlessWindowTextureApplied = false;
   memorial001Mesh.visible = !memorial001Mesh.visible;
 }
   function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
+  function toggleBlank() { if (!blankMesh) return; blankMesh.visible = !blankMesh.visible; }
+function toggleBoy() { if (!boyMesh) return; boyMesh.visible = !boyMesh.visible; }
+function toggleBaby() { if (!babyMesh) return; babyMesh.visible = !babyMesh.visible; }
+function toggleWarhol() { if (!warholMesh) return; warholMesh.visible = !warholMesh.visible; }
 function toggleVamp() { if (!vampMesh) return; vampMesh.visible = !vampMesh.visible; }
 function toggleCouch() { if (!couchMesh) return; couchMesh.visible = !couchMesh.visible; }
 function toggleRiot() { if (!riotMesh) return; riotMesh.visible = !riotMesh.visible; }
@@ -538,7 +545,7 @@ var priorityUrls = [
   'bauhaus.png','rose.png','louise2.png','riot.png','amish.png','joan.png','bob.png',
   'hair.png','swim.png','pinkguy.png','pray.png','wheel.png','john.png','owl.png',
   'braces.png','model.png','comic.png','nude2.png','ricky.png','hand.png','duchamp.png',
-  'birth.png','mary.png','manyuses.png','usa.png','gilda.png'
+  'birth.png','mary.png','manyuses.png','usa.png','gilda.png','blanket.png','wolf.png','wriston.png','club.png'
 ];
 
 var secondaryUrls = imageUrls.filter(function(url) {
@@ -625,6 +632,10 @@ page6Mesh = null;
 goodmorningMesh = null;
 charlotte001Mesh = null;
 flyMesh = null;
+    blankMesh = null;
+boyMesh = null;
+babyMesh = null;
+warholMesh = null;
 diana001Mesh = null;
 zine001Mesh = null;
 joanMesh = null;    
@@ -783,6 +794,10 @@ if (obj.name === 'parking') { parkingMesh = obj; obj.visible = false; new THREE.
 if (obj.name === 'bug') { bugMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/woman.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; bugMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'wed') { wedMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wedding.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; wedMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
 if (obj.name === 'liz') { lizMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/honor.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; lizMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+        if (obj.name === 'blank') { blankMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/blanket.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; blankMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+if (obj.name === 'boy') { boyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wolf.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; boyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+if (obj.name === 'baby') { babyMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/wriston.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; babyMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+if (obj.name === 'warhol') { warholMesh = obj; obj.visible = false; new THREE.TextureLoader().load('https://raw.githubusercontent.com/hwrules189-commits/room/main/club.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; warholMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
         if (obj.name === 'goodmorning') {
   goodmorningMesh = obj;
   obj.visible = false;
@@ -1203,7 +1218,11 @@ while (dresserObj) {
   dresserObj = dresserObj.parent;
 }
     var horseyObj = hit; while (horseyObj) { if (horseyObj.name === 'horsey' || horseyObj.name === 'horses') { toggleHorses(); return; } horseyObj = horseyObj.parent; }
-var knightObj = hit; while (knightObj) { if (knightObj.name === 'knight' || knightObj.name === 'night') { toggleNight(); return; } knightObj = knightObj.parent; }
+var scaryObj = hit; while (scaryObj) { if (scaryObj.name === 'scary' || scaryObj.name === 'blank') { toggleBlank(); return; } scaryObj = scaryObj.parent; }
+var wolfObj = hit; while (wolfObj) { if (wolfObj.name === 'wolf' || wolfObj.name === 'boy') { toggleBoy(); return; } wolfObj = wolfObj.parent; }
+var wristonObj = hit; while (wristonObj) { if (wristonObj.name === 'wriston' || wristonObj.name === 'baby') { toggleBaby(); return; } wristonObj = wristonObj.parent; }
+var club47Obj = hit; while (club47Obj) { if (club47Obj.name === 'club47' || club47Obj.name === 'warhol') { toggleWarhol(); return; } club47Obj = club47Obj.parent; }
+    var knightObj = hit; while (knightObj) { if (knightObj.name === 'knight' || knightObj.name === 'night') { toggleNight(); return; } knightObj = knightObj.parent; }
 var hairupObj = hit; while (hairupObj) { if (hairupObj.name === 'hairup' || hairupObj.name === 'hare') { toggleHare(); return; } hairupObj = hairupObj.parent; }
 var curlersObj = hit; while (curlersObj) { if (curlersObj.name === 'curlers' || curlersObj.name === 'hairdo') { toggleHairdo(); return; } curlersObj = curlersObj.parent; }
     var harkObj = hit; while (harkObj) { if (harkObj.name === 'hark' || harkObj.name === 'angle') { toggleAngle(); return; } harkObj = harkObj.parent; }

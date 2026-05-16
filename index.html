@@ -900,8 +900,13 @@ scene.traverse(function(obj) { if (obj.isMesh && obj.visible) all.push(obj); });
     
 
 console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit.parent && hit.parent.parent && hit.parent.parent.name);
-    var isLamp001 = lamp001 && (hit === lamp001 || lamp001.getObjectById(hit.id));
-    var isLamp002 = lamp002 && (hit === lamp002 || lamp002.getObjectById(hit.id));
+    var p = hit;
+var isLamp001 = false, isLamp002 = false;
+while (p) {
+  if (lamp001 && p === lamp001) { isLamp001 = true; break; }
+  if (lamp002 && p === lamp002) { isLamp002 = true; break; }
+  p = p.parent;
+}
     if (hit === lampHitbox || isLamp001 || isLamp002) {
       lampOn = !lampOn;
       if (lamp001) lamp001.visible = lampOn;

@@ -1235,7 +1235,7 @@ var doorstopObj = hit; while (doorstopObj) { if (doorstopObj.name === 'doorstop'
 var pinklampObj = hit; while (pinklampObj) { if (pinklampObj.name === 'pinklamp') { toggleLioneye(); return; } pinklampObj = pinklampObj.parent; }
 var windowzObj = hit;
 while (windowzObj) {
-  if (windowzObj.name === 'windowz') {
+  if (windowzObj.name === 'windowz' || windowzObj.name === 'skycatz') {
     if (windowzAction) {
       if (!windowzOpen) { windowzAction.reset(); windowzAction.timeScale = 1; windowzAction.play(); }
       else { windowzAction.paused = false; windowzAction.timeScale = -1; windowzAction.play(); }

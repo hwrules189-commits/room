@@ -1032,6 +1032,7 @@ if (obj.name === 'eye2') { eye2Mesh = obj; obj.visible = false; }
 if (obj.name === 'eye3') { eye3Mesh = obj; obj.visible = false; }
     if (obj.name === 'halt') {
   haltMesh = obj;
+  obj.visible = false;
   forktallVideo = document.createElement('video');
   forktallVideo.loop = true;
   forktallVideo.muted = true;
@@ -1233,7 +1234,15 @@ while (doorObj) {
       }
       doorOpen = !doorOpen;
     }
-    toggleHalt();
+    if (!doorOpen) {
+      if (haltMesh) haltMesh.visible = false;
+      if (forktallVideo) forktallVideo.pause();
+    } else {
+      if (haltMesh) haltMesh.visible = true;
+      if (forktallVideo) {
+        forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
+      }
+    }
     return;
   }
   doorObj = doorObj.parent;

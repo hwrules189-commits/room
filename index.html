@@ -286,7 +286,7 @@ var endlessWindowTextureApplied = false;
       cerealTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(cerealVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       cerealScreenMesh.material = new THREE.MeshBasicMaterial({
         map: videoTexture,
         side: THREE.DoubleSide
@@ -313,7 +313,7 @@ var endlessWindowTextureApplied = false;
       mirrorTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(mirrorVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       mirrorsMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
     if (mirrorVideo) {
@@ -346,7 +346,7 @@ function showSkycat() {
     skycatTextureApplied = true;
     var videoTexture = new THREE.VideoTexture(skycatVideo);
     videoTexture.flipY = false;
-    videoTexture.encoding = THREE.sRGBEncoding;
+    videoTexture.encoding = THREE.LinearEncoding;
     skycatzMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
   }
   if (skycatVideo) {
@@ -364,7 +364,7 @@ function toggleLioneye() {
       m._lioneyeApplied = true;
       var videoTexture = new THREE.VideoTexture(lioneyeVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       m.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
   });
@@ -398,7 +398,7 @@ function toggleLioneye() {
       kleeTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(kleeVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       rightbooks1Mesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
     if (kleeVideo) {
@@ -552,7 +552,7 @@ function showEndlessWindow() {
     endlessWindowTextureApplied = true;
     var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
     videoTexture.flipY = false;
-    videoTexture.encoding = THREE.sRGBEncoding;
+    videoTexture.encoding = THREE.LinearEncoding;
     endlessWindowMesh.material = new THREE.MeshBasicMaterial({
       map: videoTexture,
       side: THREE.DoubleSide
@@ -571,7 +571,7 @@ function showEndlessWindow() {
       laceTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(laceVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       laceMesh.material = new THREE.MeshBasicMaterial({
         map: videoTexture,
         side: THREE.DoubleSide
@@ -596,7 +596,7 @@ function showEndlessWindow() {
       dinosaurTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(dinosaurVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       dinosaurMesh.material = new THREE.MeshBasicMaterial({
         map: videoTexture,
         side: THREE.DoubleSide
@@ -625,7 +625,7 @@ function showEndlessWindow() {
       idTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(idVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       bottombooksMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
     if (idVideo) {
@@ -1122,7 +1122,7 @@ if (obj.name === 'eye3') { eye3Mesh = obj; obj.visible = false; }
         forktallVideo.removeEventListener('canplay', h);
         var videoTexture = new THREE.VideoTexture(forktallVideo);
         videoTexture.flipY = false;
-        videoTexture.encoding = THREE.sRGBEncoding;
+        videoTexture.encoding = THREE.LinearEncoding;
         obj.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
         forktallVideo.play();
       });

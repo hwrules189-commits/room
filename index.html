@@ -78,6 +78,7 @@ var plots001Mesh = null;
 var skycatzMesh = null;
 var skycatVideo = null;
 var skycatTextureApplied = false;
+  var crowns001Mesh = null;
 var windowzAction = null;
 var windowzOpen = false;
 var eye1Mesh = null;
@@ -284,6 +285,7 @@ var endlessWindowTextureApplied = false;
   if (!memorial001Mesh) return;
   memorial001Mesh.visible = !memorial001Mesh.visible;
 }
+  function toggleCrowns001() { if (!crowns001Mesh) return; crowns001Mesh.visible = !crowns001Mesh.visible; }
   function toggleHwabou() { if (!hwabouMesh) return; hwabouMesh.visible = !hwabouMesh.visible; }
 function toggleIngred() { if (!ingredMesh) return; ingredMesh.visible = !ingredMesh.visible; }
 function toggleZinenote() { if (!zinenoteM) return; zinenoteM.visible = !zinenoteM.visible; }
@@ -631,7 +633,7 @@ function toggleZine001() {
   handshakeMesh.visible = !handshakeMesh.visible;
 }
   var imageUrls = [
-    'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png',
+    'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png', 'page1.png',
   'wave.png','hair.png','me.png','esb.png','diana.png','coin.jpg','hair2.png','john.png', 'essay.png',
   'eye.png','horses.png','knight.png','celeb.png','myles.png','rose.png','match.png',
   'dianaa.png','louise2.png','brucke.png','tattoo.png','amish.png','bob.png','christmas.png',
@@ -653,7 +655,7 @@ function toggleZine001() {
 var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
 
 var priorityUrls = [
-  'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png',
+  'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png', 'page1.png',
   'celeb.png','me.png','esb.png','charlotte.png','diana.png','printer.png','HANDSHAKE.png', 'hwis.jpg','ingredients.jpg','outofcontent.png','scotland.png','zine.png',
   'frame.png','horses.png','knight.png','coin.jpg','fly.png','riot.png','dina.png',
   'lamb.png','artifice.png','blankets.png','creature.png','dinosaur%20phone.JPG',
@@ -714,6 +716,7 @@ eye3Mesh = null;
 lioneyeVideo = null;
 lioneyeTextureApplied = false;
 emtMesh = null;
+    crowns001Mesh = null;
 promsMesh = null;
 proms2Mesh = null;
 pengMesh = null;
@@ -849,6 +852,7 @@ momdadMesh = null;
 'context':'outofcontent.png', 'christmas':'christmas.png',
 'loon001':'loon.png',
 'plots001':'plots.png',
+    'crowns001':'page1.png',
 'emt':'emmett.png',
 'proms':'prom.png',
 'proms2':'prom2.png',
@@ -894,7 +898,7 @@ momdadMesh = null;
     'essays':function(o){essaysMesh=o;}, 'christmas':function(o){christmasMesh=o;},
 'loon001':function(o){loon001Mesh=o;},
 'plots001':function(o){plots001Mesh=o;},
-'emt':function(o){emtMesh=o;},
+'emt':function(o){emtMesh=o;}, 'crowns001':function(o){crowns001Mesh=o;},
 'proms':function(o){promsMesh=o;},
 'proms2':function(o){proms2Mesh=o;},
 'peng':function(o){pengMesh=o;},
@@ -1219,6 +1223,7 @@ while (doorObj) {
   }
   doorObj = doorObj.parent;
 }
+    var page1Obj = hit; while (page1Obj) { if (page1Obj.name === 'page1' || page1Obj.name === 'crowns001') { toggleCrowns001(); return; } page1Obj = page1Obj.parent; }
     var polaroid001Obj = hit; while (polaroid001Obj) { if (polaroid001Obj.name === 'polaroid001' || polaroid001Obj.name === 'christmas') { toggleChristmas(); return; } polaroid001Obj = polaroid001Obj.parent; }
 var loonObj = hit; while (loonObj) { if (loonObj.name === 'loon' || loonObj.name === 'loon001') { toggleLoon001(); return; } loonObj = loonObj.parent; }
 var plotsObj = hit; while (plotsObj) { if (plotsObj.name === 'plots' || plotsObj.name === 'plots001') { togglePlots001(); return; } plotsObj = plotsObj.parent; }

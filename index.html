@@ -1234,14 +1234,16 @@ while (doorObj) {
       }
       doorOpen = !doorOpen;
     }
-    if (!doorOpen) {
-      if (haltMesh) haltMesh.visible = false;
-      if (forktallVideo) forktallVideo.pause();
-    } else {
+    if (doorOpen) {
       if (haltMesh) haltMesh.visible = true;
       if (forktallVideo) {
         forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
       }
+    } else {
+      setTimeout(function() {
+        if (haltMesh) haltMesh.visible = false;
+        if (forktallVideo) forktallVideo.pause();
+      }, 4000);
     }
     return;
   }

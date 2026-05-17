@@ -82,6 +82,10 @@ var leftWindowOpen = false;
 var armaturePlaying = false;
 var laceMesh = null;
 var laceVideo = null;
+  var bottombooksMesh = null;
+var idVideo = null;
+var idTextureApplied = false;
+var idVisible = false;
   var essaysMesh = null;
   var christmasMesh = null;
 var loon001Mesh = null;
@@ -589,6 +593,25 @@ function showEndlessWindow() {
     if (dinosaurVideo) dinosaurVideo.pause();
   }
 }
+  function toggleBottombooks() {
+  if (!bottombooksMesh) return;
+  idVisible = !idVisible;
+  bottombooksMesh.visible = idVisible;
+  if (idVisible) {
+    if (!idTextureApplied && idVideo) {
+      idTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(idVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      bottombooksMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (idVideo) {
+      idVideo.readyState >= 2 ? idVideo.play() : idVideo.addEventListener('canplay', function h() { idVideo.removeEventListener('canplay', h); idVideo.play(); });
+    }
+  } else {
+    if (idVideo) idVideo.pause();
+  }
+}
 
   function togglePage6() {
   if (!page6Mesh) return;
@@ -646,6 +669,7 @@ function toggleZine001() {
   function togglehandshake() {
   if (!handshakeMesh) return;
   handshakeMesh.visible = !handshakeMesh.visible;
+    
 }
   var imageUrls = [
     'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png', 'page1.png',
@@ -734,6 +758,10 @@ emtMesh = null;
     crowns001Mesh = null;
 promsMesh = null;
 proms2Mesh = null;
+    bottombooksMesh = null;
+idVideo = null;
+idTextureApplied = false;
+idVisible = false;
 pengMesh = null;
 webaboutMesh = null;
     T = {};
@@ -1004,6 +1032,17 @@ momdadMesh = null;
   fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/klee.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { kleeVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'bottombooks') {
+  bottombooksMesh = obj;
+  obj.visible = false;
+  idVideo = document.createElement('video');
+  idVideo.loop = true;
+  idVideo.muted = true;
+  idVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/id.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { idVideo.src = URL.createObjectURL(blob); });
 }
     if (obj.name === 'skycatz') {
   skycatzMesh = obj;
@@ -1288,6 +1327,7 @@ while (windowzObj) {
   }
   windowzObj = windowzObj.parent;
 }
+    var bottombookObj = hit; while (bottombookObj) { if (bottombookObj.name === 'bottombook' || bottombookObj.name === 'bottombooks') { toggleBottombooks(); return; } bottombookObj = bottombookObj.parent; }
     var essayObj = hit; while (essayObj) { if (essayObj.name === 'essay' || essayObj.name === 'essays') { toggleEssays(); return; } essayObj = essayObj.parent; }
     var rightbook1Obj = hit; while (rightbook1Obj) { if (rightbook1Obj.name === 'rightbook1' || rightbook1Obj.name === 'rightbooks1') { toggleRightbooks1(); return; } rightbook1Obj = rightbook1Obj.parent; }
     var quapoObj = hit; while (quapoObj) { if (quapoObj.name === 'quapo' || quapoObj.name === 'quap') { toggleQuap(); return; } quapoObj = quapoObj.parent; }
@@ -1739,6 +1779,7 @@ dinosaurMesh.material.map.needsUpdate = true;
 if (eye1Mesh && eye1Mesh.visible && eye1Mesh.material && eye1Mesh.material.map) eye1Mesh.material.map.needsUpdate = true;
 if (eye2Mesh && eye2Mesh.visible && eye2Mesh.material && eye2Mesh.material.map) eye2Mesh.material.map.needsUpdate = true;
 if (eye3Mesh && eye3Mesh.visible && eye3Mesh.material && eye3Mesh.material.map) eye3Mesh.material.map.needsUpdate = true;
+    if (bottombooksMesh && bottombooksMesh.visible && bottombooksMesh.material.map) bottombooksMesh.material.map.needsUpdate = true;
   }
   animate();
 

@@ -1249,6 +1249,14 @@ while (doorObj) {
   }
   doorObj = doorObj.parent;
 }
+    var topleftbookObj = hit;
+while (topleftbookObj) {
+  if (topleftbookObj.name === 'topleftbook') {
+    window.open('https://raw.githubusercontent.com/hwrules189-commits/room/main/Religion%2C%20Technology%20and%20Consumerism%20in%20God.pdf', '_blank');
+    return;
+  }
+  topleftbookObj = topleftbookObj.parent;
+}
     var page1Obj = hit; while (page1Obj) { if (page1Obj.name === 'page1' || page1Obj.name === 'crowns001') { toggleCrowns001(); return; } page1Obj = page1Obj.parent; }
     var polaroid001Obj = hit; while (polaroid001Obj) { if (polaroid001Obj.name === 'polaroid001' || polaroid001Obj.name === 'christmas') { toggleChristmas(); return; } polaroid001Obj = polaroid001Obj.parent; }
 var loonObj = hit; while (loonObj) { if (loonObj.name === 'loon' || loonObj.name === 'loon001') { toggleLoon001(); return; } loonObj = loonObj.parent; }

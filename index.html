@@ -273,24 +273,13 @@ function toggleContext() { if (!contextMesh) return; contextMesh.visible = !cont
 function toggleScot() { if (!scotMesh) return; scotMesh.visible = !scotMesh.visible; }
   function toggleQuap() { if (!quapMesh) return; quapMesh.visible = !quapMesh.visible; }
   function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
-  function toggleHalt() {
-  if (!haltMesh) return;
-  forktallVisible = !forktallVisible;
-  haltMesh.visible = forktallVisible;
-  if (forktallVisible) {
-    if (!forktallTextureApplied && forktallVideo) {
-      forktallTextureApplied = true;
-      var videoTexture = new THREE.VideoTexture(forktallVideo);
-      videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
-      haltMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
-    }
-    if (forktallVideo) {
-      forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
-    }
-  } else {
-    if (forktallVideo) forktallVideo.pause();
+ function showHalt() {
+  if (!haltMesh || !forktallVideo) return;
+  haltMesh.visible = true;
+  if (forktallVideo.paused) {
+    forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
   }
+
 }
   function toggleBlank() { if (!blankMesh) return; blankMesh.visible = !blankMesh.visible; }
   function toggleRightbooks1() {

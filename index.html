@@ -72,6 +72,24 @@ var armaturePlaying = false;
 var laceMesh = null;
 var laceVideo = null;
   var essaysMesh = null;
+  var christmasMesh = null;
+var loon001Mesh = null;
+var plots001Mesh = null;
+var skycatzMesh = null;
+var skycatVideo = null;
+var skycatTextureApplied = false;
+var windowzAction = null;
+var windowzOpen = false;
+var eye1Mesh = null;
+var eye2Mesh = null;
+var eye3Mesh = null;
+var lioneyeVideo = null;
+var lioneyeTextureApplied = false;
+var emtMesh = null;
+var promsMesh = null;
+var proms2Mesh = null;
+var pengMesh = null;
+var webaboutMesh = null;
 var laceTextureApplied = false;
   var lamp001 = null;
   var lamp002 = null;
@@ -272,6 +290,51 @@ function toggleZinenote() { if (!zinenoteM) return; zinenoteM.visible = !zinenot
 function toggleContext() { if (!contextMesh) return; contextMesh.visible = !contextMesh.visible; }
 function toggleScot() { if (!scotMesh) return; scotMesh.visible = !scotMesh.visible; }
   function toggleQuap() { if (!quapMesh) return; quapMesh.visible = !quapMesh.visible; }
+  function toggleChristmas() { if (!christmasMesh) return; christmasMesh.visible = !christmasMesh.visible; }
+function toggleLoon001() { if (!loon001Mesh) return; loon001Mesh.visible = !loon001Mesh.visible; }
+function togglePlots001() { if (!plots001Mesh) return; plots001Mesh.visible = !plots001Mesh.visible; }
+function toggleEmt() { if (!emtMesh) return; emtMesh.visible = !emtMesh.visible; }
+function toggleProms() { if (!promsMesh) return; promsMesh.visible = !promsMesh.visible; }
+function toggleProms2() { if (!proms2Mesh) return; proms2Mesh.visible = !proms2Mesh.visible; }
+function togglePeng() { if (!pengMesh) return; pengMesh.visible = !pengMesh.visible; }
+function toggleWebabout() { if (!webaboutMesh) return; webaboutMesh.visible = !webaboutMesh.visible; }
+
+function showSkycat() {
+  if (!skycatzMesh) return;
+  skycatzMesh.visible = true;
+  if (!skycatTextureApplied && skycatVideo) {
+    skycatTextureApplied = true;
+    var videoTexture = new THREE.VideoTexture(skycatVideo);
+    videoTexture.flipY = false;
+    videoTexture.encoding = THREE.sRGBEncoding;
+    skycatzMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+  }
+  if (skycatVideo) {
+    skycatVideo.readyState >= 2 ? skycatVideo.play() : skycatVideo.addEventListener('canplay', function h() { skycatVideo.removeEventListener('canplay', h); skycatVideo.play(); });
+  }
+}
+
+function toggleLioneye() {
+  if (!lioneyeVideo) return;
+  var meshes = [eye1Mesh, eye2Mesh, eye3Mesh];
+  var anyVisible = eye1Mesh && eye1Mesh.visible;
+  meshes.forEach(function(m) {
+    if (!m) return;
+    m.visible = !anyVisible;
+    if (!lioneyeTextureApplied) {
+      lioneyeTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(lioneyeVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      m.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+  });
+  if (!anyVisible) {
+    lioneyeVideo.readyState >= 2 ? lioneyeVideo.play() : lioneyeVideo.addEventListener('canplay', function h() { lioneyeVideo.removeEventListener('canplay', h); lioneyeVideo.play(); });
+  } else {
+    lioneyeVideo.pause();
+  }
+}
   function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
  function showHalt() {
   if (!haltMesh || !forktallVideo) return;
@@ -568,6 +631,7 @@ function toggleZine001() {
   handshakeMesh.visible = !handshakeMesh.visible;
 }
   var imageUrls = [
+    'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png',
   'wave.png','hair.png','me.png','esb.png','diana.png','coin.jpg','hair2.png','john.png', 'essay.png',
   'eye.png','horses.png','knight.png','celeb.png','myles.png','rose.png','match.png',
   'dianaa.png','louise2.png','brucke.png','tattoo.png','amish.png','bob.png','christmas.png',
@@ -589,6 +653,7 @@ function toggleZine001() {
 var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
 
 var priorityUrls = [
+  'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png',
   'celeb.png','me.png','esb.png','charlotte.png','diana.png','printer.png','HANDSHAKE.png', 'hwis.jpg','ingredients.jpg','outofcontent.png','scotland.png','zine.png',
   'frame.png','horses.png','knight.png','coin.jpg','fly.png','riot.png','dina.png',
   'lamb.png','artifice.png','blankets.png','creature.png','dinosaur%20phone.JPG',
@@ -635,6 +700,24 @@ setTimeout(function() {
     dinosaurMesh = null;
 dinosaurVisible = false;
     dinosaurVideo = null;
+    christmasMesh = null;
+loon001Mesh = null;
+plots001Mesh = null;
+skycatzMesh = null;
+skycatVideo = null;
+skycatTextureApplied = false;
+windowzAction = null;
+windowzOpen = false;
+eye1Mesh = null;
+eye2Mesh = null;
+eye3Mesh = null;
+lioneyeVideo = null;
+lioneyeTextureApplied = false;
+emtMesh = null;
+promsMesh = null;
+proms2Mesh = null;
+pengMesh = null;
+webaboutMesh = null;
     T = {};
     angleMesh = null; ghostMesh = null; bauMesh = null; comikMesh = null; braceMesh = null;
     quapMesh = null;
@@ -763,7 +846,14 @@ momdadMesh = null;
     'waves':'wave.png', 'hwabou':'hwis.jpg',
 'ingred':'ingredients.jpg',
 'zinenote':'zine.png',
-'context':'outofcontent.png',
+'context':'outofcontent.png', 'christmas':'christmas.png',
+'loon001':'loon.png',
+'plots001':'plots.png',
+'emt':'emmett.png',
+'proms':'prom.png',
+'proms2':'prom2.png',
+'peng':'penguin.png',
+'webabout':'websiteaboutpageresume.png',
 'scot':'scotland.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png', 'quap':'que.png', 'essays':'essay.png',
     'diana5':'diana.png','medcoin':'coin.jpg','hair':'hair2.png','lennon':'john.png',
     'eyeballz':'eye.png','horses':'horses.png','night':'knight.png','hare':'celeb.png',
@@ -801,7 +891,14 @@ momdadMesh = null;
   };
 
   var meshVarMap = {
-    'essays':function(o){essaysMesh=o;},
+    'essays':function(o){essaysMesh=o;}, 'christmas':function(o){christmasMesh=o;},
+'loon001':function(o){loon001Mesh=o;},
+'plots001':function(o){plots001Mesh=o;},
+'emt':function(o){emtMesh=o;},
+'proms':function(o){promsMesh=o;},
+'proms2':function(o){proms2Mesh=o;},
+'peng':function(o){pengMesh=o;},
+'webabout':function(o){webaboutMesh=o;},
     'hwabou':function(o){hwabouMesh=o;},
 'ingred':function(o){ingredMesh=o;},
 'zinenote':function(o){zinenoteM=o;},
@@ -889,6 +986,31 @@ momdadMesh = null;
     .then(function(r) { return r.blob(); })
     .then(function(blob) { kleeVideo.src = URL.createObjectURL(blob); });
 }
+    if (obj.name === 'skycatz') {
+  skycatzMesh = obj;
+  obj.visible = false;
+  skycatVideo = document.createElement('video');
+  skycatVideo.loop = true;
+  skycatVideo.muted = true;
+  skycatVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/skycat.mp4')
+    .then(function(r){return r.blob();})
+    .then(function(blob){skycatVideo.src=URL.createObjectURL(blob);});
+}
+if (obj.name === 'eye1') { eye1Mesh = obj; obj.visible = false; }
+    if (obj.name === 'eye1') {
+  eye1Mesh = obj;
+  obj.visible = false;
+  lioneyeVideo = document.createElement('video');
+  lioneyeVideo.loop = true;
+  lioneyeVideo.muted = true;
+  lioneyeVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lioneye.mp4')
+    .then(function(r){return r.blob();})
+    .then(function(blob){lioneyeVideo.src=URL.createObjectURL(blob);});
+}
+if (obj.name === 'eye2') { eye2Mesh = obj; obj.visible = false; }
+if (obj.name === 'eye3') { eye3Mesh = obj; obj.visible = false; }
     if (obj.name === 'halt') {
   haltMesh = obj;
   forktallVideo = document.createElement('video');
@@ -967,6 +1089,11 @@ scene.traverse(function(obj) {
       }
       if (clip.name === 'right side windowAction') { rightWindowAction = mixer.clipAction(clip); rightWindowAction.clampWhenFinished = true; rightWindowAction.loop = THREE.LoopOnce; }
       if (clip.name === 'left side windowAction') { leftWindowAction = mixer.clipAction(clip); leftWindowAction.clampWhenFinished = true; leftWindowAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'windowzAction') {
+  windowzAction = mixer.clipAction(clip);
+  windowzAction.clampWhenFinished = true;
+  windowzAction.loop = THREE.LoopOnce;
+}
       if (clip.name === 'ArmatureAction.001') { armatureAction = mixer.clipAction(clip); armatureAction.clampWhenFinished = true; armatureAction.loop = THREE.LoopOnce; }
       if (clip.name === 'meshAction.001') { meshAction001 = mixer.clipAction(clip); meshAction001.clampWhenFinished = true; meshAction001.loop = THREE.LoopOnce; }
       if (clip.name === 'closet doorAction') { closetDoorAction = mixer.clipAction(clip); closetDoorAction.clampWhenFinished = true; closetDoorAction.loop = THREE.LoopOnce; }
@@ -1091,6 +1218,28 @@ while (doorObj) {
     return;
   }
   doorObj = doorObj.parent;
+}
+    var polaroid001Obj = hit; while (polaroid001Obj) { if (polaroid001Obj.name === 'polaroid001' || polaroid001Obj.name === 'christmas') { toggleChristmas(); return; } polaroid001Obj = polaroid001Obj.parent; }
+var loonObj = hit; while (loonObj) { if (loonObj.name === 'loon' || loonObj.name === 'loon001') { toggleLoon001(); return; } loonObj = loonObj.parent; }
+var plotsObj = hit; while (plotsObj) { if (plotsObj.name === 'plots' || plotsObj.name === 'plots001') { togglePlots001(); return; } plotsObj = plotsObj.parent; }
+var emmettcardObj = hit; while (emmettcardObj) { if (emmettcardObj.name === 'emmettcard' || emmettcardObj.name === 'emt') { toggleEmt(); return; } emmettcardObj = emmettcardObj.parent; }
+var promObj = hit; while (promObj) { if (promObj.name === 'prom' || promObj.name === 'proms') { toggleProms(); return; } promObj = promObj.parent; }
+var prom2Obj = hit; while (prom2Obj) { if (prom2Obj.name === 'prom2' || prom2Obj.name === 'proms2') { toggleProms2(); return; } prom2Obj = prom2Obj.parent; }
+var penguinObj = hit; while (penguinObj) { if (penguinObj.name === 'penguin' || penguinObj.name === 'peng') { togglePeng(); return; } penguinObj = penguinObj.parent; }
+var doorstopObj = hit; while (doorstopObj) { if (doorstopObj.name === 'doorstop' || doorstopObj.name === 'webabout') { toggleWebabout(); return; } doorstopObj = doorstopObj.parent; }
+var pinklampObj = hit; while (pinklampObj) { if (pinklampObj.name === 'pinklamp') { toggleLioneye(); return; } pinklampObj = pinklampObj.parent; }
+var windowzObj = hit;
+while (windowzObj) {
+  if (windowzObj.name === 'windowz') {
+    if (windowzAction) {
+      if (!windowzOpen) { windowzAction.reset(); windowzAction.timeScale = 1; windowzAction.play(); }
+      else { windowzAction.paused = false; windowzAction.timeScale = -1; windowzAction.play(); }
+      windowzOpen = !windowzOpen;
+    }
+    showSkycat();
+    return;
+  }
+  windowzObj = windowzObj.parent;
 }
     var essayObj = hit; while (essayObj) { if (essayObj.name === 'essay' || essayObj.name === 'essays') { toggleEssays(); return; } essayObj = essayObj.parent; }
     var rightbook1Obj = hit; while (rightbook1Obj) { if (rightbook1Obj.name === 'rightbook1' || rightbook1Obj.name === 'rightbooks1') { toggleRightbooks1(); return; } rightbook1Obj = rightbook1Obj.parent; }
@@ -1539,6 +1688,10 @@ dinosaurMesh.material.map.needsUpdate = true;
   endlessWindowMesh.material.map.needsUpdate = true;
     if (haltMesh && haltMesh.visible && haltMesh.material.map) haltMesh.material.map.needsUpdate = true;
     if (rightbooks1Mesh && rightbooks1Mesh.visible && rightbooks1Mesh.material.map) rightbooks1Mesh.material.map.needsUpdate = true;
+    if (skycatzMesh && skycatzMesh.visible && skycatzMesh.material.map) skycatzMesh.material.map.needsUpdate = true;
+if (eye1Mesh && eye1Mesh.visible && eye1Mesh.material && eye1Mesh.material.map) eye1Mesh.material.map.needsUpdate = true;
+if (eye2Mesh && eye2Mesh.visible && eye2Mesh.material && eye2Mesh.material.map) eye2Mesh.material.map.needsUpdate = true;
+if (eye3Mesh && eye3Mesh.visible && eye3Mesh.material && eye3Mesh.material.map) eye3Mesh.material.map.needsUpdate = true;
   }
   animate();
 

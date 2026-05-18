@@ -313,7 +313,7 @@ var endlessWindowTextureApplied = false;
       mirrorTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(mirrorVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.LinearEncoding;
+      videoTexture.encoding = THREE.sRGBEncoding;
       mirrorsMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
     if (mirrorVideo) {
@@ -346,7 +346,7 @@ function showSkycat() {
     skycatTextureApplied = true;
     var videoTexture = new THREE.VideoTexture(skycatVideo);
     videoTexture.flipY = false;
-    videoTexture.encoding = THREE.LinearEncoding;
+    videoTexture.encoding = THREE.sRGBEncoding;
     skycatzMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
   }
   if (skycatVideo) {
@@ -364,7 +364,7 @@ function toggleLioneye() {
       m._lioneyeApplied = true;
       var videoTexture = new THREE.VideoTexture(lioneyeVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.LinearEncoding;
+      videoTexture.encoding = THREE.sRGBEncoding;
       m.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
   });

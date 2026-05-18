@@ -92,6 +92,10 @@ var idTextureApplied = false;
 var idVisible = false;
   var essaysMesh = null;
   var christmasMesh = null;
+  var letMesh = null;
+var radioVideo = null;
+var radioTextureApplied = false;
+var radioVisible = false;
 var loon001Mesh = null;
 var plots001Mesh = null;
 var skycatzMesh = null;
@@ -664,6 +668,25 @@ function toggleZine001() {
   if (!joanMesh) return;
   joanMesh.visible = !joanMesh.visible;
 }
+  function toggleLet() {
+  if (!letMesh) return;
+  radioVisible = !radioVisible;
+  letMesh.visible = radioVisible;
+  if (radioVisible) {
+    if (!radioTextureApplied && radioVideo) {
+      radioTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(radioVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      letMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (radioVideo) {
+      radioVideo.readyState >= 2 ? radioVideo.play() : radioVideo.addEventListener('canplay', function h() { radioVideo.removeEventListener('canplay', h); radioVideo.play(); });
+    }
+  } else {
+    if (radioVideo) radioVideo.pause();
+  }
+}
   function togglesculpture() {
   if (!sculptureMesh) return;
   sculptureMesh.visible = !sculptureMesh.visible;
@@ -811,6 +834,10 @@ vampMesh = null;
 couchMesh = null;
 riotMesh = null;
 cakeMesh = null;
+    letMesh = null;
+radioVideo = null;
+radioTextureApplied = false;
+radioVisible = false;
 endlessWindowVisible = false;
 endlessWindowVideo = null;
 endlessWindowTextureApplied = false;
@@ -1082,6 +1109,17 @@ momdadMesh = null;
     .then(function(r) { return r.blob(); })
     .then(function(blob) { mirrorVideo.src = URL.createObjectURL(blob); });
 }
+    if (obj.name === 'let') {
+  letMesh = obj;
+  obj.visible = false;
+  radioVideo = document.createElement('video');
+  radioVideo.loop = true;
+  radioVideo.muted = true;
+  radioVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/radio.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { radioVideo.src = URL.createObjectURL(blob); });
+}
     if (obj.name === 'skycatz') {
   skycatzMesh = obj;
   obj.visible = false;
@@ -1342,6 +1380,7 @@ while (topleftbookObj) {
   }
   topleftbookObj = topleftbookObj.parent;
 }
+    var outObj = hit; while (outObj) { if (outObj.name === 'out' || outObj.name === 'let') { toggleLet(); return; } outObj = outObj.parent; }
     var mirrorObj = hit; while (mirrorObj) { if (mirrorObj.name === 'mirror' || mirrorObj.name === 'mirrors') { toggleMirrors(); return; } mirrorObj = mirrorObj.parent; }
     var page1Obj = hit; while (page1Obj) { if (page1Obj.name === 'page1' || page1Obj.name === 'crowns001') { toggleCrowns001(); return; } page1Obj = page1Obj.parent; }
     var polaroid001Obj = hit; while (polaroid001Obj) { if (polaroid001Obj.name === 'polaroid001' || polaroid001Obj.name === 'christmas') { toggleChristmas(); return; } polaroid001Obj = polaroid001Obj.parent; }
@@ -1820,6 +1859,7 @@ if (eye2Mesh && eye2Mesh.visible && eye2Mesh.material && eye2Mesh.material.map) 
 if (eye3Mesh && eye3Mesh.visible && eye3Mesh.material && eye3Mesh.material.map) eye3Mesh.material.map.needsUpdate = true;
     if (bottombooksMesh && bottombooksMesh.visible && bottombooksMesh.material.map) bottombooksMesh.material.map.needsUpdate = true;
     if (mirrorsMesh && mirrorsMesh.visible && mirrorsMesh.material.map) mirrorsMesh.material.map.needsUpdate = true;
+    if (letMesh && letMesh.visible && letMesh.material.map) letMesh.material.map.needsUpdate = true;
   }
   animate();
 

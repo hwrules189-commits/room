@@ -1247,8 +1247,8 @@ scene.traverse(function(obj) {
   var center = box.getCenter(new THREE.Vector3());
   var size = box.getSize(new THREE.Vector3());
   camera.position.set(center.x, center.y, center.z);
-  camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
-  SPEED = size.x * 0.01;
+camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
+SPEED = size.x * 0.01;
 
 }, null, function(err) { console.error(err); });
   }

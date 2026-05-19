@@ -1246,7 +1246,7 @@ scene.traverse(function(obj) {
   var box = new THREE.Box3().setFromObject(model);
   var center = box.getCenter(new THREE.Vector3());
   var size = box.getSize(new THREE.Vector3());
-  camera.position.set(center.x, center.y, center.z);
+  camera.position.set(center.x, center.y, center.z + size.z * 0.5);
   camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
   SPEED = size.x * 0.01;
 

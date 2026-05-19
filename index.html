@@ -317,7 +317,7 @@ var endlessWindowTextureApplied = false;
       mirrorTextureApplied = true;
       var videoTexture = new THREE.VideoTexture(mirrorVideo);
       videoTexture.flipY = false;
-      videoTexture.encoding = THREE.sRGBEncoding;
+      videoTexture.encoding = THREE.LinearEncoding;
       mirrorsMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
     }
     if (mirrorVideo) {

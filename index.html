@@ -46,7 +46,7 @@ document.addEventListener('mousedown', hideHint);
 document.addEventListener('touchstart', hideHint);
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
-  var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 5000);
+  var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.001, 5000);
   scene.add(new THREE.AmbientLight(0xffffff, 2));
   var dl = new THREE.DirectionalLight(0xffffff, 1.5);
   dl.position.set(5, 10, 5);
@@ -1246,7 +1246,7 @@ scene.traverse(function(obj) {
   var box = new THREE.Box3().setFromObject(model);
   var center = box.getCenter(new THREE.Vector3());
   var size = box.getSize(new THREE.Vector3());
-  camera.position.set(center.x, center.y, center.z + size.z * 0.5);
+  camera.position.set(center.x, center.y, center.z);
   camera.lookAt(center.x - 0.01, center.y, center.z + 0.01);
   SPEED = size.x * 0.01;
 

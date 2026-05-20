@@ -1872,6 +1872,15 @@ if (eye3Mesh && eye3Mesh.visible && eye3Mesh.material && eye3Mesh.material.map) 
   });
 
 })})});
+  var debugEl = document.createElement('div');
+debugEl.style.cssText = 'position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:#CCFF00;font-family:Courier New;font-size:12px;padding:8px 12px;border-radius:6px;z-index:999;pointer-events:none;white-space:pre;';
+document.body.appendChild(debugEl);
+
+setInterval(function() {
+  debugEl.textContent =
+    'pos: ' + camera.position.x.toFixed(3) + ', ' + camera.position.y.toFixed(3) + ', ' + camera.position.z.toFixed(3) + '\n' +
+    'yaw: ' + camYaw.toFixed(3) + '  pitch: ' + camPitch.toFixed(3);
+}, 100);
 </script>
 </body>
 </html>

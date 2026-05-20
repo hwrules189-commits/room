@@ -1846,11 +1846,17 @@ mouseHasMoved = false;
     camera.rotation.y = camYaw;
     camera.rotation.x = camPitch;
 
-    if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
-    if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
-    if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
-    if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
-    var BOUNDS = { minX: -12.3, maxX: 8.8, minZ: -9.6, maxZ: 7.75 };
+   var prevPos = camera.position.clone();
+
+if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
+if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
+if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
+if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
+
+if (camera.position.x < -12.3 || camera.position.x > 8.8 ||
+    camera.position.z < -9.6  || camera.position.z > 7.75) {
+  camera.position.copy(prevPos);
+}
 if (cerealScreenMesh && cerealScreenMesh.visible && cerealScreenMesh.material.map)
   cerealScreenMesh.material.map.needsUpdate = true;
 if (dinosaurMesh && dinosaurMesh.visible && dinosaurMesh.material.map)

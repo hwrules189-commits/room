@@ -47,9 +47,7 @@ document.addEventListener('touchstart', hideHint);
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
   var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 5000);
-  var debugEl = document.createElement('div');
-debugEl.style.cssText = 'position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:#CCFF00;font-family:Courier New;font-size:12px;padding:8px 12px;border-radius:6px;z-index:999;pointer-events:none;white-space:pre;';
-document.body.appendChild(debugEl);
+ 
   
   scene.add(new THREE.AmbientLight(0xffffff, 2));
   var dl = new THREE.DirectionalLight(0xffffff, 1.5);

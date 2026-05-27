@@ -975,7 +975,7 @@ momdadMesh = null;
     'band':'banjo.png','age':'age.png','chap':'que.png','luv':'ily.png',
     'tam':'tamayo.png','guy':'guy.png','smith':'patti.png','hands':'hands.png',
     'hart':'catch.png','hodge':'queen.png','amie':'amy.png','ditch':'finland.png',
-    'trans':'sich.png','goodbye.png':'zine.png','gard':'garda.png','scraps':'junk.png',
+    'trans':'sich.png','gard':'garda.png','scraps':'junk.png',
     'beergirl':'beer.png','point':'pointilism.png','schau':'schauspielhaus.png',
     'hump':'bogart.png','boyy':'girlboy.png','dent':'dentist.png','bur':'berlin.png',
     'stole':'snow.png','book':'blanket.png','step':'2step.png','dead':'bird.png',
@@ -1088,6 +1088,15 @@ momdadMesh = null;
   fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/klee.mp4')
     .then(function(r) { return r.blob(); })
     .then(function(blob) { kleeVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'goodbye') {
+  goodbyeMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load(base + 'zine.png', function(t) {
+    t.flipY = false;
+    t.encoding = THREE.sRGBEncoding;
+    obj.material = new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide });
+  });
 }
     if (obj.name === 'bottombooks') {
   bottombooksMesh = obj;
@@ -1472,7 +1481,8 @@ var podgeObj = hit; while (podgeObj) { if (podgeObj.name === 'podge' || podgeObj
 var queenamyObj = hit; while (queenamyObj) { if (queenamyObj.name === 'queenamy' || queenamyObj.name === 'amie') { toggleAmie(); return; } queenamyObj = queenamyObj.parent; }
 var finlandObj = hit; while (finlandObj) { if (finlandObj.name === 'finland' || finlandObj.name === 'ditch') { toggleDitch(); return; } finlandObj = finlandObj.parent; }
 var bookmarkObj = hit; while (bookmarkObj) { if (bookmarkObj.name === 'bookmark' || bookmarkObj.name === 'trans') { toggleTrans(); return; } bookmarkObj = bookmarkObj.parent; }
-var zineObj = hit; while (zineObj) { if (zineObj.name === 'zine' || zineObj.name === 'goodbye') { toggleGoodbye(); return; } zineObj = zineObj.parent; }
+var zineObj = hit; while (zineObj) { if (zineObj.name === 'zine') { toggleGoodbye(); return; } zineObj = zineObj.parent; }
+var goodbyeObj = hit; while (goodbyeObj) { if (goodbyeObj.name === 'goodbye') { toggleGoodbye(); return; } goodbyeObj = goodbyeObj.parent; }
 var gardaObj = hit; while (gardaObj) { if (gardaObj.name === 'garda' || gardaObj.name === 'gard') { toggleGard(); return; } gardaObj = gardaObj.parent; }
 var idkObj = hit; while (idkObj) { if (idkObj.name === 'idk' || idkObj.name === 'scraps') { toggleScraps(); return; } idkObj = idkObj.parent; }
 var beerObj = hit; while (beerObj) { if (beerObj.name === 'beer' || beerObj.name === 'beergirl') { toggleBeergirl(); return; } beerObj = beerObj.parent; }

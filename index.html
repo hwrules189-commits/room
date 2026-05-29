@@ -558,7 +558,7 @@ function showEndlessWindow() {
     endlessWindowTextureApplied = true;
     var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
     videoTexture.flipY = false;
-    videoTexture.encoding = THREE.LinearEncoding;
+    videoTexture.encoding = THREE.sRGBEncoding;
     endlessWindowMesh.material = new THREE.MeshBasicMaterial({
       map: videoTexture,
       side: THREE.DoubleSide

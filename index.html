@@ -37,7 +37,7 @@ hintRainbowStyle.textContent = '@keyframes hintRainbow { 0%{color:#ff0000} 16.66
 document.head.appendChild(hintRainbowStyle);
 var hintEl = document.createElement('div');
 hintEl.textContent = 'drag around to move, click to see';
-hintEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:transparent;border:none;outline:none;box-shadow:none;padding:0;border-radius:0;white-space:nowrap;font-family:"General Sans",Helvetica,Arial,sans-serif;font-weight:400;font-size:24.67px;letter-spacing:-0.04em;color:#ff0000;animation:hintRainbow 6s linear infinite;pointer-events:none;transition:opacity 0.5s;z-index:100;opacity:0;';
+hintEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:transparent;border:none;outline:none;box-shadow:none;padding:0;border-radius:0;white-space:nowrap;font-family:"General Sans",Helvetica,Arial,sans-serif;font-weight:400;font-size:14.67px;letter-spacing:-0.04em;color:#ff0000;animation:hintRainbow 6s linear infinite;pointer-events:none;transition:opacity 0.5s;z-index:100;opacity:0;';
 document.body.appendChild(hintEl);
 var hintTimer = null;
 function hideHint() {
@@ -1362,18 +1362,27 @@ document.addEventListener('click', function() {
     initialObjectStates.forEach(function(state) {
       var obj = state.object;
       if (!obj || !obj.isMesh || state.visible || !obj.visible) return;
-      if (!openedItems.some(function(item) { return item.object === obj; })) {
-        openedItems.push({ object: obj, openedAt: Date.now() });
+
+      // Pinklamp reveals three images at once; treat them as one item.
+      var isPinklampImage = obj === eye1Mesh || obj === eye2Mesh || obj === eye3Mesh;
+      var groupObjects = isPinklampImage ? [eye1Mesh, eye2Mesh, eye3Mesh].filter(Boolean) : [obj];
+      var groupKey = isPinklampImage ? 'pinklamp' : obj;
+      var alreadyTracked = openedItems.some(function(item) { return item.key === groupKey; });
+      if (!alreadyTracked) {
+        openedItems.push({ key: groupKey, object: obj, objects: groupObjects, openedAt: Date.now() });
       }
     });
-    // Keep only one revealed object open; close the oldest first.
+    // Keep only one opened item; hide every mesh belonging to the oldest item.
     while (openedItems.length > MAX_OPEN_ITEMS) {
       var oldest = openedItems.shift();
-      if (oldest && oldest.object) oldest.object.visible = false;
+      if (oldest) (oldest.objects || [oldest.object]).forEach(function(obj) {
+        if (obj) obj.visible = false;
+      });
     }
-    // Drop objects that have since been closed manually.
+    // Drop groups that have since been closed manually.
     openedItems = openedItems.filter(function(item) {
-      return item.object && item.object.visible;
+      var objects = item.objects || [item.object];
+      return objects.some(function(obj) { return obj && obj.visible; });
     });
   }, 0);
 }, false);

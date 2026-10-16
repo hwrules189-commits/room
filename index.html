@@ -32,9 +32,12 @@ loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLo
   renderer.toneMappingExposure = 0.7;
   renderer.outputEncoding = THREE.sRGBEncoding;
   document.body.appendChild(renderer.domElement);
+var hintRainbowStyle = document.createElement('style');
+hintRainbowStyle.textContent = '@keyframes hintRainbow { 0%{color:#ff0000} 16.66%{color:#ff9900} 33.33%{color:#ffff00} 50%{color:#00cc44} 66.66%{color:#0099ff} 83.33%{color:#9933ff} 100%{color:#ff0000} }';
+document.head.appendChild(hintRainbowStyle);
 var hintEl = document.createElement('div');
 hintEl.textContent = 'drag around to move, click to see';
-hintEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#D3EEFF;padding:10px 24px;border-radius:999px;white-space:nowrap;font-family:Courier New,monospace;font-size:20px;color:black;pointer-events:none;transition:opacity 0.5s;z-index:100;opacity:0;';
+hintEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:transparent;border:none;outline:none;box-shadow:none;padding:0;border-radius:0;white-space:nowrap;font-family:"General Sans",Helvetica,Arial,sans-serif;font-weight:400;font-size:24.67px;letter-spacing:-0.04em;color:#ff0000;animation:hintRainbow 6s linear infinite;pointer-events:none;transition:opacity 0.5s;z-index:100;opacity:0;';
 document.body.appendChild(hintEl);
 var hintTimer = null;
 function hideHint() {
@@ -42,8 +45,50 @@ function hideHint() {
   clearTimeout(hintTimer);
   hintTimer = setTimeout(function() { hintEl.style.opacity = '1'; }, 120000);
 }
-document.addEventListener('mousedown', hideHint);
-document.addEventListener('touchstart', hideHint);
+
+function resetExperience() {
+  // Restore every model object to its initial visibility and transform.
+  initialObjectStates.forEach(function(state) {
+    var obj = state.object;
+    if (!obj) return;
+    obj.visible = state.visible;
+    obj.position.copy(state.position);
+    obj.rotation.copy(state.rotation);
+    obj.quaternion.copy(state.quaternion);
+    obj.scale.copy(state.scale);
+  });
+  if (initialCameraPosition) camera.position.copy(initialCameraPosition);
+  camYaw = initialCamYaw;
+  camPitch = initialCamPitch;
+  mouseHasMoved = false;
+  isDraggingCamera = false;
+  openedItems = [];
+  if (mixer) {
+    mixer.stopAllAction();
+    // Reset the actions to their starting pose; the room can be interacted with again.
+    mixer._actions.forEach(function(action) { action.reset(); if (action.loop === THREE.LoopRepeat) action.play(); });
+  }
+  // Stop any media that may have been playing on an opened object.
+  [cerealVideo, dinosaurVideo, mirrorVideo, laceVideo, forktallVideo,
+   kleeVideo, skycatVideo, lioneyeVideo, idVideo, radioVideo, endlessWindowVideo]
+    .forEach(function(video) { if (video && !video.paused) video.pause(); });
+  hintEl.style.opacity = '1';
+  clearTimeout(hintTimer);
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(resetExperience, RESET_AFTER_MS);
+}
+
+function restartInactivityTimer() {
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(resetExperience, RESET_AFTER_MS);
+}
+
+document.addEventListener('mousedown', function() { hideHint(); restartInactivityTimer(); });
+document.addEventListener('touchstart', function() { hideHint(); restartInactivityTimer(); }, {passive:true});
+document.addEventListener('mousemove', restartInactivityTimer, {passive:true});
+document.addEventListener('keydown', restartInactivityTimer);
+document.addEventListener('wheel', restartInactivityTimer, {passive:true});
+document.addEventListener('touchmove', restartInactivityTimer, {passive:true});
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
   var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 5000);
@@ -71,6 +116,16 @@ var leftWindowOpen = false;
   var clock = new THREE.Clock();
   var currentRoom = 'room12';
   var SPEED = 0.05;
+
+  // State used to restore the room and manage the five-item limit.
+  var initialObjectStates = [];
+  var initialCameraPosition = null;
+  var initialCamYaw = 0;
+  var initialCamPitch = 0;
+  var openedItems = [];
+  var resetTimer = null;
+  var RESET_AFTER_MS = 60000;
+  var MAX_OPEN_ITEMS = 1;
 
   var isDraggingCamera = false;
   var lastCamMouse = new THREE.Vector2();
@@ -1263,6 +1318,26 @@ camYaw = 1.190;
 camPitch = -0.120;
 SPEED = size.x * 0.01;
 
+// Save the true opening state after all default visibility settings are applied.
+initialObjectStates = [];
+scene.traverse(function(obj) {
+  if (obj !== scene) {
+    initialObjectStates.push({
+      object: obj,
+      visible: obj.visible,
+      position: obj.position.clone(),
+      rotation: obj.rotation.clone(),
+      quaternion: obj.quaternion.clone(),
+      scale: obj.scale.clone()
+    });
+  }
+});
+initialCameraPosition = camera.position.clone();
+initialCamYaw = camYaw;
+initialCamPitch = camPitch;
+hintEl.style.opacity = '1';
+restartInactivityTimer();
+
 }, null, function(err) { console.error(err); });
   }
 
@@ -1279,6 +1354,29 @@ SPEED = size.x * 0.01;
   }
 
 loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room12.glb');
+
+// Track opened objects after the canvas click logic has toggled their visibility.
+document.addEventListener('click', function() {
+  restartInactivityTimer();
+  setTimeout(function() {
+    initialObjectStates.forEach(function(state) {
+      var obj = state.object;
+      if (!obj || !obj.isMesh || state.visible || !obj.visible) return;
+      if (!openedItems.some(function(item) { return item.object === obj; })) {
+        openedItems.push({ object: obj, openedAt: Date.now() });
+      }
+    });
+    // Keep only one revealed object open; close the oldest first.
+    while (openedItems.length > MAX_OPEN_ITEMS) {
+      var oldest = openedItems.shift();
+      if (oldest && oldest.object) oldest.object.visible = false;
+    }
+    // Drop objects that have since been closed manually.
+    openedItems = openedItems.filter(function(item) {
+      return item.object && item.object.visible;
+    });
+  }, 0);
+}, false);
 
   renderer.domElement.addEventListener('click', function(e) {
     if (currentRoom !== 'room12') return;

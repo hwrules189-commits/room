@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+</style>
+</head>
+<body>
+
+<script>
+function loadScript(src, cb) {
+  var s = document.createElement('script');
+  s.src = src;
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js', function() {
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js', function() {
+
+  var dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/draco/');
+  var gltfLoader = new THREE.GLTFLoader();
+  gltfLoader.setDRACOLoader(dracoLoader);
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.7;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  document.body.appendChild(renderer.domElement);
+var hintRainbowStyle = document.createElement('style');
+hintRainbowStyle.textContent = '@keyframes hintRainbow { 0%{color:#ff0000} 16.66%{color:#ff9900} 33.33%{color:#ffff00} 50%{color:#00cc44} 66.66%{color:#0099ff} 83.33%{color:#9933ff} 100%{color:#ff0000} }';
+document.head.appendChild(hintRainbowStyle);
+var hintEl = document.createElement('div');
+hintEl.textContent = 'drag around to move, click to see';
+hintEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:transparent;border:none;outline:none;box-shadow:none;padding:0;border-radius:0;white-space:nowrap;font-family:"General Sans",Helvetica,Arial,sans-serif;font-weight:400;font-size:14.67px;letter-spacing:-0.04em;color:#ff0000;animation:hintRainbow 6s linear infinite;pointer-events:none;transition:opacity 0.5s;z-index:100;opacity:0;';
+document.body.appendChild(hintEl);
+var hintTimer = null;
+function hideHint() {
+  hintEl.style.opacity = '0';
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(function() { hintEl.style.opacity = '1'; }, 120000);
+}
+
+function resetExperience() {
+  // Restore every model object to its initial visibility and transform.
+  initialObjectStates.forEach(function(state) {
+    var obj = state.object;
+    if (!obj) return;
+    obj.visible = state.visible;
+    obj.position.copy(state.position);
+    obj.rotation.copy(state.rotation);
+    obj.quaternion.copy(state.quaternion);
+    obj.scale.copy(state.scale);
+  });
+  if (initialCameraPosition) camera.position.copy(initialCameraPosition);
+  camYaw = initialCamYaw;
+  camPitch = initialCamPitch;
+  mouseHasMoved = false;
+  isDraggingCamera = false;
+  openedItems = [];
+  if (mixer) {
+    mixer.stopAllAction();
+    // Reset the actions to their starting pose; the room can be interacted with again.
+    mixer._actions.forEach(function(action) { action.reset(); if (action.loop === THREE.LoopRepeat) action.play(); });
+  }
+  // Stop any media that may have been playing on an opened object.
+  [cerealVideo, dinosaurVideo, mirrorVideo, laceVideo, forktallVideo,
+   kleeVideo, skycatVideo, lioneyeVideo, idVideo, radioVideo, endlessWindowVideo]
+    .forEach(function(video) { if (video && !video.paused) video.pause(); });
+  hintEl.style.opacity = '1';
+  clearTimeout(hintTimer);
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(resetExperience, RESET_AFTER_MS);
+}
+
+function restartInactivityTimer() {
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(resetExperience, RESET_AFTER_MS);
+}
+
+document.addEventListener('mousedown', function() { hideHint(); restartInactivityTimer(); });
+document.addEventListener('touchstart', function() { hideHint(); restartInactivityTimer(); }, {passive:true});
+document.addEventListener('mousemove', restartInactivityTimer, {passive:true});
+document.addEventListener('keydown', restartInactivityTimer);
+document.addEventListener('wheel', restartInactivityTimer, {passive:true});
+document.addEventListener('touchmove', restartInactivityTimer, {passive:true});
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xffffff);
+  var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 5000);
+ 
+  
+  scene.add(new THREE.AmbientLight(0xffffff, 2));
+  var dl = new THREE.DirectionalLight(0xffffff, 1.5);
+  dl.position.set(5, 10, 5);
+  scene.add(dl);
+
+  renderer.domElement.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); }, true);
+  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+  var mixer = null;
+  var doorAction = null;
+var doorOpen = false;
+  var rightWindowAction = null;
+var haltMesh = null;
+var forktallVideo = null;
+var forktallTextureApplied = false;
+var forktallVisible = false;
+var leftWindowAction = null;
+var rightWindowOpen = false;
+var leftWindowOpen = false;
+  var clock = new THREE.Clock();
+  var currentRoom = 'room12';
+  var SPEED = 0.05;
+
+  // State used to restore the room and manage the five-item limit.
+  var initialObjectStates = [];
+  var initialCameraPosition = null;
+  var initialCamYaw = 0;
+  var initialCamPitch = 0;
+  var openedItems = [];
+  var resetTimer = null;
+  var RESET_AFTER_MS = 60000;
+  var MAX_OPEN_ITEMS = 1;
+
+  var isDraggingCamera = false;
+  var lastCamMouse = new THREE.Vector2();
+  var camYaw = 0;
+  var camPitch = 0;
+  var mouseHasMoved = false;
+  var quapMesh = null;
+  var armatureAction = null;
+  var meshAction001 = null;
+  var T = {};
+var armaturePlaying = false;
+  var mirrorsMesh = null;
+var mirrorVideo = null;
+var mirrorTextureApplied = false;
+var mirrorVisible = false;
+var laceMesh = null;
+var laceVideo = null;
+  var bottombooksMesh = null;
+var idVideo = null;
+var idTextureApplied = false;
+var idVisible = false;
+  var essaysMesh = null;
+  var christmasMesh = null;
+  var letMesh = null;
+var radioVideo = null;
+var radioTextureApplied = false;
+var radioVisible = false;
+var loon001Mesh = null;
+var plots001Mesh = null;
+var skycatzMesh = null;
+var skycatVideo = null;
+var skycatTextureApplied = false;
+  var crowns001Mesh = null;
+var windowzAction = null;
+var windowzOpen = false;
+var eye1Mesh = null;
+var eye2Mesh = null;
+var eye3Mesh = null;
+var lioneyeVideo = null;
+var lioneyeTextureApplied = false;
+var emtMesh = null;
+var promsMesh = null;
+var proms2Mesh = null;
+var pengMesh = null;
+var webaboutMesh = null;
+var laceTextureApplied = false;
+  var lamp001 = null;
+  var lamp002 = null;
+  var lampHitbox = null;
+  var lampOn = true;
+  var medcoinMesh = null;
+  var cerealScreenMesh = null;
+  var closetDoorAction = null;
+var closetDoorOpen = false;
+var pinklampAction = null;
+var bluelamponAction = null;
+var bluelampoffAction = null;
+var wrestlerAction = null;
+  var laceVisible = false;
+  var brainSoHotMesh = null;
+var brainSoHotLoaded = false;
+  var creatureMesh = null;
+  var wavesMesh = null;
+var horsesMesh = null;
+var nightMesh = null;
+var hareMesh = null;
+var verMesh = null;
+var bokesbMesh = null;
+var diana5Mesh = null;
+var blankMesh = null;
+var boyMesh = null;
+var babyMesh = null;
+  var hwabouMesh = null;
+var ingredMesh = null;
+var zinenoteM = null;
+var contextMesh = null;
+var scotMesh = null;
+var warholMesh = null;
+var hairMesh = null;
+var hairdoMesh = null;
+var lennonMesh = null;
+var eyeballzMesh = null;
+var usacat001Mesh = null;
+var nimroMesh = null;
+var roseMesh = null;
+var matchMesh = null;
+var diana4Mesh = null;
+var brooksMesh = null;
+var bridgeMesh = null;
+var tatMesh = null;
+var parentsMesh = null;
+var bobMesh = null;
+var momdadMesh = null;
+var creatureLoaded = false;
+var page6Mesh = null;
+var goodmorningMesh = null;
+var charlotte001Mesh = null;
+  var wrightMesh = null;
+var vampMesh = null;
+var couchMesh = null;
+var riotMesh = null;
+  var rightbooks1Mesh = null;
+var kleeVideo = null;
+var kleeTextureApplied = false;
+var kleeVisible = false;
+var cakeMesh = null;
+var flyMesh = null;
+var diana001Mesh = null;
+var zine001Mesh = null;
+var joanMesh = null;
+  var sculptureMesh = null;
+var pinkme001Mesh = null;
+  var nun001Mesh = null;
+  var westonMesh = null;
+  var bwlambMesh = null;
+  var cardMesh = null;
+  var handshakeMesh = null;
+  var cerealMesh = null;
+  var cerealVisible = false;
+  var cerealVideo = null;
+  var cerealTextureApplied = false;
+var memorial001Mesh = null;
+var artificeMesh = null;
+var bluegirlMesh = null;
+var frame001Mesh = null;
+var dinosaurphoneMesh = null;
+  var dinosaurMesh = null;
+var dinosaurVisible = false;
+var angleMesh = null;
+var ghostMesh = null;
+var bauMesh = null;
+var comikMesh = null;
+var braceMesh = null;
+var katMesh = null;
+var modolMesh = null;
+var batzMesh = null;
+var mrsMesh = null;
+var finMesh = null;
+var crownsMesh = null;
+var marysMesh = null;
+var swimmernudeMesh = null;
+var swimyMesh = null;
+
+var lesorMesh = null;
+var pinkMesh = null;
+var clockMesh = null;
+var rickMesh = null;
+var handzMesh = null;
+var webMesh = null;
+var usacatMesh = null;
+var russiaMesh = null;
+var usesMesh = null;
+var gildMesh = null;
+var tauMesh = null;
+var batMesh = null;
+var lobMesh = null;
+var catsMesh = null;
+var myles_4Mesh = null;
+var dadaMesh = null;
+var botchMesh = null;
+var libMesh = null;
+var angelsMesh = null;
+var whaleMesh = null;
+var shotdownMesh = null;
+var snowyMesh = null;
+var motherMesh = null;
+var brahMesh = null;
+var bandMesh = null;
+  var tweetMesh = null;
+var ageMesh = null;
+var chapMesh = null;
+var luvMesh = null;
+var tamMesh = null;
+var guyMesh = null;
+var smithMesh = null;
+var handsMesh = null;
+var hartMesh = null;
+var hodgeMesh = null;
+var amieMesh = null;
+var ditchMesh = null;
+var transMesh = null;
+var goodbyeMesh = null;
+var gardMesh = null;
+var scrapsMesh = null;
+var beergirlMesh = null;
+var pointMesh = null;
+var schauMesh = null;
+var humpMesh = null;
+var boyyMesh = null;
+var dentMesh = null;
+var burMesh = null;
+var stoleMesh = null;
+var bookMesh = null;
+var stepMesh = null;
+var deadMesh = null;
+var tellmeMesh = null;
+var sneksMesh = null;
+var dryMesh = null;
+var gardeMesh = null;
+var parkingMesh = null;
+var bugMesh = null;
+var wedMesh = null;
+var lizMesh = null;
+  var dinosaurVideo = null;
+var dinosaurTextureApplied = false;
+
+  var endlessWindowMesh = null;
+var endlessWindowVisible = false;
+var endlessWindowVideo = null;
+var endlessWindowTextureApplied = false;
+
+  function toggleCereal() {
+  if (!cerealScreenMesh) return;
+  cerealVisible = !cerealVisible;
+  cerealScreenMesh.visible = cerealVisible;
+
+  if (cerealVisible) {
+    if (!cerealTextureApplied && cerealVideo) {
+      cerealTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(cerealVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      cerealScreenMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
+    }
+    if (cerealVideo) {
+      cerealVideo.readyState >= 2 ? cerealVideo.play() : cerealVideo.addEventListener('canplay', function h() { cerealVideo.removeEventListener('canplay', h); cerealVideo.play(); });
+    }
+  } else {
+    if (cerealVideo) cerealVideo.pause();
+  }
+  }
+   
+  function toggleMemorial001() {
+  if (!memorial001Mesh) return;
+  memorial001Mesh.visible = !memorial001Mesh.visible;
+}
+  function toggleMirrors() {
+  if (!mirrorsMesh) return;
+  mirrorVisible = !mirrorVisible;
+  mirrorsMesh.visible = mirrorVisible;
+  if (mirrorVisible) {
+    if (!mirrorTextureApplied && mirrorVideo) {
+      mirrorTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(mirrorVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      mirrorsMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (mirrorVideo) {
+      mirrorVideo.readyState >= 2 ? mirrorVideo.play() : mirrorVideo.addEventListener('canplay', function h() { mirrorVideo.removeEventListener('canplay', h); mirrorVideo.play(); });
+    }
+  } else {
+    if (mirrorVideo) mirrorVideo.pause();
+  }
+}
+  function toggleCrowns001() { if (!crowns001Mesh) return; crowns001Mesh.visible = !crowns001Mesh.visible; }
+  function toggleHwabou() { if (!hwabouMesh) return; hwabouMesh.visible = !hwabouMesh.visible; }
+function toggleIngred() { if (!ingredMesh) return; ingredMesh.visible = !ingredMesh.visible; }
+function toggleZinenote() { if (!zinenoteM) return; zinenoteM.visible = !zinenoteM.visible; }
+function toggleContext() { if (!contextMesh) return; contextMesh.visible = !contextMesh.visible; }
+function toggleScot() { if (!scotMesh) return; scotMesh.visible = !scotMesh.visible; }
+  function toggleQuap() { if (!quapMesh) return; quapMesh.visible = !quapMesh.visible; }
+  function toggleChristmas() { if (!christmasMesh) return; christmasMesh.visible = !christmasMesh.visible; }
+function toggleLoon001() { if (!loon001Mesh) return; loon001Mesh.visible = !loon001Mesh.visible; }
+function togglePlots001() { if (!plots001Mesh) return; plots001Mesh.visible = !plots001Mesh.visible; }
+function toggleEmt() { if (!emtMesh) return; emtMesh.visible = !emtMesh.visible; }
+function toggleProms() { if (!promsMesh) return; promsMesh.visible = !promsMesh.visible; }
+function toggleProms2() { if (!proms2Mesh) return; proms2Mesh.visible = !proms2Mesh.visible; }
+function togglePeng() { if (!pengMesh) return; pengMesh.visible = !pengMesh.visible; }
+function toggleWebabout() { if (!webaboutMesh) return; webaboutMesh.visible = !webaboutMesh.visible; }
+
+function showSkycat() {
+  if (!skycatzMesh) return;
+  skycatzMesh.visible = true;
+  if (!skycatTextureApplied && skycatVideo) {
+    skycatTextureApplied = true;
+    var videoTexture = new THREE.VideoTexture(skycatVideo);
+    videoTexture.flipY = false;
+    videoTexture.encoding = THREE.sRGBEncoding;
+    skycatzMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+  }
+  if (skycatVideo) {
+    skycatVideo.readyState >= 2 ? skycatVideo.play() : skycatVideo.addEventListener('canplay', function h() { skycatVideo.removeEventListener('canplay', h); skycatVideo.play(); });
+  }
+}
+
+function toggleLioneye() {
+  var meshes = [eye1Mesh, eye2Mesh, eye3Mesh];
+  var anyVisible = eye1Mesh && eye1Mesh.visible;
+  meshes.forEach(function(m) {
+    if (!m) return;
+    m.visible = !anyVisible;
+    if (m.visible && lioneyeVideo && !m._lioneyeApplied) {
+      m._lioneyeApplied = true;
+      var videoTexture = new THREE.VideoTexture(lioneyeVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.sRGBEncoding;
+      m.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+  });
+  if (!anyVisible) {
+    if (lioneyeVideo) {
+      lioneyeVideo.readyState >= 2 ? lioneyeVideo.play() : lioneyeVideo.addEventListener('canplay', function h() { lioneyeVideo.removeEventListener('canplay', h); lioneyeVideo.play(); });
+    }
+  } else {
+    if (lioneyeVideo) lioneyeVideo.pause();
+  }
+}
+  function toggleWright() { if (!wrightMesh) return; wrightMesh.visible = !wrightMesh.visible; }
+ function toggleHalt() {
+  if (!haltMesh) return;
+  haltMesh.visible = !haltMesh.visible;
+  if (haltMesh.visible) {
+    if (forktallVideo && forktallVideo.paused) {
+      forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
+    }
+  } else {
+    if (forktallVideo) forktallVideo.pause();
+  }
+}
+  function toggleBlank() { if (!blankMesh) return; blankMesh.visible = !blankMesh.visible; }
+  function toggleRightbooks1() {
+  if (!rightbooks1Mesh) return;
+  kleeVisible = !kleeVisible;
+  rightbooks1Mesh.visible = kleeVisible;
+  if (kleeVisible) {
+    if (!kleeTextureApplied && kleeVideo) {
+      kleeTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(kleeVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      rightbooks1Mesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (kleeVideo) {
+      kleeVideo.readyState >= 2 ? kleeVideo.play() : kleeVideo.addEventListener('canplay', function h() { kleeVideo.removeEventListener('canplay', h); kleeVideo.play(); });
+    }
+  } else {
+    if (kleeVideo) kleeVideo.pause();
+  }
+}
+function toggleBoy() { if (!boyMesh) return; boyMesh.visible = !boyMesh.visible; }
+function toggleBaby() { if (!babyMesh) return; babyMesh.visible = !babyMesh.visible; }
+function toggleWarhol() { if (!warholMesh) return; warholMesh.visible = !warholMesh.visible; }
+function toggleVamp() { if (!vampMesh) return; vampMesh.visible = !vampMesh.visible; }
+function toggleCouch() { if (!couchMesh) return; couchMesh.visible = !couchMesh.visible; }
+function toggleRiot() { if (!riotMesh) return; riotMesh.visible = !riotMesh.visible; }
+function toggleCake() { if (!cakeMesh) return; cakeMesh.visible = !cakeMesh.visible; }
+  function toggleHorses() { if (!horsesMesh) return; horsesMesh.visible = !horsesMesh.visible; }
+function toggleNight() { if (!nightMesh) return; nightMesh.visible = !nightMesh.visible; }
+function toggleHare() { if (!hareMesh) return; hareMesh.visible = !hareMesh.visible; }
+  function toggleAngle() { if (!angleMesh) return; angleMesh.visible = !angleMesh.visible; }
+function toggleGhost() { if (!ghostMesh) return; ghostMesh.visible = !ghostMesh.visible; }
+function toggleBau() { if (!bauMesh) return; bauMesh.visible = !bauMesh.visible; }
+function toggleComik() { if (!comikMesh) return; comikMesh.visible = !comikMesh.visible; }
+function toggleBrace() { if (!braceMesh) return; braceMesh.visible = !braceMesh.visible; }
+function toggleKat() { if (!katMesh) return; katMesh.visible = !katMesh.visible; }
+function toggleModol() { if (!modolMesh) return; modolMesh.visible = !modolMesh.visible; }
+function toggleBatz() { if (!batzMesh) return; batzMesh.visible = !batzMesh.visible; }
+function toggleMrs() { if (!mrsMesh) return; mrsMesh.visible = !mrsMesh.visible; }
+function toggleFin() { if (!finMesh) return; finMesh.visible = !finMesh.visible; }
+function toggleCrowns() { if (!crownsMesh) return; crownsMesh.visible = !crownsMesh.visible; }
+function toggleMarys() { if (!marysMesh) return; marysMesh.visible = !marysMesh.visible; }
+function toggleSwimmernude() { if (!swimmernudeMesh) return; swimmernudeMesh.visible = !swimmernudeMesh.visible; }
+function toggleSwimy() { if (!swimyMesh) return; swimyMesh.visible = !swimyMesh.visible; }
+function toggleHairdo() { if (!hairdoMesh) return; hairdoMesh.visible = !hairdoMesh.visible; }
+function toggleMedcoin() { if (!medcoinMesh) return; medcoinMesh.visible = !medcoinMesh.visible; }
+function toggleLesor() { if (!lesorMesh) return; lesorMesh.visible = !lesorMesh.visible; }
+function togglePink() { if (!pinkMesh) return; pinkMesh.visible = !pinkMesh.visible; }
+function toggleClock() { if (!clockMesh) return; clockMesh.visible = !clockMesh.visible; }
+function toggleRick() { if (!rickMesh) return; rickMesh.visible = !rickMesh.visible; }
+function toggleHandz() { if (!handzMesh) return; handzMesh.visible = !handzMesh.visible; }
+function toggleWeb() { if (!webMesh) return; webMesh.visible = !webMesh.visible; }
+function toggleUsacat() { if (!usacat001Mesh) return; usacat001Mesh.visible = !usacat001Mesh.visible; }
+function toggleRussia() { if (!russiaMesh) return; russiaMesh.visible = !russiaMesh.visible; }
+function toggleUses() { if (!usesMesh) return; usesMesh.visible = !usesMesh.visible; }
+function toggleGild() { if (!gildMesh) return; gildMesh.visible = !gildMesh.visible; }
+function toggleTau() { if (!tauMesh) return; tauMesh.visible = !tauMesh.visible; }
+function toggleBat() { if (!batMesh) return; batMesh.visible = !batMesh.visible; }
+function toggleLob() { if (!lobMesh) return; lobMesh.visible = !lobMesh.visible; }
+function toggleCats() { if (!catsMesh) return; catsMesh.visible = !catsMesh.visible; }
+function toggleMyles_4() { if (!myles_4Mesh) return; myles_4Mesh.visible = !myles_4Mesh.visible; }
+function toggleDada() { if (!dadaMesh) return; dadaMesh.visible = !dadaMesh.visible; }
+function toggleBotch() { if (!botchMesh) return; botchMesh.visible = !botchMesh.visible; }
+function toggleLib() { if (!libMesh) return; libMesh.visible = !libMesh.visible; }
+function toggleAngels() { if (!angelsMesh) return; angelsMesh.visible = !angelsMesh.visible; }
+function toggleWhale() { if (!whaleMesh) return; whaleMesh.visible = !whaleMesh.visible; }
+function toggleShotdown() { if (!shotdownMesh) return; shotdownMesh.visible = !shotdownMesh.visible; }
+function toggleSnowy() { if (!snowyMesh) return; snowyMesh.visible = !snowyMesh.visible; }
+function toggleMother() { if (!motherMesh) return; motherMesh.visible = !motherMesh.visible; }
+function toggleBrah() { if (!brahMesh) return; brahMesh.visible = !brahMesh.visible; }
+function toggleBand() { if (!bandMesh) return; bandMesh.visible = !bandMesh.visible; }
+function toggleTweet() { if (!tweetMesh) return; tweetMesh.visible = !tweetMesh.visible; }
+function toggleAge() { if (!ageMesh) return; ageMesh.visible = !ageMesh.visible; }
+function toggleChap() { if (!chapMesh) return; chapMesh.visible = !chapMesh.visible; }
+function toggleLuv() { if (!luvMesh) return; luvMesh.visible = !luvMesh.visible; }
+function toggleTam() { if (!tamMesh) return; tamMesh.visible = !tamMesh.visible; }
+function toggleGuy() { if (!guyMesh) return; guyMesh.visible = !guyMesh.visible; }
+function toggleSmith() { if (!smithMesh) return; smithMesh.visible = !smithMesh.visible; }
+function toggleHands() { if (!handsMesh) return; handsMesh.visible = !handsMesh.visible; }
+function toggleHart() { if (!hartMesh) return; hartMesh.visible = !hartMesh.visible; }
+function toggleHodge() { if (!hodgeMesh) return; hodgeMesh.visible = !hodgeMesh.visible; }
+function toggleAmie() { if (!amieMesh) return; amieMesh.visible = !amieMesh.visible; }
+function toggleDitch() { if (!ditchMesh) return; ditchMesh.visible = !ditchMesh.visible; }
+function toggleTrans() { if (!transMesh) return; transMesh.visible = !transMesh.visible; }
+function toggleGoodbye() { if (!goodbyeMesh) return; goodbyeMesh.visible = !goodbyeMesh.visible; }
+function toggleGard() { if (!gardMesh) return; gardMesh.visible = !gardMesh.visible; }
+function toggleScraps() { if (!scrapsMesh) return; scrapsMesh.visible = !scrapsMesh.visible; }
+function toggleBeergirl() { if (!beergirlMesh) return; beergirlMesh.visible = !beergirlMesh.visible; }
+function togglePoint() { if (!pointMesh) return; pointMesh.visible = !pointMesh.visible; }
+function toggleSchau() { if (!schauMesh) return; schauMesh.visible = !schauMesh.visible; }
+function toggleHump() { if (!humpMesh) return; humpMesh.visible = !humpMesh.visible; }
+function toggleBoyy() { if (!boyyMesh) return; boyyMesh.visible = !boyyMesh.visible; }
+function toggleDent() { if (!dentMesh) return; dentMesh.visible = !dentMesh.visible; }
+function toggleBur() { if (!burMesh) return; burMesh.visible = !burMesh.visible; }
+function toggleStole() { if (!stoleMesh) return; stoleMesh.visible = !stoleMesh.visible; }
+function toggleBook() { if (!bookMesh) return; bookMesh.visible = !bookMesh.visible; }
+function toggleStep() { if (!stepMesh) return; stepMesh.visible = !stepMesh.visible; }
+function toggleDead() { if (!deadMesh) return; deadMesh.visible = !deadMesh.visible; }
+function toggleTellme() { if (!tellmeMesh) return; tellmeMesh.visible = !tellmeMesh.visible; }
+function toggleSneks() { if (!sneksMesh) return; sneksMesh.visible = !sneksMesh.visible; }
+function toggleDry() { if (!dryMesh) return; dryMesh.visible = !dryMesh.visible; }
+function toggleGarde() { if (!gardeMesh) return; gardeMesh.visible = !gardeMesh.visible; }
+function toggleParking() { if (!parkingMesh) return; parkingMesh.visible = !parkingMesh.visible; }
+function toggleBug() { if (!bugMesh) return; bugMesh.visible = !bugMesh.visible; }
+function toggleWed() { if (!wedMesh) return; wedMesh.visible = !wedMesh.visible; }
+function toggleLiz() { if (!lizMesh) return; lizMesh.visible = !lizMesh.visible; }
+function toggleArtifice() {
+  if (!artificeMesh) return;
+  artificeMesh.visible = !artificeMesh.visible;
+}
+function toggleBluegirl() {
+  if (!bluegirlMesh) return;
+  bluegirlMesh.visible = !bluegirlMesh.visible;
+}
+  function toggleWaves() { if (!wavesMesh) return; wavesMesh.visible = !wavesMesh.visible; }
+
+function toggleVer() { if (!verMesh) return; verMesh.visible = !verMesh.visible; }
+function toggleBokesb() { if (!bokesbMesh) return; bokesbMesh.visible = !bokesbMesh.visible; }
+function toggleDiana5() { if (!diana5Mesh) return; diana5Mesh.visible = !diana5Mesh.visible; }
+
+function toggleHair() { if (!hairMesh) return; hairMesh.visible = !hairMesh.visible; }
+function toggleLennon() { if (!lennonMesh) return; lennonMesh.visible = !lennonMesh.visible; }
+function toggleEyeballz() { if (!eyeballzMesh) return; eyeballzMesh.visible = !eyeballzMesh.visible; }
+
+function toggleNimro() { if (!nimroMesh) return; nimroMesh.visible = !nimroMesh.visible; }
+function toggleRose() { if (!roseMesh) return; roseMesh.visible = !roseMesh.visible; }
+function toggleMatch() { if (!matchMesh) return; matchMesh.visible = !matchMesh.visible; }
+function toggleDiana4() { if (!diana4Mesh) return; diana4Mesh.visible = !diana4Mesh.visible; }
+function toggleBrooks() { if (!brooksMesh) return; brooksMesh.visible = !brooksMesh.visible; }
+function toggleBridge() { if (!bridgeMesh) return; bridgeMesh.visible = !bridgeMesh.visible; }
+function toggleTat() { if (!tatMesh) return; tatMesh.visible = !tatMesh.visible; }
+function toggleParents() { if (!parentsMesh) return; parentsMesh.visible = !parentsMesh.visible; }
+function toggleBob() { if (!bobMesh) return; bobMesh.visible = !bobMesh.visible; }
+function toggleMomdad() { if (!momdadMesh) return; momdadMesh.visible = !momdadMesh.visible; }
+function toggleFrame001() {
+  if (!frame001Mesh) return;
+  frame001Mesh.visible = !frame001Mesh.visible;
+}
+function toggleDinosaurphone() {
+  if (!dinosaurphoneMesh) return;
+  dinosaurphoneMesh.visible = !dinosaurphoneMesh.visible;
+}
+  function toggleBrainSoHot() {
+  if (!brainSoHotMesh) return;
+  brainSoHotMesh.visible = !brainSoHotMesh.visible;
+}
+
+  function togglecreature() {
+  if (!creatureMesh) return;
+  creatureMesh.visible = !creatureMesh.visible;
+}
+
+  
+
+function showEndlessWindow() {
+  if (!endlessWindowMesh) return;
+  endlessWindowMesh.visible = true;
+  endlessWindowVisible = true;
+
+
+  if (!endlessWindowTextureApplied && endlessWindowVideo) {
+    endlessWindowTextureApplied = true;
+    var videoTexture = new THREE.VideoTexture(endlessWindowVideo);
+    videoTexture.flipY = false;
+    videoTexture.encoding = THREE.sRGBEncoding;
+    endlessWindowMesh.material = new THREE.MeshBasicMaterial({
+      map: videoTexture,
+      side: THREE.DoubleSide
+    });
+  }
+  if (endlessWindowVideo) {
+    endlessWindowVideo.readyState >= 2 ? endlessWindowVideo.play() : endlessWindowVideo.addEventListener('canplay', function h() { endlessWindowVideo.removeEventListener('canplay', h); endlessWindowVideo.play(); });
+  }
+}
+  function showLace() {
+  if (!laceMesh) return;
+  laceMesh.visible = !laceMesh.visible;
+
+  if (laceMesh.visible) {
+    if (!laceTextureApplied && laceVideo) {
+      laceTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(laceVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      laceMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
+    }
+    if (laceVideo) {
+      laceVideo.readyState >= 2 ? laceVideo.play() : laceVideo.addEventListener('canplay', function h() { laceVideo.removeEventListener('canplay', h); laceVideo.play(); });
+    }
+  } else {
+    if (laceVideo) laceVideo.pause();
+  }
+}
+
+           
+ function toggleDinosaur() {
+  if (!dinosaurMesh) return;
+  dinosaurVisible = !dinosaurVisible;
+  dinosaurMesh.visible = dinosaurVisible;
+
+  if (dinosaurVisible) {
+    if (!dinosaurTextureApplied && dinosaurVideo) {
+      dinosaurTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(dinosaurVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      dinosaurMesh.material = new THREE.MeshBasicMaterial({
+        map: videoTexture,
+        side: THREE.DoubleSide
+      });
+    }
+    if (dinosaurVideo) {
+      if (dinosaurVideo.readyState >= 2) {
+        dinosaurVideo.play();
+      } else {
+        dinosaurVideo.addEventListener('canplay', function handler() {
+          dinosaurVideo.removeEventListener('canplay', handler);
+          dinosaurVideo.play();
+        });
+      }
+    }
+  } else {
+    if (dinosaurVideo) dinosaurVideo.pause();
+  }
+}
+  function toggleBottombooks() {
+  if (!bottombooksMesh) return;
+  idVisible = !idVisible;
+  bottombooksMesh.visible = idVisible;
+  if (idVisible) {
+    if (!idTextureApplied && idVideo) {
+      idTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(idVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      bottombooksMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (idVideo) {
+      idVideo.readyState >= 2 ? idVideo.play() : idVideo.addEventListener('canplay', function h() { idVideo.removeEventListener('canplay', h); idVideo.play(); });
+    }
+  } else {
+    if (idVideo) idVideo.pause();
+  }
+}
+
+  function togglePage6() {
+  if (!page6Mesh) return;
+  page6Mesh.visible = !page6Mesh.visible;
+}
+  function toggleGoodmorning() {
+  if (!goodmorningMesh) return;
+  goodmorningMesh.visible = !goodmorningMesh.visible;
+}
+function toggleCharlotte001() {
+  if (!charlotte001Mesh) return;
+  charlotte001Mesh.visible = !charlotte001Mesh.visible;
+}
+function toggleFly() {
+  if (!flyMesh) return;
+  flyMesh.visible = !flyMesh.visible;
+}
+function toggleDiana001() {
+  if (!diana001Mesh) return;
+  diana001Mesh.visible = !diana001Mesh.visible;
+}
+function toggleZine001() {
+  if (!zine001Mesh) return;
+  zine001Mesh.visible = !zine001Mesh.visible;
+}
+  function togglejoan() {
+  if (!joanMesh) return;
+  joanMesh.visible = !joanMesh.visible;
+}
+  function toggleLet() {
+  if (!letMesh) return;
+  radioVisible = !radioVisible;
+  letMesh.visible = radioVisible;
+  if (radioVisible) {
+    if (!radioTextureApplied && radioVideo) {
+      radioTextureApplied = true;
+      var videoTexture = new THREE.VideoTexture(radioVideo);
+      videoTexture.flipY = false;
+      videoTexture.encoding = THREE.LinearEncoding;
+      letMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+    }
+    if (radioVideo) {
+      radioVideo.readyState >= 2 ? radioVideo.play() : radioVideo.addEventListener('canplay', function h() { radioVideo.removeEventListener('canplay', h); radioVideo.play(); });
+    }
+  } else {
+    if (radioVideo) radioVideo.pause();
+  }
+}
+  function togglesculpture() {
+  if (!sculptureMesh) return;
+  sculptureMesh.visible = !sculptureMesh.visible;
+}
+  function togglepinkme001() {
+  if (!pinkme001Mesh) return;
+  pinkme001Mesh.visible = !pinkme001Mesh.visible;
+}
+  function togglenun001() {
+  if (!nun001Mesh) return;
+  nun001Mesh.visible = !nun001Mesh.visible;
+}
+  function toggleweston() {
+  if (!westonMesh) return;
+  westonMesh.visible = !westonMesh.visible;
+}
+  function toggleEssays() { if (!essaysMesh) return; essaysMesh.visible = !essaysMesh.visible; }
+  function togglebwlamb() {
+  if (!bwlambMesh) return;
+  bwlambMesh.visible = !bwlambMesh.visible;
+}
+  function togglecard() {
+  if (!cardMesh) return;
+  cardMesh.visible = !cardMesh.visible;
+}
+  function togglehandshake() {
+  if (!handshakeMesh) return;
+  handshakeMesh.visible = !handshakeMesh.visible;
+    
+}
+  var imageUrls = [
+    'christmas.png','loon.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png', 'page1.png',
+  'wave.png','hair.png','me.png','esb.png','diana.png','coin.jpg','hair2.png','john.png', 'essay.png',
+  'eye.png','horses.png','knight.png','celeb.png','myles.png','rose.png','match.png',
+  'dianaa.png','louise2.png','brucke.png','tattoo.png','amish.png','bob.png','christmas.png',
+  'angel.png','owl.png','bauhaus.png','comic.png','braces.png','clown.png','model.png',
+  'bats.png','duchamp.png','hyvon.jpg','crown.png','pray.png','nude2.png','swim.png',
+  'leseur.png','pinkguy.png','wheel.png','ricky.png','hand.png','website.png','usa.png',
+  'mary.png','manyuses.png','gilda.png','tauwetter.png','bats2.png','lobster.png','tiger.png',
+  'myles2.png','dad.png','bosch.png','lib.png','slutangel.png','duchamb.png','shot.png',
+  'snow2.png','lange.png','banjo.png','age.png','que.png','ily.png','tamayo.png','guy.png',
+  'patti.png','hands.png','catch.png','queen.png','amy.png','finland.png','sich.png',
+  'zine.png','zine2.png','garda.png','junk.png','beer.png','pointilism.png','schauspielhaus.png',
+  'bogart.png','girlboy.png','dentist.png','berlin.png','snow.png','blanket.png','2step.png',
+  'bird.png','hey.png','sneaks.png','vinyl.png','mondrian.png','ticket.png','woman.png',
+  'wedding.png','honor.png','printer.png','memorial.png','artifice.png','blue.png','frame.png',
+  'dinosaur%20phone.JPG','charlotte.png','fly.png','dina.png','joan.png','sculp.png',
+  'pinkme.png','nun.png','weston.png','lamb.png','card.png','HANDSHAKE.png','page6.png',
+  'creature.png','brainsohot.png','maryw.png','blankets.png','nude.png','riot.png','birth.png', 'hwis.jpg','ingredients.jpg','outofcontent.png','scotland.png'
+];
+var base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
+
+var priorityUrls = [
+  'christmas.png','loon.png','goodbye.png','plots.png','emmett.png','prom.png','prom2.png','penguin.png','websiteaboutpageresume.png', 'page1.png',
+  'celeb.png','me.png','esb.png','charlotte.png','diana.png','printer.png','HANDSHAKE.png', 'hwis.jpg','ingredients.jpg','outofcontent.png','scotland.png','zine.png',
+  'frame.png','horses.png','knight.png','coin.jpg','fly.png','riot.png','dina.png',
+  'lamb.png','artifice.png','blankets.png','creature.png','dinosaur%20phone.JPG',
+  'myles.png','weston.png','sculp.png','pinkme.png','girlboy.png','blue.png',
+  'wave.png','hair2.png','tattoo.png','nude.png','dianaa.png','brucke.png','match.png',
+  'bauhaus.png','rose.png','louise2.png','riot.png','amish.png','joan.png','bob.png',
+  'hair.png','swim.png','pinkguy.png','pray.png','wheel.png','john.png','owl.png',
+  'braces.png','model.png','comic.png','nude2.png','ricky.png','hand.png','duchamp.png',
+  'birth.png','mary.png','manyuses.png','usa.png','gilda.png','blanket.png','wolf.png','wriston.png','club.png'
+];
+
+var secondaryUrls = imageUrls.filter(function(url) {
+  return priorityUrls.indexOf(url) === -1;
+});
+
+priorityUrls.forEach(function(url) {
+  var img = new Image();
+  img.src = base + url;
+});
+
+setTimeout(function() {
+  secondaryUrls.forEach(function(url) {
+    var img = new Image();
+    img.src = base + url;
+  });
+}, 2000);
+
+  function loadRoom(glbUrl) {
+    currentRoom = 'room12';
+    var toRemove = [];
+    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
+    toRemove.forEach(function(obj) { scene.remove(obj); });
+    scene.add(new THREE.AmbientLight(0xffffff, 2));
+    var dl2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl2.position.set(5, 10, 5);
+    scene.add(dl2);
+    if (mixer) { mixer.stopAllAction(); mixer = null; }
+    lamp001 = null;
+    lamp002 = null;
+    cerealMesh = null;
+    cerealVisible = false;
+    cerealVideo = null;
+    cerealTextureApplied = false;
+    dinosaurMesh = null;
+dinosaurVisible = false;
+    dinosaurVideo = null;
+    christmasMesh = null;
+loon001Mesh = null;
+plots001Mesh = null;
+skycatzMesh = null;
+skycatVideo = null;
+skycatTextureApplied = false;
+windowzAction = null;
+windowzOpen = false;
+eye1Mesh = null;
+eye2Mesh = null;
+eye3Mesh = null;
+lioneyeVideo = null;
+lioneyeTextureApplied = false;
+emtMesh = null;
+    crowns001Mesh = null;
+promsMesh = null;
+proms2Mesh = null;
+    bottombooksMesh = null;
+idVideo = null;
+idTextureApplied = false;
+idVisible = false;
+pengMesh = null;
+webaboutMesh = null;
+    T = {};
+    angleMesh = null; ghostMesh = null; bauMesh = null; comikMesh = null; braceMesh = null;
+    quapMesh = null;
+katMesh = null; modolMesh = null; batzMesh = null; mrsMesh = null; finMesh = null;
+crownsMesh = null; marysMesh = null; swimmernudeMesh = null; swimyMesh = null; 
+lesorMesh = null; pinkMesh = null; clockMesh = null; rickMesh = null; handzMesh = null;
+webMesh = null; usacatMesh = null; russiaMesh = null; usesMesh = null; gildMesh = null;
+tauMesh = null; batMesh = null; lobMesh = null; catsMesh = null; myles_4Mesh = null;
+dadaMesh = null; botchMesh = null; libMesh = null; angelsMesh = null; whaleMesh = null;
+shotdownMesh = null; snowyMesh = null; motherMesh = null; brahMesh = null; bandMesh = null;
+ageMesh = null; chapMesh = null; luvMesh = null; tamMesh = null; guyMesh = null;
+smithMesh = null; handsMesh = null; hartMesh = null; hodgeMesh = null; amieMesh = null;
+ditchMesh = null; transMesh = null; goodbyeMesh = null; gardMesh = null; scrapsMesh = null;
+beergirlMesh = null; pointMesh = null; schauMesh = null; humpMesh = null; boyyMesh = null;
+dentMesh = null; burMesh = null; stoleMesh = null; bookMesh = null; stepMesh = null;
+deadMesh = null; tellmeMesh = null; sneksMesh = null; dryMesh = null; gardeMesh = null;
+parkingMesh = null; bugMesh = null; wedMesh = null; lizMesh = null;
+dinosaurTextureApplied = false;
+    endlessWindowMesh = null;
+    wrightMesh = null;
+vampMesh = null;
+couchMesh = null;
+riotMesh = null;
+cakeMesh = null;
+    letMesh = null;
+radioVideo = null;
+radioTextureApplied = false;
+radioVisible = false;
+endlessWindowVisible = false;
+endlessWindowVideo = null;
+endlessWindowTextureApplied = false;
+    armatureAction = null;
+    meshAction001 = null;
+armaturePlaying = false;
+    hairdoMesh = null;
+    laceMesh = null;
+laceVideo = null;
+    doorAction = null;
+doorOpen = false;
+haltMesh = null;
+forktallVideo = null;
+forktallTextureApplied = false;
+forktallVisible = false;
+    medcoinMesh = null;
+    essaysMesh = null;
+laceTextureApplied = false;
+  laceVisible = false;
+    closetDoorAction = null;
+    mirrorsMesh = null;
+mirrorVideo = null;
+mirrorTextureApplied = false;
+mirrorVisible = false;
+closetDoorOpen = false;
+pinklampAction = null;
+bluelamponAction = null;
+bluelampoffAction = null;
+wrestlerAction = null;
+    hwabouMesh = null;
+ingredMesh = null;
+zinenoteM = null;
+contextMesh = null;
+scotMesh = null;
+brainSoHotMesh = null;
+brainSoHotLoaded = false;
+creatureMesh = null;
+    usacat001Mesh = null;
+creatureLoaded = false;
+page6Mesh = null;
+goodmorningMesh = null;
+charlotte001Mesh = null;
+flyMesh = null;
+    blankMesh = null;
+boyMesh = null;
+babyMesh = null;
+warholMesh = null;
+diana001Mesh = null;
+zine001Mesh = null;
+joanMesh = null;    
+sculptureMesh = null;    
+pinkme001Mesh = null;
+nun001Mesh = null;
+westonMesh = null;
+bwlambMesh = null;
+cardMesh = null;
+handshakeMesh = null;
+memorial001Mesh = null;
+artificeMesh = null;
+bluegirlMesh = null;
+frame001Mesh = null;
+dinosaurphoneMesh = null;
+    wavesMesh = null;
+horsesMesh = null;
+nightMesh = null;
+hareMesh = null;
+verMesh = null;
+bokesbMesh = null;
+diana5Mesh = null;
+
+hairMesh = null;
+lennonMesh = null;
+eyeballzMesh = null;
+rightbooks1Mesh = null;
+kleeVideo = null;
+kleeTextureApplied = false;
+kleeVisible = false;
+nimroMesh = null;
+roseMesh = null;
+matchMesh = null;
+diana4Mesh = null;
+brooksMesh = null;
+bridgeMesh = null;
+tatMesh = null;
+parentsMesh = null;
+bobMesh = null;
+momdadMesh = null;
+    
+    gltfLoader.load(glbUrl, function(gltf) {
+  var model = gltf.scene;
+  model.scale.setScalar(10);
+      gltf.animations.forEach(function(clip) {
+  console.log('ANIMATION:', clip.name);
+  clip.tracks.forEach(function(track) {
+    console.log('  TRACK:', track.name);
+  });
+});
+
+  base = 'https://raw.githubusercontent.com/hwrules189-commits/room/main/';
+  function pt(url, mesh) {
+    if (T[url]) { mesh.material = new THREE.MeshBasicMaterial({map:T[url],side:THREE.DoubleSide}); return; }
+    new THREE.TextureLoader().load(base + url, function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; T[url]=t; mesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); });
+  }
+
+  var meshMap = {
+    'waves':'wave.png', 'hwabou':'hwis.jpg',
+'ingred':'ingredients.jpg',
+'zinenote':'zine.png',
+'context':'outofcontent.png', 'christmas':'christmas.png',
+'loon001':'loon.png',
+'plots001':'plots.png',
+    'crowns001':'page1.png',
+'emt':'emmett.png',
+'proms':'prom.png',
+'proms2':'prom2.png',
+'peng':'penguin.png',
+'webabout':'websiteaboutpageresume.png',
+'scot':'scotland.png','hairdo':'hair.png','ver':'me.png','bookesb':'esb.png', 'quap':'que.png', 'essays':'essay.png',
+    'diana5':'diana.png','medcoin':'coin.jpg','hair':'hair2.png','lennon':'john.png',
+    'eyeballz':'eye.png','horses':'horses.png','night':'knight.png','hare':'celeb.png',
+    'nimro':'myles.png','rose':'rose.png','match':'match.png','diana4':'dianaa.png',
+    'brooks':'louise2.png','bridge':'brucke.png','tat':'tattoo.png','parents':'amish.png',
+    'bob':'bob.png','momdad':'christmas.png','angle':'angel.png','ghost':'owl.png',
+    'bau':'bauhaus.png','comik':'comic.png','brace':'braces.png','kat':'clown.png',
+    'modol':'model.png','batz':'bats.png','mrs':'duchamp.png','fin':'hyvon.jpg',
+    'crowns':'crown.png','marys':'pray.png','swimmernude':'nude2.png','swimy':'swim.png',
+    'lesor':'leseur.png','pink':'pinkguy.png','clock':'wheel.png','rick':'ricky.png',
+    'handz':'hand.png','web':'website.png','usacat001':'usa.png','russia':'mary.png',
+    'uses':'manyuses.png','gild':'gilda.png','tau':'tauwetter.png','bat':'bats2.png',
+    'lob':'lobster.png','cats':'tiger.png','myles_4':'myles2.png','dada':'dad.png',
+    'botch':'bosch.png','lib':'lib.png','angels':'slutangel.png','whale':'duchamb.png',
+    'shotdown':'shot.png','snowy':'snow2.png','mother':'lange.png','brah':'braces.png',
+    'band':'banjo.png','age':'age.png','chap':'que.png','luv':'ily.png',
+    'tam':'tamayo.png','guy':'guy.png','smith':'patti.png','hands':'hands.png',
+    'hart':'catch.png','hodge':'queen.png','amie':'amy.png','ditch':'finland.png',
+    'trans':'sich.png','gard':'garda.png','scraps':'junk.png',
+    'beergirl':'beer.png','point':'pointilism.png','schau':'schauspielhaus.png',
+    'hump':'bogart.png','boyy':'girlboy.png','dent':'dentist.png','bur':'berlin.png',
+    'stole':'snow.png','book':'blanket.png','step':'2step.png','dead':'bird.png',
+    'tellme':'hey.png','sneks':'sneaks.png','dry':'vinyl.png','garde':'mondrian.png',
+    'parking':'ticket.png','bug':'woman.png','wed':'wedding.png','liz':'honor.png',
+    'goodmorning':'printer.png','memorial001':'memorial.png','artifice':'artifice.png',
+    'bluegirl':'blue.png','frame001':'frame.png','dinosaurphone':'dinosaur%20phone.JPG',
+    'charlotte001':'charlotte.png','fly':'fly.png','diana001':'dina.png',
+    'zine001':'zine2.png','joan':'joan.png','sculpture':'sculp.png',
+    'pinkme001':'pinkme.png','nun001':'nun.png','weston':'weston.png',
+    'bwlamb':'lamb.png','card':'card.png','handshake':'HANDSHAKE.png',
+    'page_6':'page6.png','creature001':'creature.png','brain_so_hot':'brainsohot.png',
+    'wright':'maryw.png','vamp':'blankets.png','couch':'nude.png','riot':'riot.png',
+    'cake':'birth.png','blank':'blanket.png','boy':'wolf.png','baby':'wriston.png',
+    'warhol':'club.png'
+  };
+
+  var meshVarMap = {
+    'essays':function(o){essaysMesh=o;}, 'christmas':function(o){christmasMesh=o;},
+'loon001':function(o){loon001Mesh=o;},
+'plots001':function(o){plots001Mesh=o;},
+'emt':function(o){emtMesh=o;}, 'crowns001':function(o){crowns001Mesh=o;},
+'proms':function(o){promsMesh=o;},
+'proms2':function(o){proms2Mesh=o;},
+'peng':function(o){pengMesh=o;},
+'webabout':function(o){webaboutMesh=o;},
+    'hwabou':function(o){hwabouMesh=o;},
+'ingred':function(o){ingredMesh=o;},
+'zinenote':function(o){zinenoteM=o;},
+'context':function(o){contextMesh=o;},
+'scot':function(o){scotMesh=o;},
+    'waves':function(o){wavesMesh=o;},'hairdo':function(o){hairdoMesh=o;},
+    'quap':function(o){quapMesh=o;},
+    'ver':function(o){verMesh=o;},'bookesb':function(o){bokesbMesh=o;},
+    'diana5':function(o){diana5Mesh=o;},'medcoin':function(o){medcoinMesh=o;},
+    'hair':function(o){hairMesh=o;},'lennon':function(o){lennonMesh=o;},
+    'eyeballz':function(o){eyeballzMesh=o;},'horses':function(o){horsesMesh=o;},
+    'night':function(o){nightMesh=o;},'hare':function(o){hareMesh=o;},
+    'nimro':function(o){nimroMesh=o;},'rose':function(o){roseMesh=o;},
+    'match':function(o){matchMesh=o;},'diana4':function(o){diana4Mesh=o;},
+    'brooks':function(o){brooksMesh=o;},'bridge':function(o){bridgeMesh=o;},
+    'tat':function(o){tatMesh=o;},'parents':function(o){parentsMesh=o;},
+    'bob':function(o){bobMesh=o;},'momdad':function(o){momdadMesh=o;},
+    'angle':function(o){angleMesh=o;},'ghost':function(o){ghostMesh=o;},
+    'bau':function(o){bauMesh=o;},'comik':function(o){comikMesh=o;},
+    'brace':function(o){braceMesh=o;},'kat':function(o){katMesh=o;},
+    'modol':function(o){modolMesh=o;},'batz':function(o){batzMesh=o;},
+    'mrs':function(o){mrsMesh=o;},'fin':function(o){finMesh=o;},
+    'crowns':function(o){crownsMesh=o;},'marys':function(o){marysMesh=o;},
+    'swimmernude':function(o){swimmernudeMesh=o;},'swimy':function(o){swimyMesh=o;},
+    'lesor':function(o){lesorMesh=o;},'pink':function(o){pinkMesh=o;},
+    'clock':function(o){clockMesh=o;},'rick':function(o){rickMesh=o;},
+    'handz':function(o){handzMesh=o;},'web':function(o){webMesh=o;},
+    'usacat001':function(o){usacat001Mesh=o;},'russia':function(o){russiaMesh=o;},
+    'uses':function(o){usesMesh=o;},'gild':function(o){gildMesh=o;},
+    'tau':function(o){tauMesh=o;},'bat':function(o){batMesh=o;},
+    'lob':function(o){lobMesh=o;},'cats':function(o){catsMesh=o;},
+    'myles_4':function(o){myles_4Mesh=o;},'dada':function(o){dadaMesh=o;},
+    'botch':function(o){botchMesh=o;},'lib':function(o){libMesh=o;},
+    'angels':function(o){angelsMesh=o;},'whale':function(o){whaleMesh=o;},
+    'shotdown':function(o){shotdownMesh=o;},'snowy':function(o){snowyMesh=o;},
+    'mother':function(o){motherMesh=o;},'brah':function(o){brahMesh=o;},
+    'band':function(o){bandMesh=o;},'age':function(o){ageMesh=o;},
+    'chap':function(o){chapMesh=o;},'luv':function(o){luvMesh=o;},
+    'tam':function(o){tamMesh=o;},'guy':function(o){guyMesh=o;},
+    'smith':function(o){smithMesh=o;},'hands':function(o){handsMesh=o;},
+    'hart':function(o){hartMesh=o;},'hodge':function(o){hodgeMesh=o;},
+    'amie':function(o){amieMesh=o;},'ditch':function(o){ditchMesh=o;},
+    'trans':function(o){transMesh=o;},'goodbye':function(o){goodbyeMesh=o;},
+    'gard':function(o){gardMesh=o;},'scraps':function(o){scrapsMesh=o;},
+    'beergirl':function(o){beergirlMesh=o;},'point':function(o){pointMesh=o;},
+    'schau':function(o){schauMesh=o;},'hump':function(o){humpMesh=o;},
+    'boyy':function(o){boyyMesh=o;},'dent':function(o){dentMesh=o;},
+    'bur':function(o){burMesh=o;},'stole':function(o){stoleMesh=o;},
+    'book':function(o){bookMesh=o;},'step':function(o){stepMesh=o;},
+    'dead':function(o){deadMesh=o;},'tellme':function(o){tellmeMesh=o;},
+    'sneks':function(o){sneksMesh=o;},'dry':function(o){dryMesh=o;},
+    'garde':function(o){gardeMesh=o;},'parking':function(o){parkingMesh=o;},
+    'bug':function(o){bugMesh=o;},'wed':function(o){wedMesh=o;},
+    'liz':function(o){lizMesh=o;},'goodmorning':function(o){goodmorningMesh=o;},
+    'memorial001':function(o){memorial001Mesh=o;},'artifice':function(o){artificeMesh=o;},
+    'bluegirl':function(o){bluegirlMesh=o;},'frame001':function(o){frame001Mesh=o;},
+    'dinosaurphone':function(o){dinosaurphoneMesh=o;},'charlotte001':function(o){charlotte001Mesh=o;},
+    'fly':function(o){flyMesh=o;},'diana001':function(o){diana001Mesh=o;},
+    'zine001':function(o){zine001Mesh=o;},'joan':function(o){joanMesh=o;},
+    'sculpture':function(o){sculptureMesh=o;},'pinkme001':function(o){pinkme001Mesh=o;},
+    'nun001':function(o){nun001Mesh=o;},'weston':function(o){westonMesh=o;},
+    'bwlamb':function(o){bwlambMesh=o;},'card':function(o){cardMesh=o;},
+    'handshake':function(o){handshakeMesh=o;},'page_6':function(o){page6Mesh=o;},
+    'creature001':function(o){creatureMesh=o;},'brain_so_hot':function(o){brainSoHotMesh=o;},
+    'wright':function(o){wrightMesh=o;},'vamp':function(o){vampMesh=o;},
+    'couch':function(o){couchMesh=o;},'riot':function(o){riotMesh=o;},
+    'cake':function(o){cakeMesh=o;},'blank':function(o){blankMesh=o;},
+    'boy':function(o){boyMesh=o;},'baby':function(o){babyMesh=o;},
+    'warhol':function(o){warholMesh=o;}
+  };
+
+  gltf.scene.traverse(function(obj) {
+    if (obj.name === 'Empty') obj.scale.set(0.011, 0.011, 0.011);
+    if (obj.name === 'lamp001') lamp001 = obj;
+    if (obj.name === 'lamp002') lamp002 = obj;
+    if (obj.name === 'tweet') { tweetMesh = obj; obj.visible = false; new THREE.TextureLoader().load(base + 'nard.png', function(t) { t.flipY=false; t.encoding=THREE.sRGBEncoding; tweetMesh.material=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}); }); }
+    if (obj.name === 'rightbooks1') {
+  rightbooks1Mesh = obj;
+  obj.visible = false;
+  kleeVideo = document.createElement('video');
+  kleeVideo.loop = true;
+  kleeVideo.muted = true;
+  kleeVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/klee.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { kleeVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'goodbye') {
+  goodbyeMesh = obj;
+  obj.visible = false;
+  new THREE.TextureLoader().load(base + 'goodbye.png', function(t) {
+    t.flipY = false;
+    t.encoding = THREE.sRGBEncoding;
+    obj.material = new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide });
+  });
+}
+    if (obj.name === 'bottombooks') {
+  bottombooksMesh = obj;
+  obj.visible = false;
+  idVideo = document.createElement('video');
+  idVideo.loop = true;
+  idVideo.muted = true;
+  idVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/id.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { idVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'mirrors') {
+  mirrorsMesh = obj;
+  obj.visible = false;
+  mirrorVideo = document.createElement('video');
+  mirrorVideo.loop = true;
+  mirrorVideo.muted = true;
+  mirrorVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/mirror.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { mirrorVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'let') {
+  letMesh = obj;
+  obj.visible = false;
+  radioVideo = document.createElement('video');
+  radioVideo.loop = true;
+  radioVideo.muted = true;
+  radioVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/radio.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) { radioVideo.src = URL.createObjectURL(blob); });
+}
+    if (obj.name === 'skycatz') {
+  skycatzMesh = obj;
+  obj.visible = false;
+  skycatVideo = document.createElement('video');
+  skycatVideo.loop = true;
+  skycatVideo.muted = true;
+  skycatVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/skycat.mp4')
+    .then(function(r){return r.blob();})
+    .then(function(blob){skycatVideo.src=URL.createObjectURL(blob);});
+}
+
+    if (obj.name === 'eye1') {
+  eye1Mesh = obj;
+  obj.visible = false;
+  lioneyeVideo = document.createElement('video');
+  lioneyeVideo.loop = true;
+  lioneyeVideo.muted = true;
+  lioneyeVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lioneye.mp4')
+    .then(function(r){return r.blob();})
+    .then(function(blob){lioneyeVideo.src=URL.createObjectURL(blob);});
+}
+if (obj.name === 'eye2') { eye2Mesh = obj; obj.visible = false; }
+if (obj.name === 'eye3') { eye3Mesh = obj; obj.visible = false; }
+    if (obj.name === 'halt') {
+  haltMesh = obj;
+  forktallVideo = document.createElement('video');
+  forktallVideo.loop = true;
+  forktallVideo.muted = true;
+  forktallVideo.playsInline = true;
+  fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/forktall.mp4')
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      forktallVideo.src = URL.createObjectURL(blob);
+      forktallVideo.addEventListener('canplay', function h() {
+        forktallVideo.removeEventListener('canplay', h);
+        var videoTexture = new THREE.VideoTexture(forktallVideo);
+        videoTexture.flipY = false;
+        videoTexture.encoding = THREE.LinearEncoding;
+        obj.material = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
+        forktallVideo.play();
+      });
+    });
+}
+    if (obj.name === 'endlesswindow') { endlessWindowMesh = obj; obj.visible = false; endlessWindowVideo = document.createElement('video'); endlessWindowVideo.loop = true; endlessWindowVideo.muted = true; endlessWindowVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/window1.mp4').then(function(r){return r.blob();}).then(function(blob){endlessWindowVideo.src=URL.createObjectURL(blob);}); }
+    if (obj.name === 'lace') { laceMesh = obj; obj.visible = false; laceVideo = document.createElement('video'); laceVideo.loop = true; laceVideo.muted = true; laceVideo.playsInline = true; fetch('https://raw.githubusercontent.com/hwrules189-commits/room/main/lace.mp4').then(function(r){return r.blob();}).then(function(blob){laceVideo.src=URL.createObjectURL(blob);}); }
+    if (obj.name === 'dinosaur001') { dinosaurMesh = obj; obj.visible = false; dinosaurVideo = document.createElement('video'); dinosaurVideo.loop = true; dinosaurVideo.muted = true; dinosaurVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/dinosaur.mp4').then(function(r){return r.blob();}).then(function(blob){dinosaurVideo.src=URL.createObjectURL(blob);}); }
+    if (obj.name === 'cereal') { cerealScreenMesh = obj; obj.visible = false; cerealVideo = document.createElement('video'); cerealVideo.loop = true; cerealVideo.muted = true; cerealVideo.playsInline = true; fetch('https://hwrules189-commits.github.io/room/cereal.mp4').then(function(r){return r.blob();}).then(function(blob){cerealVideo.src=URL.createObjectURL(blob);}); }
+
+    if (meshMap[obj.name]) {
+      if (meshVarMap[obj.name]) meshVarMap[obj.name](obj);
+      obj.visible = false;
+      pt(meshMap[obj.name], obj);
+    }
+  });
+
+  scene.add(model);
+setTimeout(function() { hintEl.style.opacity = '1'; }, 500);
+  model.traverse(function(obj) {
+    if (obj.isMesh) {
+      obj.frustumCulled = false;
+      if (obj.material && obj.material.transparent === false) obj.renderOrder = 0;
+    }
+  });
+
+  if (lamp001) lamp001.visible = true;
+if (lamp002) lamp002.visible = false;
+scene.traverse(function(obj) {
+  if (obj.name === 'bluelampon') obj.visible = false;
+  if (obj.name === 'bluelampoff') obj.visible = true;
+});
+
+  if (lamp001 && lamp002) {
+    var b1 = new THREE.Box3().setFromObject(lamp001);
+    var b2 = new THREE.Box3().setFromObject(lamp002);
+    var combined = b1.union(b2);
+    var hSize = combined.getSize(new THREE.Vector3());
+    var hCenter = combined.getCenter(new THREE.Vector3());
+    lampHitbox = new THREE.Mesh(
+      new THREE.BoxGeometry(hSize.x, hSize.y, hSize.z),
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    lampHitbox.position.copy(hCenter);
+    scene.add(lampHitbox);
+  }
+
+  if (gltf.animations.length > 0) {
+    mixer = new THREE.AnimationMixer(gltf.scene);
+    gltf.animations.forEach(function(clip) {
+      if (clip.name.toLowerCase().includes('door') || clip.name.toLowerCase().includes('closet')) {
+        var filteredTracks = clip.tracks.filter(function(track) {
+          var trackObjName = track.name.split('.')[0];
+          if (trackObjName !== 'door_closet_right') return false;
+          if (track.name.endsWith('.position')) { var initialY = track.values[1]; for (var i = 1; i < track.values.length; i += 3) { track.values[i] = initialY; } }
+          return true;
+        });
+        var filteredClip = new THREE.AnimationClip(clip.name, clip.duration, filteredTracks);
+        doorAction = mixer.clipAction(filteredClip);
+        doorAction.clampWhenFinished = true;
+        doorAction.loop = THREE.LoopOnce;
+      }
+      if (clip.name === 'right side windowAction') { rightWindowAction = mixer.clipAction(clip); rightWindowAction.clampWhenFinished = true; rightWindowAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'left side windowAction') { leftWindowAction = mixer.clipAction(clip); leftWindowAction.clampWhenFinished = true; leftWindowAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'windowzAction.001') {
+  windowzAction = mixer.clipAction(clip);
+  windowzAction.clampWhenFinished = true;
+  windowzAction.loop = THREE.LoopOnce;
+}
+      if (clip.name === 'ArmatureAction.001') { armatureAction = mixer.clipAction(clip); armatureAction.clampWhenFinished = true; armatureAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'meshAction.001') { meshAction001 = mixer.clipAction(clip); meshAction001.clampWhenFinished = true; meshAction001.loop = THREE.LoopOnce; }
+      if (clip.name === 'closet doorAction') { closetDoorAction = mixer.clipAction(clip); closetDoorAction.clampWhenFinished = true; closetDoorAction.loop = THREE.LoopOnce; }
+      if (clip.name === 'pinklampAction') { pinklampAction = mixer.clipAction(clip); pinklampAction.loop = THREE.LoopRepeat; pinklampAction.play(); }
+      if (clip.name === 'bluelamponAction.002') { bluelamponAction = mixer.clipAction(clip); bluelamponAction.loop = THREE.LoopRepeat; bluelamponAction.play(); }
+      if (clip.name === 'bluelampoffAction') { bluelampoffAction = mixer.clipAction(clip); bluelampoffAction.loop = THREE.LoopRepeat; bluelampoffAction.play(); }
+      if (clip.name === 'wrestlerAction.001') { wrestlerAction = mixer.clipAction(clip); wrestlerAction.loop = THREE.LoopRepeat; wrestlerAction.play(); }
+    if (clip.name === 'doorAction.001') {
+  doorAction = mixer.clipAction(clip);
+  doorAction.clampWhenFinished = true;
+  doorAction.loop = THREE.LoopOnce;
+}
+    });
+  }
+
+  var box = new THREE.Box3().setFromObject(model);
+  var center = box.getCenter(new THREE.Vector3());
+  var size = box.getSize(new THREE.Vector3());
+  camera.position.set(2.006, 8.582, 1.142);
+camYaw = 1.190;
+camPitch = -0.120;
+SPEED = size.x * 0.01;
+
+// Save the true opening state after all default visibility settings are applied.
+initialObjectStates = [];
+scene.traverse(function(obj) {
+  if (obj !== scene) {
+    initialObjectStates.push({
+      object: obj,
+      visible: obj.visible,
+      position: obj.position.clone(),
+      rotation: obj.rotation.clone(),
+      quaternion: obj.quaternion.clone(),
+      scale: obj.scale.clone()
+    });
+  }
+});
+initialCameraPosition = camera.position.clone();
+initialCamYaw = camYaw;
+initialCamPitch = camPitch;
+hintEl.style.opacity = '1';
+restartInactivityTimer();
+
+}, null, function(err) { console.error(err); });
+  }
+
+  function loadPuppet() {
+    var toRemove = [];
+    scene.traverse(function(obj) { if (!obj.isScene) toRemove.push(obj); });
+    toRemove.forEach(function(obj) { scene.remove(obj); });
+    if (mixer) { mixer.stopAllAction(); mixer = null; }
+
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://hwrules189-commits.github.io/room/puppet.html';
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:50;';
+    document.body.appendChild(iframe);
+  }
+
+loadRoom('https://raw.githubusercontent.com/hwrules189-commits/room/main/room12.glb');
+
+// Track opened objects after the canvas click logic has toggled their visibility.
+document.addEventListener('click', function() {
+  restartInactivityTimer();
+  setTimeout(function() {
+    initialObjectStates.forEach(function(state) {
+      var obj = state.object;
+      if (!obj || !obj.isMesh || state.visible || !obj.visible) return;
+      if (!openedItems.some(function(item) { return item.object === obj; })) {
+        openedItems.push({ object: obj, openedAt: Date.now() });
+      }
+    });
+    // Keep only one revealed object open; close the oldest first.
+    while (openedItems.length > MAX_OPEN_ITEMS) {
+      var oldest = openedItems.shift();
+      if (oldest && oldest.object) oldest.object.visible = false;
+    }
+    // Drop objects that have since been closed manually.
+    openedItems = openedItems.filter(function(item) {
+      return item.object && item.object.visible;
+    });
+  }, 0);
+}, false);
+
+  renderer.domElement.addEventListener('click', function(e) {
+    if (currentRoom !== 'room12') return;
+    if (mouseHasMoved) return;
+
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    var all = [];
+scene.traverse(function(obj) { if (obj.isMesh && obj.visible) all.push(obj); });
+    var intersects = raycaster.intersectObjects(all, true);
+    if (intersects.length === 0) return;
+
+    var hit = intersects[0].object;
+    
+
+console.log('clicked:', hit.name, 'parents:', hit.parent && hit.parent.name, hit.parent && hit.parent.parent && hit.parent.parent.name);
+    var lampClicked = hit === lampHitbox;
+if (!lampClicked) {
+  var p = hit;
+  while (p) {
+    if (p.name === 'lamp001' || p.name === 'lamp002' || 
+        p.name === 'bluelampoff' || p.name === 'bluelampon' ||
+        p.name === 'lamp001_1' || p.name === 'lamp002_1' ||
+        p.name === 'lamp001' || p.name === 'lamp002' || p.name === 'bluelampoff' || p.name === 'bluelampon' || p.name === 'lamp001_1' || p.name === 'lamp002_1') { 
+      lampClicked = true; break;
+    }
+    p = p.parent;
+  }
+}
+if (lampClicked) {
+  lampOn = !lampOn;
+  scene.traverse(function(obj) {
+    if (obj.name === 'lamp001' || obj.name === 'bluelampoff') obj.visible = lampOn;
+    if (obj.name === 'lamp002' || obj.name === 'bluelampon') obj.visible = !lampOn;
+  });
+  return;
+}
+
+    var obj = hit;
+    while (obj) {
+      if (obj.name === 'cerealMesh_2') {
+        toggleCereal();
+        return;
+      }
+      obj = obj.parent;
+    }
+
+    var obj2 = hit;
+    while (obj2) {
+      if (obj2.name === 'wrestler' || obj2.name === 'wrestler') {
+        currentRoom = 'puppet';
+        loadPuppet();
+        return;
+      }
+      obj2 = obj2.parent;
+    }
+    var dresserObj = hit;
+while (dresserObj) {
+  if (dresserObj.name === 'dresser') {
+    showLace();
+    return;
+  }
+  dresserObj = dresserObj.parent;
+}
+    var doorObj = hit;
+while (doorObj) {
+  if (doorObj.name === 'door' || doorObj.name === 'halt') {
+    if (doorAction) {
+      if (!doorOpen) {
+        doorAction.reset();
+        doorAction.timeScale = 1;
+        doorAction.play();
+      } else {
+        doorAction.paused = false;
+        doorAction.timeScale = -1;
+        doorAction.play();
+      }
+      doorOpen = !doorOpen;
+    }
+    if (doorOpen) {
+      if (haltMesh) haltMesh.visible = true;
+      if (forktallVideo) {
+        forktallVideo.readyState >= 2 ? forktallVideo.play() : forktallVideo.addEventListener('canplay', function h() { forktallVideo.removeEventListener('canplay', h); forktallVideo.play(); });
+      }
+    } else {
+      setTimeout(function() {
+        if (haltMesh) haltMesh.visible = false;
+        if (forktallVideo) forktallVideo.pause();
+      }, 4000);
+    }
+    return;
+  }
+  doorObj = doorObj.parent;
+}
+    var lacetopObj = hit;
+while (lacetopObj) {
+  if (lacetopObj.name === 'lacetop') {
+    window.open('https://docs.google.com/viewer?url=https://raw.githubusercontent.com/hwrules189-commits/room/main/Otti%20Berger%20and%20the%20Bauhaus%20Revolutionary%20Fibers.pdf', '_blank');
+    return;
+  }
+  lacetopObj = lacetopObj.parent;
+}
+    var topleftbookObj = hit;
+while (topleftbookObj) {
+  if (topleftbookObj.name === 'topleftbook') {
+    window.open('https://docs.google.com/viewer?url=https://raw.githubusercontent.com/hwrules189-commits/room/main/Religion%2C%20Technology%20and%20Consumerism%20in%20God.pdf', '_blank');
+    return;
+  }
+  topleftbookObj = topleftbookObj.parent;
+}
+    var outObj = hit; while (outObj) { if (outObj.name === 'out' || outObj.name === 'let') { toggleLet(); return; } outObj = outObj.parent; }
+    var mirrorObj = hit; while (mirrorObj) { if (mirrorObj.name === 'mirror' || mirrorObj.name === 'mirrors') { toggleMirrors(); return; } mirrorObj = mirrorObj.parent; }
+    var page1Obj = hit; while (page1Obj) { if (page1Obj.name === 'page1' || page1Obj.name === 'crowns001') { toggleCrowns001(); return; } page1Obj = page1Obj.parent; }
+    var polaroid001Obj = hit; while (polaroid001Obj) { if (polaroid001Obj.name === 'polaroid001' || polaroid001Obj.name === 'christmas') { toggleChristmas(); return; } polaroid001Obj = polaroid001Obj.parent; }
+var loonObj = hit; while (loonObj) { if (loonObj.name === 'loon' || loonObj.name === 'loon001') { toggleLoon001(); return; } loonObj = loonObj.parent; }
+var plotsObj = hit; while (plotsObj) { if (plotsObj.name === 'plots' || plotsObj.name === 'plots001') { togglePlots001(); return; } plotsObj = plotsObj.parent; }
+var emmettcardObj = hit; while (emmettcardObj) { if (emmettcardObj.name === 'emmettcard' || emmettcardObj.name === 'emt') { toggleEmt(); return; } emmettcardObj = emmettcardObj.parent; }
+var promObj = hit; while (promObj) { if (promObj.name === 'prom' || promObj.name === 'proms') { toggleProms(); return; } promObj = promObj.parent; }
+var prom2Obj = hit; while (prom2Obj) { if (prom2Obj.name === 'prom2' || prom2Obj.name === 'proms2') { toggleProms2(); return; } prom2Obj = prom2Obj.parent; }
+var penguinObj = hit; while (penguinObj) { if (penguinObj.name === 'penguin' || penguinObj.name === 'peng') { togglePeng(); return; } penguinObj = penguinObj.parent; }
+var doorstopObj = hit; while (doorstopObj) { if (doorstopObj.name === 'doorstop' || doorstopObj.name === 'webabout') { toggleWebabout(); return; } doorstopObj = doorstopObj.parent; }
+var pinklampObj = hit; while (pinklampObj) { if (pinklampObj.name === 'pinklamp') { toggleLioneye(); return; } pinklampObj = pinklampObj.parent; }
+var windowzObj = hit;
+while (windowzObj) {
+  if (windowzObj.name === 'windowz' || windowzObj.name === 'skycatz') {
+    if (windowzAction) {
+      if (!windowzOpen) { windowzAction.reset(); windowzAction.timeScale = 1; windowzAction.play(); }
+      else { windowzAction.paused = false; windowzAction.timeScale = -1; windowzAction.play(); }
+      windowzOpen = !windowzOpen;
+    }
+    showSkycat();
+    return;
+  }
+  windowzObj = windowzObj.parent;
+}
+    var bottombookObj = hit; while (bottombookObj) { if (bottombookObj.name === 'bottombook' || bottombookObj.name === 'bottombooks') { toggleBottombooks(); return; } bottombookObj = bottombookObj.parent; }
+    var essayObj = hit; while (essayObj) { if (essayObj.name === 'essay' || essayObj.name === 'essays') { toggleEssays(); return; } essayObj = essayObj.parent; }
+    var rightbook1Obj = hit; while (rightbook1Obj) { if (rightbook1Obj.name === 'rightbook1' || rightbook1Obj.name === 'rightbooks1') { toggleRightbooks1(); return; } rightbook1Obj = rightbook1Obj.parent; }
+    var quapoObj = hit; while (quapoObj) { if (quapoObj.name === 'quapo' || quapoObj.name === 'quap') { toggleQuap(); return; } quapoObj = quapoObj.parent; }
+    var horseyObj = hit; while (horseyObj) { if (horseyObj.name === 'horsey' || horseyObj.name === 'horses') { toggleHorses(); return; } horseyObj = horseyObj.parent; }
+var scaryObj = hit; while (scaryObj) { if (scaryObj.name === 'scary' || scaryObj.name === 'blank') { toggleBlank(); return; } scaryObj = scaryObj.parent; }
+var wolfObj = hit; while (wolfObj) { if (wolfObj.name === 'wolf' || wolfObj.name === 'boy') { toggleBoy(); return; } wolfObj = wolfObj.parent; }
+var wristonObj = hit; while (wristonObj) { if (wristonObj.name === 'wriston' || wristonObj.name === 'baby') { toggleBaby(); return; } wristonObj = wristonObj.parent; }
+var club47Obj = hit; while (club47Obj) { if (club47Obj.name === 'club47' || club47Obj.name === 'warhol') { toggleWarhol(); return; } club47Obj = club47Obj.parent; }
+    var knightObj = hit; while (knightObj) { if (knightObj.name === 'knight' || knightObj.name === 'night') { toggleNight(); return; } knightObj = knightObj.parent; }
+var hairupObj = hit; while (hairupObj) { if (hairupObj.name === 'hairup' || hairupObj.name === 'hare') { toggleHare(); return; } hairupObj = hairupObj.parent; }
+var curlersObj = hit; while (curlersObj) { if (curlersObj.name === 'curlers' || curlersObj.name === 'hairdo') { toggleHairdo(); return; } curlersObj = curlersObj.parent; }
+    var harkObj = hit; while (harkObj) { if (harkObj.name === 'hark' || harkObj.name === 'angle') { toggleAngle(); return; } harkObj = harkObj.parent; }
+var ghostsObj = hit; while (ghostsObj) { if (ghostsObj.name === 'ghosts' || ghostsObj.name === 'ghost') { toggleGhost(); return; } ghostsObj = ghostsObj.parent; }
+var pinitekObj = hit; while (pinitekObj) { if (pinitekObj.name === 'pinotek' || pinitekObj.name === 'bau') { toggleBau(); return; } pinitekObj = pinitekObj.parent; }
+var comicObj = hit; while (comicObj) { if (comicObj.name === 'comic' || comicObj.name === 'comik') { toggleComik(); return; } comicObj = comicObj.parent; }
+var braces2Obj = hit; while (braces2Obj) { if (braces2Obj.name === 'braces2' || braces2Obj.name === 'brace') { toggleBrace(); return; } braces2Obj = braces2Obj.parent; }
+var catObj = hit; while (catObj) { if (catObj.name === 'cat' || catObj.name === 'kat') { toggleKat(); return; } catObj = catObj.parent; }
+var poseObj = hit; while (poseObj) { if (poseObj.name === 'pose' || poseObj.name === 'modol') { toggleModol(); return; } poseObj = poseObj.parent; }
+var boybatObj = hit; while (boybatObj) { if (boybatObj.name === 'boybat' || boybatObj.name === 'batz') { toggleBatz(); return; } boybatObj = boybatObj.parent; }
+var marcelObj = hit; while (marcelObj) { if (marcelObj.name === 'marcel' || marcelObj.name === 'mrs') { toggleMrs(); return; } marcelObj = marcelObj.parent; }
+var hyvonObj = hit; while (hyvonObj) { if (hyvonObj.name === 'hyvon' || hyvonObj.name === 'fin') { toggleFin(); return; } hyvonObj = hyvonObj.parent; }
+var crownObj = hit; while (crownObj) { if (crownObj.name === 'crown' || crownObj.name === 'crowns') { toggleCrowns(); return; } crownObj = crownObj.parent; }
+var marybwObj = hit; while (marybwObj) { if (marybwObj.name === 'marybw' || marybwObj.name === 'marys') { toggleMarys(); return; } marybwObj = marybwObj.parent; }
+var swimladyObj = hit; while (swimladyObj) { if (swimladyObj.name === 'swimlady' || swimladyObj.name === 'swimmernude') { toggleSwimmernude(); return; } swimladyObj = swimladyObj.parent; }
+var swimmersObj = hit; while (swimmersObj) { if (swimmersObj.name === 'swimmers' || swimmersObj.name === 'swimy') { toggleSwimy(); return; } swimmersObj = swimmersObj.parent; }
+var coinObj = hit; while (coinObj) { if (coinObj.name === 'coin' || coinObj.name === 'medcoin') { toggleMedcoin(); return; } coinObj = coinObj.parent; }
+var lesuerObj = hit; while (lesuerObj) { if (lesuerObj.name === 'lesuer' || lesuerObj.name === 'lesor') { toggleLesor(); return; } lesuerObj = lesuerObj.parent; }
+var pinkguyObj = hit; while (pinkguyObj) { if (pinkguyObj.name === 'pinkguy' || pinkguyObj.name === 'pink') { togglePink(); return; } pinkguyObj = pinkguyObj.parent; }
+var wheelObj = hit; while (wheelObj) { if (wheelObj.name === 'wheel' || wheelObj.name === 'clock') { toggleClock(); return; } wheelObj = wheelObj.parent; }
+var rickyObj = hit; while (rickyObj) { if (rickyObj.name === 'ricky' || rickyObj.name === 'rick') { toggleRick(); return; } rickyObj = rickyObj.parent; }
+var handObj = hit; while (handObj) { if (handObj.name === 'hand' || handObj.name === 'handz') { toggleHandz(); return; } handObj = handObj.parent; }
+var websiteObj = hit; while (websiteObj) { if (websiteObj.name === 'website' || websiteObj.name === 'web') { toggleWeb(); return; } websiteObj = websiteObj.parent; }
+var usacatObj = hit; while (usacatObj) { if (usacatObj.name === 'usacat' || usacatObj.name === 'usacat001') { toggleUsacat(); return; } usacatObj = usacatObj.parent; }
+var russianmaryObj = hit; while (russianmaryObj) { if (russianmaryObj.name === 'russianmary' || russianmaryObj.name === 'russia') { toggleRussia(); return; } russianmaryObj = russianmaryObj.parent; }
+var handusesObj = hit; while (handusesObj) { if (handusesObj.name === 'handuses' || handusesObj.name === 'uses') { toggleUses(); return; } handusesObj = handusesObj.parent; }
+var ritaObj = hit; while (ritaObj) { if (ritaObj.name === 'rita' || ritaObj.name === 'gild') { toggleGild(); return; } ritaObj = ritaObj.parent; }
+var tauwitterObj = hit; while (tauwitterObj) { if (tauwitterObj.name === 'tauwetter' || tauwitterObj.name === 'tau') { toggleTau(); return; } tauwitterObj = tauwitterObj.parent; }
+var batsObj = hit; while (batsObj) { if (batsObj.name === 'bats' || batsObj.name === 'bat') { toggleBat(); return; } batsObj = batsObj.parent; }
+var lobsterObj = hit; while (lobsterObj) { if (lobsterObj.name === 'lobster' || lobsterObj.name === 'lob') { toggleLob(); return; } lobsterObj = lobsterObj.parent; }
+var tigerObj = hit; while (tigerObj) { if (tigerObj.name === 'tiger' || tigerObj.name === 'cats') { toggleCats(); return; } tigerObj = tigerObj.parent; }
+var apdObj = hit; while (apdObj) { if (apdObj.name === 'apd' || apdObj.name === 'myles_4') { toggleMyles_4(); return; } apdObj = apdObj.parent; }
+var dadObj = hit; while (dadObj) { if (dadObj.name === 'dad' || dadObj.name === 'dada') { toggleDada(); return; } dadObj = dadObj.parent; }
+var boschObj = hit; while (boschObj) { if (boschObj.name === 'bosch' || boschObj.name === 'botch') { toggleBotch(); return; } boschObj = boschObj.parent; }
+var libertyObj = hit; while (libertyObj) { if (libertyObj.name === 'liberty' || libertyObj.name === 'lib') { toggleLib(); return; } libertyObj = libertyObj.parent; }
+var angelObj = hit; while (angelObj) { if (angelObj.name === 'angel' || angelObj.name === 'angels') { toggleAngels(); return; } angelObj = angelObj.parent; }
+var duchampObj = hit; while (duchampObj) { if (duchampObj.name === 'duchamp' || duchampObj.name === 'whale') { toggleWhale(); return; } duchampObj = duchampObj.parent; }
+var shotObj = hit; while (shotObj) { if (shotObj.name === 'shot' || shotObj.name === 'shotdown') { toggleShotdown(); return; } shotObj = shotObj.parent; }
+var snowObj = hit; while (snowObj) { if (snowObj.name === 'snow' || snowObj.name === 'snowy') { toggleSnowy(); return; } snowObj = snowObj.parent; }
+var langeObj = hit; while (langeObj) { if (langeObj.name === 'lange' || langeObj.name === 'mother') { toggleMother(); return; } langeObj = langeObj.parent; }
+var bracesObj = hit; while (bracesObj) { if (bracesObj.name === 'braces' || bracesObj.name === 'brah') { toggleBrah(); return; } bracesObj = bracesObj.parent; }
+var gmaObj = hit; while (gmaObj) { if (gmaObj.name === 'gma' || gmaObj.name === 'band') { toggleBand(); return; } gmaObj = gmaObj.parent; }
+var antiagingObj = hit; while (antiagingObj) { if (antiagingObj.name === 'antiaging' || antiagingObj.name === 'age') { toggleAge(); return; } antiagingObj = antiagingObj.parent; }
+var ilyObj = hit; while (ilyObj) { if (ilyObj.name === 'ily' || ilyObj.name === 'luv') { toggleLuv(); return; } ilyObj = ilyObj.parent; }
+var birdObj = hit; while (birdObj) { if (birdObj.name === 'bird' || birdObj.name === 'tweet') { toggleTweet(); return; } birdObj = birdObj.parent; }
+var jasperObj = hit; while (jasperObj) { if (jasperObj.name === 'jasper' || jasperObj.name === 'tam') { toggleTam(); return; } jasperObj = jasperObj.parent; }
+var almondObj = hit; while (almondObj) { if (almondObj.name === 'almond' || almondObj.name === 'guy') { toggleGuy(); return; } almondObj = almondObj.parent; }
+var pattiObj = hit; while (pattiObj) { if (pattiObj.name === 'patti' || pattiObj.name === 'smith') { toggleSmith(); return; } pattiObj = pattiObj.parent; }
+var handsupObj = hit; while (handsupObj) { if (handsupObj.name === 'handsup' || handsupObj.name === 'hands') { toggleHands(); return; } handsupObj = handsupObj.parent; }
+var catchObj = hit; while (catchObj) { if (catchObj.name === 'catch' || catchObj.name === 'hart') { toggleHart(); return; } catchObj = catchObj.parent; }
+var podgeObj = hit; while (podgeObj) { if (podgeObj.name === 'podge' || podgeObj.name === 'hodge') { toggleHodge(); return; } podgeObj = podgeObj.parent; }
+var queenamyObj = hit; while (queenamyObj) { if (queenamyObj.name === 'queenamy' || queenamyObj.name === 'amie') { toggleAmie(); return; } queenamyObj = queenamyObj.parent; }
+var finlandObj = hit; while (finlandObj) { if (finlandObj.name === 'finland' || finlandObj.name === 'ditch') { toggleDitch(); return; } finlandObj = finlandObj.parent; }
+var bookmarkObj = hit; while (bookmarkObj) { if (bookmarkObj.name === 'bookmark' || bookmarkObj.name === 'trans') { toggleTrans(); return; } bookmarkObj = bookmarkObj.parent; }
+var zineObj = hit; while (zineObj) { if (zineObj.name === 'zine') { toggleGoodbye(); return; } zineObj = zineObj.parent; }
+var goodbyeObj = hit; while (goodbyeObj) { if (goodbyeObj.name === 'goodbye') { toggleGoodbye(); return; } goodbyeObj = goodbyeObj.parent; }
+var gardaObj = hit; while (gardaObj) { if (gardaObj.name === 'garda' || gardaObj.name === 'gard') { toggleGard(); return; } gardaObj = gardaObj.parent; }
+var idkObj = hit; while (idkObj) { if (idkObj.name === 'idk' || idkObj.name === 'scraps') { toggleScraps(); return; } idkObj = idkObj.parent; }
+var beerObj = hit; while (beerObj) { if (beerObj.name === 'beer' || beerObj.name === 'beergirl') { toggleBeergirl(); return; } beerObj = beerObj.parent; }
+var pointilismObj = hit; while (pointilismObj) { if (pointilismObj.name === 'pointilism' || pointilismObj.name === 'point') { togglePoint(); return; } pointilismObj = pointilismObj.parent; }
+var schausObj = hit; while (schausObj) { if (schausObj.name === 'schaus' || schausObj.name === 'schau') { toggleSchau(); return; } schausObj = schausObj.parent; }
+var bogartObj = hit; while (bogartObj) { if (bogartObj.name === 'bogart' || bogartObj.name === 'hump') { toggleHump(); return; } bogartObj = bogartObj.parent; }
+var girlandguyObj = hit; while (girlandguyObj) { if (girlandguyObj.name === 'girlandguy' || girlandguyObj.name === 'boyy') { toggleBoyy(); return; } girlandguyObj = girlandguyObj.parent; }
+var dentistObj = hit; while (dentistObj) { if (dentistObj.name === 'dentist' || dentistObj.name === 'dent') { toggleDent(); return; } dentistObj = dentistObj.parent; }
+var berlinObj = hit; while (berlinObj) { if (berlinObj.name === 'berlin' || berlinObj.name === 'bur') { toggleBur(); return; } berlinObj = berlinObj.parent; }
+var stolenObj = hit; while (stolenObj) { if (stolenObj.name === 'stolen' || stolenObj.name === 'stole') { toggleStole(); return; } stolenObj = stolenObj.parent; }
+var blanketsObj = hit; while (blanketsObj) { if (blanketsObj.name === 'blankets' || blanketsObj.name === 'book') { toggleBook(); return; } blanketsObj = blanketsObj.parent; }
+var twostepObj = hit; while (twostepObj) { if (twostepObj.name === 'twostep' || twostepObj.name === 'step') { toggleStep(); return; } twostepObj = twostepObj.parent; }
+var cemetaryObj = hit; while (cemetaryObj) { if (cemetaryObj.name === 'cemetary' || cemetaryObj.name === 'dead') { toggleDead(); return; } cemetaryObj = cemetaryObj.parent; }
+var hotstuffObj = hit; while (hotstuffObj) { if (hotstuffObj.name === 'hotstuff' || hotstuffObj.name === 'tellme') { toggleTellme(); return; } hotstuffObj = hotstuffObj.parent; }
+var sneaksObj = hit; while (sneaksObj) { if (sneaksObj.name === 'sneaks' || sneaksObj.name === 'sneks') { toggleSneks(); return; } sneaksObj = sneaksObj.parent; }
+var tinObj = hit; while (tinObj) { if (tinObj.name === 'tin' || tinObj.name === 'dry') { toggleDry(); return; } tinObj = tinObj.parent; }
+var avantObj = hit; while (avantObj) { if (avantObj.name === 'avant' || avantObj.name === 'garde') { toggleGarde(); return; } avantObj = avantObj.parent; }
+var ticketObj = hit; while (ticketObj) { if (ticketObj.name === 'ticket' || ticketObj.name === 'parking') { toggleParking(); return; } ticketObj = ticketObj.parent; }
+var amyObj = hit; while (amyObj) { if (amyObj.name === 'amy' || amyObj.name === 'bug') { toggleBug(); return; } amyObj = amyObj.parent; }
+var weddingObj = hit; while (weddingObj) { if (weddingObj.name === 'wedding' || weddingObj.name === 'wed') { toggleWed(); return; } weddingObj = weddingObj.parent; }
+var honorObj = hit; while (honorObj) { if (honorObj.name === 'honor' || honorObj.name === 'liz') { toggleLiz(); return; } honorObj = honorObj.parent; }
+var laceObj = hit;
+var deskObj = hit;
+while (deskObj) {
+  if (deskObj.name === 'desk') {
+    toggleHwabou();
+    toggleIngred();
+    toggleZinenote();
+    toggleContext();
+    toggleScot();
+    return;
+  }
+  deskObj = deskObj.parent;
+}
+var hwabouObj = hit; while (hwabouObj) { if (hwabouObj.name === 'hwabou') { toggleHwabou(); return; } hwabouObj = hwabouObj.parent; }
+var ingredObj = hit; while (ingredObj) { if (ingredObj.name === 'ingred') { toggleIngred(); return; } ingredObj = ingredObj.parent; }
+var zinenoteObj = hit; while (zinenoteObj) { if (zinenoteObj.name === 'zinenote') { toggleZinenote(); return; } zinenoteObj = zinenoteObj.parent; }
+var contextObj = hit; while (contextObj) { if (contextObj.name === 'context') { toggleContext(); return; } contextObj = contextObj.parent; }
+var scotObj = hit; while (scotObj) { if (scotObj.name === 'scot') { toggleScot(); return; } scotObj = scotObj.parent; }    
+var marywrightObj = hit; while (marywrightObj) { if (marywrightObj.name === 'marywright' || marywrightObj.name === 'wright') { toggleWright(); return; } marywrightObj = marywrightObj.parent; }
+var vampireObj = hit; while (vampireObj) { if (vampireObj.name === 'vampire' || vampireObj.name === 'vamp') { toggleVamp(); return; } vampireObj = vampireObj.parent; }
+var nudeObj = hit; while (nudeObj) { if (nudeObj.name === 'nude' || nudeObj.name === 'couch') { toggleCouch(); return; } nudeObj = nudeObj.parent; }
+var pussyriotObj = hit; while (pussyriotObj) { if (pussyriotObj.name === 'pussyriot' || pussyriotObj.name === 'riot') { toggleRiot(); return; } pussyriotObj = pussyriotObj.parent; }
+var birthdayObj = hit; while (birthdayObj) { if (birthdayObj.name === 'birthday' || birthdayObj.name === 'cake') { toggleCake(); return; } birthdayObj = birthdayObj.parent; }
+    
+while (laceObj) {
+  if (laceObj.name === 'lace') {
+    showLace();
+    return;
+  }
+  laceObj = laceObj.parent;
+}
+    var dadprinterObj = hit;
+while (dadprinterObj) {
+  if (dadprinterObj.name === 'dadprinter' || dadprinterObj.name === 'goodmorning') { toggleGoodmorning(); return; }
+  dadprinterObj = dadprinterObj.parent;
+}
+var charlotteObj = hit;
+while (charlotteObj) {
+  if (charlotteObj.name === 'charlotte' || charlotteObj.name === 'charlotte001') { toggleCharlotte001(); return; }
+  charlotteObj = charlotteObj.parent;
+}
+var collageObj = hit;
+while (collageObj) {
+  if (collageObj.name === 'collage' || collageObj.name === 'fly') { toggleFly(); return; }
+  collageObj = collageObj.parent;
+}
+var dianaObj = hit;
+while (dianaObj) {
+  if (dianaObj.name === 'diana2' || dianaObj.name === 'diana001') { toggleDiana001(); return; }
+  dianaObj = dianaObj.parent;
+}
+    var sculptureObj = hit;
+while (sculptureObj) {
+  if (sculptureObj.name === 'pamphlet' || sculptureObj.name === 'sculpture') { togglesculpture(); return; }
+  sculptureObj = sculptureObj.parent;
+}
+var milwaukeeObj = hit;
+while (milwaukeeObj) {
+  if (milwaukeeObj.name === 'milwaukee' || milwaukeeObj.name === 'zine001') { toggleZine001(); return; }
+  milwaukeeObj = milwaukeeObj.parent;
+}
+    var facesObj = hit;
+while (facesObj) {
+  if (facesObj.name === '4faces' || facesObj.name === 'joan') { togglejoan(); return; }
+  facesObj = facesObj.parent;
+}
+    var mythObj = hit; while (mythObj) { if (mythObj.name === 'myth' || mythObj.name === 'waves') { toggleWaves(); return; } mythObj = mythObj.parent; }
+
+var vrObj = hit; while (vrObj) { if (vrObj.name === 'vr' || vrObj.name === 'ver') { toggleVer(); return; } vrObj = vrObj.parent; }
+var esrObj = hit; while (esrObj) { if (esrObj.name === 'esr' || esrObj.name === 'bookesb') { toggleBokesb(); return; } esrObj = esrObj.parent; }
+var charlesObj = hit; while (charlesObj) { if (charlesObj.name === 'charles' || charlesObj.name === 'diana5') { toggleDiana5(); return; } charlesObj = charlesObj.parent; }
+var hairadObj = hit; while (hairadObj) { if (hairadObj.name === 'hairad' || hairadObj.name === 'hair') { toggleHair(); return; } hairadObj = hairadObj.parent; }
+var johnlennonObj = hit; while (johnlennonObj) { if (johnlennonObj.name === 'johnlennon' || johnlennonObj.name === 'lennon') { toggleLennon(); return; } johnlennonObj = johnlennonObj.parent; }
+var faceObj = hit; while (faceObj) { if (faceObj.name === 'face' || faceObj.name === 'eyeballz') { toggleEyeballz(); return; } faceObj = faceObj.parent; }
+
+var nimrodObj = hit; while (nimrodObj) { if (nimrodObj.name === 'nimrod' || nimrodObj.name === 'nimro') { toggleNimro(); return; } nimrodObj = nimrodObj.parent; }
+var heartObj = hit; while (heartObj) { if (heartObj.name === 'heart' || heartObj.name === 'rose') { toggleRose(); return; } heartObj = heartObj.parent; }
+var boxObj = hit; while (boxObj) { if (boxObj.name === 'box' || boxObj.name === 'match') { toggleMatch(); return; } boxObj = boxObj.parent; }
+var diana3Obj = hit; while (diana3Obj) { if (diana3Obj.name === 'diana3' || diana3Obj.name === 'diana4') { toggleDiana4(); return; } diana3Obj = diana3Obj.parent; }
+var louiseObj = hit; while (louiseObj) { if (louiseObj.name === 'louise' || louiseObj.name === 'brooks') { toggleBrooks(); return; } louiseObj = louiseObj.parent; }
+var bruckeObj = hit; while (bruckeObj) { if (bruckeObj.name === 'brucke' || bruckeObj.name === 'bridge') { toggleBridge(); return; } bruckeObj = bruckeObj.parent; }
+var tattooObj = hit; while (tattooObj) { if (tattooObj.name === 'tattoo' || tattooObj.name === 'tat') { toggleTat(); return; } tattooObj = tattooObj.parent; }
+var amishObj = hit; while (amishObj) { if (amishObj.name === 'amish' || amishObj.name === 'parents') { toggleParents(); return; } amishObj = amishObj.parent; }
+var dylanObj = hit; while (dylanObj) { if (dylanObj.name === 'dylan' || dylanObj.name === 'bob') { toggleBob(); return; } dylanObj = dylanObj.parent; }
+var polaroidObj = hit; while (polaroidObj) { if (polaroidObj.name === 'polaroid' || polaroidObj.name === 'momdad') { toggleMomdad(); return; } polaroidObj = polaroidObj.parent; }
+var nunObj = hit; while (nunObj) { if (nunObj.name === 'nun' || nunObj.name === 'nun001') { togglenun001(); return; } nunObj = nunObj.parent; }
+    
+    var pinkmeObj = hit;
+while (pinkmeObj) {
+  if (pinkmeObj.name === 'pinkme' || pinkmeObj.name === 'pinkme001') { togglepinkme001(); return; }
+  pinkmeObj = pinkmeObj.parent;
+}
+    var nunObj = hit;
+while (nunObj) {
+  if (nunObj.name === 'nun' || nunObj.name === 'nun001') { togglenun001(); return; }
+  nunObj = nunObj.parent;
+}
+    var sherryObj = hit;
+while (sherryObj) {
+  if (sherryObj.name === 'sherry' || sherryObj.name === 'weston') { toggleweston(); return; }
+  sherryObj = sherryObj.parent;
+}
+    var lambObj = hit;
+while (lambObj) {
+  if (lambObj.name === 'lamb' || lambObj.name === 'bwlamb') { togglebwlamb(); return; }
+  lambObj = lambObj.parent;
+}
+    var elyseObj = hit;
+while (elyseObj) {
+  if (elyseObj.name === 'elyse' || elyseObj.name === 'card') { togglecard(); return; }
+  elyseObj = elyseObj.parent;
+}
+    var shakeObj = hit;
+while (shakeObj) {
+  if (shakeObj.name === 'shake' || shakeObj.name === 'handshake') { togglehandshake(); return; }
+  shakeObj = shakeObj.parent;
+}
+    var memorialObj = hit;
+while (memorialObj) {
+  if (memorialObj.name === 'memorial' || memorialObj.name === 'memorial001') { toggleMemorial001(); return; }
+  memorialObj = memorialObj.parent;
+}
+var cleverObj = hit;
+while (cleverObj) {
+  if (cleverObj.name === 'clever' || cleverObj.name === 'artifice') { toggleArtifice(); return; }
+  cleverObj = cleverObj.parent;
+}
+var blueObj = hit;
+while (blueObj) {
+  if (blueObj.name === 'blue' || blueObj.name === 'bluegirl') { toggleBluegirl(); return; }
+  blueObj = blueObj.parent;
+}
+var frameObj = hit;
+while (frameObj) {
+  if (frameObj.name === 'frame' || frameObj.name === 'frame001') { toggleFrame001(); return; }
+  frameObj = frameObj.parent;
+}
+var dinogirlObj = hit;
+while (dinogirlObj) {
+  if (dinogirlObj.name === 'dinogirl' || dinogirlObj.name === 'dinosaurphone') { toggleDinosaurphone(); return; }
+  dinogirlObj = dinogirlObj.parent;
+}
+   
+// CLOSET DOOR CLICK
+var doorObj = hit;
+
+while (doorObj) {
+
+  if (doorObj.name === 'door_closet_right') {
+
+    if (doorAction) {
+
+      if (!doorOpen) {
+        doorAction.reset();
+        doorAction.timeScale = 1;
+        doorAction.play();
+      } else {
+        doorAction.paused = false;
+        doorAction.timeScale = -1;
+        doorAction.play();
+      }
+
+      doorOpen = !doorOpen;
+
+    }
+
+    return;
+  }
+  
+
+  doorObj = doorObj.parent;
+}
+    var obj3 = hit;
+while (obj3) {
+  if (obj3.name === 'dinosaur' || obj3.name === 'dinosaur001') {
+    toggleDinosaur();
+    return;
+  }
+  obj3 = obj3.parent;
+}
+    var winObj = hit;
+while (winObj) {
+  if (winObj.name === 'right_side_window') {
+    if (rightWindowAction) {
+      if (!rightWindowOpen) {
+        rightWindowAction.reset();
+        rightWindowAction.timeScale = 1;
+        rightWindowAction.play();
+      } else {
+        rightWindowAction.paused = false;
+        rightWindowAction.timeScale = -1;
+        rightWindowAction.play();
+      }
+      rightWindowOpen = !rightWindowOpen;
+    }
+    showEndlessWindow();
+    return;
+  }
+  winObj = winObj.parent;
+}
+
+var winObj2 = hit;
+while (winObj2) {
+  if (winObj2.name === 'left_side_window') {
+    if (leftWindowAction) {
+      if (!leftWindowOpen) {
+        leftWindowAction.reset();
+        leftWindowAction.timeScale = 1;
+        leftWindowAction.play();
+      } else {
+        leftWindowAction.paused = false;
+        leftWindowAction.timeScale = -1;
+        leftWindowAction.play();
+      }
+      leftWindowOpen = !leftWindowOpen;
+    }
+    showEndlessWindow();
+    return;
+  }
+  winObj2 = winObj2.parent;
+}var bedObj = hit;
+while (bedObj) {
+  if (bedObj.name === 'bed') {
+    if (!armaturePlaying) {
+      if (armatureAction) { armatureAction.reset(); armatureAction.timeScale = 1; armatureAction.play(); }
+      if (meshAction001) { meshAction001.reset(); meshAction001.timeScale = 1; meshAction001.play(); }
+    } else {
+      if (armatureAction) { armatureAction.paused = false; armatureAction.timeScale = -1; armatureAction.play(); }
+      if (meshAction001) { meshAction001.paused = false; meshAction001.timeScale = -1; meshAction001.play(); }
+    }
+    armaturePlaying = !armaturePlaying;
+    return;
+  }
+  bedObj = bedObj.parent;
+
+}
+    var momdadObj = hit;
+while (momdadObj) {
+  if (momdadObj.name === 'momdad') {
+    togglePage6();
+    return;
+  }
+  momdadObj = momdadObj.parent;
+}
+
+var page6Obj = hit;
+while (page6Obj) {
+  if (page6Obj.name === 'page_6') {
+    togglePage6();
+    return;
+  }
+  page6Obj = page6Obj.parent;
+}
+    var closetObj = hit;
+while (closetObj) {
+  if (closetObj.name === 'closet_door') {
+    if (closetDoorAction) {
+      if (!closetDoorOpen) {
+        closetDoorAction.reset();
+        closetDoorAction.timeScale = 1;
+        closetDoorAction.play();
+      } else {
+        closetDoorAction.paused = false;
+        closetDoorAction.timeScale = -1;
+        closetDoorAction.play();
+      }
+      closetDoorOpen = !closetDoorOpen;
+    }
+    return;
+  }
+  closetObj = closetObj.parent;
+}
+    var outletObj = hit;
+while (outletObj) {
+  if (outletObj.name === 'outlet') {
+    toggleBrainSoHot();
+    return;
+  }
+  outletObj = outletObj.parent;
+}
+
+var brainObj = hit;
+while (brainObj) {
+  if (brainObj.name === 'brain_so_hot') {
+    toggleBrainSoHot();
+    return;
+  }
+  brainObj = brainObj.parent;
+}
+    var creatureClickObj = hit;
+while (creatureClickObj) {
+  if (creatureClickObj.name === 'creature') {
+    togglecreature();
+    return;
+  }
+  creatureClickObj = creatureClickObj.parent;
+}
+    var creatureImgObj = hit;
+while (creatureImgObj) {
+  if (creatureImgObj.name === 'creature001') {
+    togglecreature();
+    return;
+  }
+  creatureImgObj = creatureImgObj.parent;
+}
+  });
+var mouseDownPos = new THREE.Vector2();
+  var DRAG_THRESHOLD = 4; // pixels
+renderer.domElement.addEventListener('mousedown', function(e) {
+isDraggingCamera = true;
+mouseHasMoved = false;
+  mouseDownPos.set(e.clientX, e.clientY);
+    lastCamMouse.set(e.clientX, e.clientY);
+  });
+
+  renderer.domElement.addEventListener('mousemove', function(e) {
+  if (!isDraggingCamera) return;
+  var dx = (e.clientX - lastCamMouse.x) * 0.005;
+  var dy = (e.clientY - lastCamMouse.y) * 0.005;
+  // Compare total distance from where mouse originally went down
+  var pxDx = e.clientX - mouseDownPos.x;
+  var pxDy = e.clientY - mouseDownPos.y;
+  if (Math.abs(pxDx) > DRAG_THRESHOLD || Math.abs(pxDy) > DRAG_THRESHOLD) mouseHasMoved = true;
+  camYaw -= dx;
+  camPitch -= dy;
+  camPitch = Math.max(-Math.PI / 1.2, Math.min(Math.PI / 2, camPitch));
+  lastCamMouse.set(e.clientX, e.clientY); // still update lastCamMouse for smooth camera delta
+});
+
+  renderer.domElement.addEventListener('mouseup', function() { isDraggingCamera = false; });
+  renderer.domElement.addEventListener('mouseleave', function() { isDraggingCamera = false; });
+
+  var forward = new THREE.Vector3();
+  var right = new THREE.Vector3();
+  var keys = {};
+  document.addEventListener('keydown', function(e) {
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  keys[e.code] = true;
+});
+  document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    var delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+
+    camera.rotation.order = 'YXZ';
+    camera.rotation.y = camYaw;
+    camera.rotation.x = camPitch;
+
+   var prevPos = camera.position.clone();
+
+if (keys['ArrowUp']||keys['KeyW']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(SPEED); camera.position.add(forward); }
+if (keys['ArrowDown']||keys['KeyS']) { camera.getWorldDirection(forward); forward.y=0; forward.normalize().multiplyScalar(-SPEED); camera.position.add(forward); }
+if (keys['ArrowLeft']||keys['KeyA']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(-SPEED); camera.position.add(right); }
+if (keys['ArrowRight']||keys['KeyD']) { camera.getWorldDirection(forward); right.crossVectors(forward, camera.up).normalize().multiplyScalar(SPEED); camera.position.add(right); }
+
+if (camera.position.x < -12.3 || camera.position.x > 8.8 ||
+    camera.position.z < -9.6  || camera.position.z > 7.75) {
+  camera.position.copy(prevPos);
+}
+if (cerealScreenMesh && cerealScreenMesh.visible && cerealScreenMesh.material.map)
+  cerealScreenMesh.material.map.needsUpdate = true;
+if (dinosaurMesh && dinosaurMesh.visible && dinosaurMesh.material.map)
+dinosaurMesh.material.map.needsUpdate = true;
+   
+    renderer.render(scene, camera);
+    if (laceMesh && laceMesh.visible && laceMesh.material.map)
+  laceMesh.material.map.needsUpdate = true;
+    if (endlessWindowMesh && endlessWindowMesh.visible && endlessWindowMesh.material.map)
+  endlessWindowMesh.material.map.needsUpdate = true;
+    if (haltMesh && haltMesh.visible && haltMesh.material.map) haltMesh.material.map.needsUpdate = true;
+    if (rightbooks1Mesh && rightbooks1Mesh.visible && rightbooks1Mesh.material.map) rightbooks1Mesh.material.map.needsUpdate = true;
+    if (skycatzMesh && skycatzMesh.visible && skycatzMesh.material.map) skycatzMesh.material.map.needsUpdate = true;
+if (eye1Mesh && eye1Mesh.visible && eye1Mesh.material && eye1Mesh.material.map) eye1Mesh.material.map.needsUpdate = true;
+if (eye2Mesh && eye2Mesh.visible && eye2Mesh.material && eye2Mesh.material.map) eye2Mesh.material.map.needsUpdate = true;
+if (eye3Mesh && eye3Mesh.visible && eye3Mesh.material && eye3Mesh.material.map) eye3Mesh.material.map.needsUpdate = true;
+    if (bottombooksMesh && bottombooksMesh.visible && bottombooksMesh.material.map) bottombooksMesh.material.map.needsUpdate = true;
+    if (mirrorsMesh && mirrorsMesh.visible && mirrorsMesh.material.map) mirrorsMesh.material.map.needsUpdate = true;
+    if (letMesh && letMesh.visible && letMesh.material.map) letMesh.material.map.needsUpdate = true;
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})})});
+ 
+</script>
+</body>
+</html>
